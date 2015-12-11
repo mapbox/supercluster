@@ -1,0 +1,22 @@
+{
+  "name": "supercluster",
+  "version": "1.0.0",
+  "description": "A crazy fast geospatial point clustering library.",
+  "main": "index.js",
+  "scripts": {
+    "test": "eslint index.js"
+  },
+  "keywords": [],
+  "author": "Vladimir Agafonkin",
+  "license": "ISC",
+  "dependencies": {
+    "rbush": "^1.4.1"
+  },
+  "devDependencies": {
+    "eslint": "^1.10.3",
+    "eslint-config-mourner": "^1.0.1"
+  },
+  "eslintConfig": {
+    "extends": "mourner"
+  }
+}
