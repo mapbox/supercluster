@@ -4,7 +4,7 @@ A very fast JavaScript library for geospatial point clustering for browsers and 
 
 ```js
 var index = supercluster({
-    radius: 300,
+    radius: 40,
     maxZoom: 16
 });
 

@@ -10,23 +10,22 @@ function supercluster(options) {
 
 function SuperCluster(options) {
     options = this.options = extend(Object.create(this.options), options);
-    console.log('clustering radius %d of %d', options.radius, options.extent);
+    console.log('cluster radius %d', options.radius);
 
     this._initTrees();
 }
 
 SuperCluster.prototype = {
     options: {
-        nodeSize: 16, // size of the R-tree leaf node, affects performance
         maxZoom: 16,  // max zoom level to cluster the points on
-        radius: 300,  // cluster radius relative to tile extent
-        extent: 4096  // tile extent
+        radius: 40,   // cluster radius in pixels (assuming 512px tiles)
+        nodeSize: 16  // size of the R-tree leaf node, affects performance
     },
 
     load: function (points) {
         console.time('total time');
 
-        var timerId = 'prepared ' + points.length + ' points';
+        var timerId = 'prepare ' + points.length + ' points';
         console.time(timerId);
         // generate a cluster object for each point
         var clusters = points.map(projectPoint);
@@ -61,7 +60,7 @@ SuperCluster.prototype = {
         for (var i = 0; i < points.length; i++) {
             var point = points[i];
 
-            // if we've already visited the cluster at this zoom level, skip it
+            // if we've already visited the point at this zoom level, skip it
             if (point.zoom <= zoom) continue;
 
             point.zoom = zoom;
@@ -100,7 +99,7 @@ SuperCluster.prototype = {
     },
 
     _getNeighbors: function (p, zoom) {
-        var r = this.options.radius / (this.options.extent * Math.pow(2, zoom));
+        var r = this.options.radius / (512 * Math.pow(2, zoom));
 
         // find all nearby points with a bbox search
         var bboxNeighbors = this.trees[zoom].search([p.x - r, p.y - r, p.x + r, p.y + r]);
@@ -124,12 +123,10 @@ function projectPoint(p) {
     return createCluster(lngX(p[0]), latY(p[1]));
 }
 
-// longitude to spherical mercator x in [0..1] range
+// longitude/latitude to spherical mercator in [0..1] range
 function lngX(lng) {
     return lng / 360 + 0.5;
 }
-
-// latitude to spherical mercator y in [0..1] range
 function latY(lat) {
     var sin = Math.sin(lat * Math.PI / 180),
         y = (0.5 - 0.25 * Math.log((1 + sin) / (1 - sin)) / Math.PI);
@@ -139,17 +136,11 @@ function latY(lat) {
 
 function createCluster(x, y) {
     return {
-        // cluster center
-        x: x,
+        x: x, // cluster center
         y: y,
-
-        // weighted cluster center
-        wx: x,
+        wx: x, // weighted cluster center
         wy: y,
-
-        // the last zoom the cluster was processed at
-        zoom: Infinity,
-
+        zoom: Infinity, // the last zoom the cluster was processed at
         children: null
     };
 }
