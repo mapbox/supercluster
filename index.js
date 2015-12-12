@@ -9,14 +9,8 @@ function supercluster(options) {
 }
 
 function SuperCluster(options) {
-    this.options = Object.create(this.options);
-    for (var key in options) this.options[key] = options[key];
-    options = this.options;
-
+    options = this.options = extend(Object.create(this.options), options);
     console.log('clustering radius %d of %d', options.radius, options.extent);
-
-    var r = this._r = options.radius / (options.extent * Math.pow(2, options.maxZoom));
-    this._r2 = r * r;
 
     this._initTrees();
 }
@@ -36,15 +30,15 @@ SuperCluster.prototype = {
         console.timeEnd(timerId);
 
         console.time('total time');
-        for (var z = this.options.maxZoom; z > 0; z--) {
+        for (var z = this.options.maxZoom; z >= 0; z--) {
             clusters = this._cluster(clusters, z);
         }
         console.timeEnd('total time');
     },
 
     _initTrees: function () {
-        this.trees = [];
         var format = ['.x', '.y', '.x', '.y'];
+        this.trees = [];
         for (var z = 0; z <= this.options.maxZoom; z++) {
             this.trees[z] = rbush(this.options.nodeSize, format);
         }
@@ -56,7 +50,7 @@ SuperCluster.prototype = {
         var tree = this.trees[zoom].load(clusters);
 
         var newClusters = [];
-        var r = this._r;
+        var r = this.options.radius / (this.options.extent * Math.pow(2, zoom));
         var bbox = [0, 0, 0, 0];
 
         for (var i = 0; i < clusters.length; i++) {
@@ -83,7 +77,7 @@ SuperCluster.prototype = {
             for (var j = 0; j < neighbors.length; j++) {
                 var b = neighbors[j];
 
-                if (zoom < b.zoom && distSq(c, b) <= this._r2) {
+                if (zoom < b.zoom && distSq(c, b) <= r * r) {
                     b.zoom = zoom;
                     children.push(b);
                     wx += b.x;
@@ -96,7 +90,7 @@ SuperCluster.prototype = {
                 continue;
             }
 
-            var newCluster = cluster(children[0].x, children[0].y);
+            var newCluster = createCluster(children[0].x, children[0].y);
             newCluster.children = children;
             newCluster.wx = wx / children.length;
             newCluster.wy = wy / children.length;
@@ -104,23 +98,27 @@ SuperCluster.prototype = {
             newClusters.push(newCluster);
         }
 
-        console.log('clustered into %d clusters on z%d in %dms', newClusters.length, zoom, +Date.now() - now);
+        console.log('z%d: %d clusters in %dms', zoom, newClusters.length, +Date.now() - now);
         return newClusters;
     }
 };
 
 function projectPoint(p) {
-    var sin = Math.sin(p[1] * Math.PI / 180),
-        x = (p[0] / 360 + 0.5),
-        y = (0.5 - 0.25 * Math.log((1 + sin) / (1 - sin)) / Math.PI);
-
-    y = y < 0 ? 0 :
-        y > 1 ? 1 : y;
-
-    return cluster(x, y);
+    return createCluster(lngX(p[0]), latY(p[1]));
 }
 
-function cluster(x, y) {
+// longitude/latitude to spherical mercator in [0..1] range
+function lngX(lng) {
+    return lng / 360 + 0.5;
+}
+function latY(lat) {
+    var sin = Math.sin(lat * Math.PI / 180),
+        y = (0.5 - 0.25 * Math.log((1 + sin) / (1 - sin)) / Math.PI);
+    return y < 0 ? 0 :
+           y > 1 ? 1 : y;
+}
+
+function createCluster(x, y) {
     return {
         // cluster center
         x: x,
@@ -130,13 +128,21 @@ function cluster(x, y) {
         wx: x,
         wy: y,
 
+        // the last zoom the cluster was processed at
         zoom: Infinity,
+
         children: null
     };
 }
 
+// squared distance between two points
 function distSq(a, b) {
     var dx = a.x - b.x;
     var dy = a.y - b.y;
     return dx * dx + dy * dy;
+}
+
+function extend(dest, src) {
+    for (var id in src) dest[id] = src[id];
+    return dest;
 }
