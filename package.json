@@ -22,5 +22,6 @@
   },
   "eslintConfig": {
     "extends": "mourner"
-  }
+  },
+  "license": "ISC"
 }
