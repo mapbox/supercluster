@@ -6,7 +6,11 @@
   "scripts": {
     "test": "eslint index.js"
   },
-  "keywords": [],
+  "keywords": [
+    "clustering",
+    "geospatial",
+    "markers"
+  ],
   "author": "Vladimir Agafonkin",
   "license": "ISC",
   "dependencies": {
