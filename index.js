@@ -29,33 +29,45 @@ SuperCluster.prototype = {
 
         var timerId = 'prepare ' + points.length + ' points';
         console.time(timerId);
+
         // generate a cluster object for each point
-        var clusters = points.map(projectPoint);
+        var clusters = points.map(createPointCluster);
         console.timeEnd(timerId);
 
-        // cluster points on max zoom, then cluster the results on previous zoom, etc.
+        // cluster points on max zoom, then cluster the results on previous zoom, etc.;
         // results in a cluster hierarchy across zoom levels
         for (var z = this.options.maxZoom; z >= this.options.minZoom; z--) {
-            clusters = this._cluster(clusters, z);
+            var now = +Date.now();
+
+            this.trees[z + 1].load(clusters); // index input points into an R-tree
+            clusters = this._cluster(clusters, z); // create a new set of clusters for the zoom
+
+            console.log('z%d: %d clusters in %dms', z, clusters.length, +Date.now() - now);
         }
+        this.trees[this.options.minZoom].load(clusters); // index top-level clusters
+
         console.timeEnd('total time');
+
+        return this;
+    },
+
+    getClusters: function (bbox, zoom) {
+        var projBBox = [lngX(bbox[0]), latY(bbox[3]), lngX(bbox[2]), latY(bbox[1])];
+        var z = Math.max(this.options.minZoom, Math.min(zoom, this.options.maxZoom + 1));
+        var clusters = this.trees[z].search(projBBox);
+        return clusters.map(getCluster);
     },
 
     _initTrees: function () {
         var format = ['.x', '.y', '.x', '.y'];
         this.trees = [];
         // make an R-Tree index for each zoom level
-        for (var z = 0; z <= this.options.maxZoom; z++) {
+        for (var z = 0; z <= this.options.maxZoom + 1; z++) {
             this.trees[z] = rbush(this.options.nodeSize, format);
         }
     },
 
     _cluster: function (points, zoom) {
-        var now = +Date.now();
-
-        // load points into an R-tree of the zoom
-        this.trees[zoom].load(points);
-
         var clusters = [];
 
         // loop through each point
@@ -77,17 +89,20 @@ SuperCluster.prototype = {
 
             var wx = 0;
             var wy = 0;
+            var numPoints = point.numPoints;
 
             for (var j = 0; j < neighbors.length; j++) {
                 var b = neighbors[j];
                 b.zoom = zoom; // save the zoom (so it doesn't get processed twice)
                 wx += b.x; // accumulate coordinates for calculating weighted center
                 wy += b.y;
+                numPoints += b.numPoints;
             }
 
             // form a cluster with neighbors
             var cluster = createCluster(point.x, point.y);
-            cluster.neighbors = neighbors;
+            cluster.children = neighbors;
+            cluster.numPoints = numPoints;
 
             // save weighted cluster center for display
             cluster.wx = wx / neighbors.length;
@@ -96,7 +111,6 @@ SuperCluster.prototype = {
             clusters.push(cluster);
         }
 
-        console.log('z%d: %d clusters in %dms', zoom, clusters.length, +Date.now() - now);
         return clusters;
     },
 
@@ -104,7 +118,7 @@ SuperCluster.prototype = {
         var r = this.options.radius / (this.options.extent * Math.pow(2, zoom));
 
         // find all nearby points with a bbox search
-        var bboxNeighbors = this.trees[zoom].search([p.x - r, p.y - r, p.x + r, p.y + r]);
+        var bboxNeighbors = this.trees[zoom + 1].search([p.x - r, p.y - r, p.x + r, p.y + r]);
         if (bboxNeighbors.length === 0) return [];
 
         var neighbors = [];
@@ -121,8 +135,25 @@ SuperCluster.prototype = {
     }
 };
 
-function projectPoint(p) {
-    return createCluster(lngX(p[0]), latY(p[1]));
+function createPointCluster(p) {
+    var coords = p.geometry.coordinates;
+    var cluster = createCluster(lngX(coords[0]), latY(coords[1]));
+    cluster.point = p;
+    return cluster;
+}
+
+function getCluster(cluster) {
+    return cluster.point ? cluster.point : {
+        type: 'Feature',
+        properties: {
+            cluster: true,
+            numPoints: cluster.numPoints
+        },
+        geometry: {
+            type: 'Point',
+            coordinates: [xLng(cluster.wx), yLat(cluster.wy)]
+        }
+    };
 }
 
 // longitude/latitude to spherical mercator in [0..1] range
@@ -136,6 +167,15 @@ function latY(lat) {
            y > 1 ? 1 : y;
 }
 
+function xLng(x) {
+    return (x - 0.5) * 360;
+}
+
+function yLat(y) {
+    var y2 = (180 - y * 360) * Math.PI / 180;
+    return 360 * Math.atan(Math.exp(y2)) / Math.PI - 90;
+}
+
 function createCluster(x, y) {
     return {
         x: x, // cluster center
@@ -143,7 +183,9 @@ function createCluster(x, y) {
         wx: x, // weighted cluster center
         wy: y,
         zoom: Infinity, // the last zoom the cluster was processed at
-        children: null
+        children: null,
+        point: null,
+        numPoints: 1
     };
 }
 
