@@ -60,49 +60,59 @@ SuperCluster.prototype = {
     },
 
     _initTrees: function () {
-        var format = ['.x', '.y', '.x', '.y'];
         this.trees = [];
         // make an R-Tree index for each zoom level
         for (var z = 0; z <= this.options.maxZoom + 1; z++) {
-            this.trees[z] = rbush(this.options.nodeSize, format);
+            this.trees[z] = rbush(this.options.nodeSize);
+            this.trees[z].toBBox = toBBox;
+            this.trees[z].compareMinX = compareMinX;
+            this.trees[z].compareMinY = compareMinY;
         }
     },
 
     _cluster: function (points, zoom) {
         var clusters = [];
+        var r = this.options.radius / (this.options.extent * Math.pow(2, zoom));
+        var bbox = [0, 0, 0, 0];
 
         // loop through each point
         for (var i = 0; i < points.length; i++) {
-            var point = points[i];
-
+            var p = points[i];
             // if we've already visited the point at this zoom level, skip it
-            if (point.zoom <= zoom) continue;
+            if (p.zoom <= zoom) continue;
+            p.zoom = zoom;
 
-            point.zoom = zoom;
+            // find all nearby points with a bbox search
+            bbox[0] = p.x - r;
+            bbox[1] = p.y - r;
+            bbox[2] = p.x + r;
+            bbox[3] = p.y + r;
+            var bboxNeighbors = this.trees[zoom + 1].search(bbox);
 
-            // find unprocessed neighbors within a cluster radius
-            var neighbors = this._getNeighbors(point, zoom);
+            var foundNeighbors = false;
+            var numPoints = p.numPoints;
+            var wx = p.wx * numPoints;
+            var wy = p.wy * numPoints;
 
-            if (neighbors.length === 0) {
-                clusters.push(point); // no neighbors, add a single point as cluster
+            for (var j = 0; j < bboxNeighbors.length; j++) {
+                var b = bboxNeighbors[j];
+                // filter out neighbors that are too far or already processed
+                if (zoom < b.zoom && distSq(p, b) <= r * r) {
+                    foundNeighbors = true;
+                    b.zoom = zoom; // save the zoom (so it doesn't get processed twice)
+                    wx += b.wx * b.numPoints; // accumulate coordinates for calculating weighted center
+                    wy += b.wy * b.numPoints;
+                    numPoints += b.numPoints;
+                }
+            }
+
+            if (!foundNeighbors) {
+                clusters.push(p); // no neighbors, add a single point as cluster
                 continue;
             }
 
-            var numPoints = point.numPoints;
-            var wx = point.wx * numPoints;
-            var wy = point.wy * numPoints;
-
-            for (var j = 0; j < neighbors.length; j++) {
-                var b = neighbors[j];
-                b.zoom = zoom; // save the zoom (so it doesn't get processed twice)
-                wx += b.x * b.numPoints; // accumulate coordinates for calculating weighted center
-                wy += b.y * b.numPoints;
-                numPoints += b.numPoints;
-            }
-
             // form a cluster with neighbors
-            var cluster = createCluster(point.x, point.y);
-            cluster.children = neighbors;
+            var cluster = createCluster(p.x, p.y);
             cluster.numPoints = numPoints;
 
             // save weighted cluster center for display
@@ -113,28 +123,30 @@ SuperCluster.prototype = {
         }
 
         return clusters;
-    },
-
-    _getNeighbors: function (p, zoom) {
-        var r = this.options.radius / (this.options.extent * Math.pow(2, zoom));
-
-        // find all nearby points with a bbox search
-        var bboxNeighbors = this.trees[zoom + 1].search([p.x - r, p.y - r, p.x + r, p.y + r]);
-        if (bboxNeighbors.length === 0) return [];
-
-        var neighbors = [];
-
-        for (var j = 0; j < bboxNeighbors.length; j++) {
-            var b = bboxNeighbors[j];
-            // filter out neighbors that are too far or already processed
-            if (zoom < b.zoom && distSq(p, b) <= r * r) {
-                neighbors.push(b);
-            }
-        }
-
-        return neighbors;
     }
 };
+
+function toBBox(p) {
+    return [p.x, p.y, p.x, p.y];
+}
+function compareMinX(a, b) {
+    return a.x - b.x;
+}
+function compareMinY(a, b) {
+    return a.y - b.y;
+}
+
+function createCluster(x, y) {
+    return {
+        x: x, // cluster center
+        y: y,
+        wx: x, // weighted cluster center
+        wy: y,
+        zoom: Infinity, // the last zoom the cluster was processed at
+        point: null,
+        numPoints: 1
+    };
+}
 
 function createPointCluster(p) {
     var coords = p.geometry.coordinates;
@@ -175,19 +187,6 @@ function xLng(x) {
 function yLat(y) {
     var y2 = (180 - y * 360) * Math.PI / 180;
     return 360 * Math.atan(Math.exp(y2)) / Math.PI - 90;
-}
-
-function createCluster(x, y) {
-    return {
-        x: x, // cluster center
-        y: y,
-        wx: x, // weighted cluster center
-        wy: y,
-        zoom: Infinity, // the last zoom the cluster was processed at
-        children: null,
-        point: null,
-        numPoints: 1
-    };
 }
 
 // squared distance between two points
