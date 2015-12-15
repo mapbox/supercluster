@@ -9,9 +9,7 @@ function supercluster(options) {
 }
 
 function SuperCluster(options) {
-    options = this.options = extend(Object.create(this.options), options);
-    console.log('cluster radius: %dpx (on %dpx tiles)', options.radius, options.extent);
-
+    this.options = extend(Object.create(this.options), options);
     this._initTrees();
 }
 
@@ -21,18 +19,20 @@ SuperCluster.prototype = {
         maxZoom: 16,  // max zoom level to cluster the points on
         radius: 40,   // cluster radius in pixels
         extent: 512,  // tile extent (radius is calculated relative to it)
-        nodeSize: 16  // size of the R-tree leaf node, affects performance
+        nodeSize: 16, // size of the R-tree leaf node, affects performance
     },
 
     load: function (points) {
-        console.time('total time');
+        var log = this.options.log;
+
+        if (log) console.time('total time');
 
         var timerId = 'prepare ' + points.length + ' points';
-        console.time(timerId);
+        if (log) console.time(timerId);
 
         // generate a cluster object for each point
         var clusters = points.map(createPointCluster);
-        console.timeEnd(timerId);
+        if (log) console.timeEnd(timerId);
 
         // cluster points on max zoom, then cluster the results on previous zoom, etc.;
         // results in a cluster hierarchy across zoom levels
@@ -42,11 +42,11 @@ SuperCluster.prototype = {
             this.trees[z + 1].load(clusters); // index input points into an R-tree
             clusters = this._cluster(clusters, z); // create a new set of clusters for the zoom
 
-            console.log('z%d: %d clusters in %dms', z, clusters.length, +Date.now() - now);
+            if (log) console.log('z%d: %d clusters in %dms', z, clusters.length, +Date.now() - now);
         }
         this.trees[this.options.minZoom].load(clusters); // index top-level clusters
 
-        console.timeEnd('total time');
+        if (log) console.timeEnd('total time');
 
         return this;
     },
@@ -167,10 +167,10 @@ function latY(lat) {
            y > 1 ? 1 : y;
 }
 
+// spherical mercator to longitude/latitude
 function xLng(x) {
     return (x - 0.5) * 360;
 }
-
 function yLat(y) {
     var y2 = (180 - y * 360) * Math.PI / 180;
     return 360 * Math.atan(Math.exp(y2)) / Math.PI - 90;
