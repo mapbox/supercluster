@@ -20,6 +20,7 @@ SuperCluster.prototype = {
         radius: 40,   // cluster radius in pixels
         extent: 512,  // tile extent (radius is calculated relative to it)
         nodeSize: 16, // size of the R-tree leaf node, affects performance
+        log: false    // whether to log timing info
     },
 
     load: function (points) {
@@ -87,15 +88,15 @@ SuperCluster.prototype = {
                 continue;
             }
 
-            var wx = 0;
-            var wy = 0;
             var numPoints = point.numPoints;
+            var wx = point.wx * numPoints;
+            var wy = point.wy * numPoints;
 
             for (var j = 0; j < neighbors.length; j++) {
                 var b = neighbors[j];
                 b.zoom = zoom; // save the zoom (so it doesn't get processed twice)
-                wx += b.x; // accumulate coordinates for calculating weighted center
-                wy += b.y;
+                wx += b.x * b.numPoints; // accumulate coordinates for calculating weighted center
+                wy += b.y * b.numPoints;
                 numPoints += b.numPoints;
             }
 
@@ -105,8 +106,8 @@ SuperCluster.prototype = {
             cluster.numPoints = numPoints;
 
             // save weighted cluster center for display
-            cluster.wx = wx / neighbors.length;
-            cluster.wy = wy / neighbors.length;
+            cluster.wx = wx / numPoints;
+            cluster.wy = wy / numPoints;
 
             clusters.push(cluster);
         }
