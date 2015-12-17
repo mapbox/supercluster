@@ -83,10 +83,10 @@ SuperCluster.prototype = {
             p.zoom = zoom;
 
             // find all nearby points with a bbox search
-            bbox[0] = p.x - r;
-            bbox[1] = p.y - r;
-            bbox[2] = p.x + r;
-            bbox[3] = p.y + r;
+            bbox[0] = p.wx - r;
+            bbox[1] = p.wy - r;
+            bbox[2] = p.wx + r;
+            bbox[3] = p.wy + r;
             var bboxNeighbors = this.trees[zoom + 1].search(bbox);
 
             var foundNeighbors = false;
@@ -191,8 +191,8 @@ function yLat(y) {
 
 // squared distance between two points
 function distSq(a, b) {
-    var dx = a.x - b.x;
-    var dy = a.y - b.y;
+    var dx = a.wx - b.wx;
+    var dy = a.wy - b.wy;
     return dx * dx + dy * dy;
 }
 
