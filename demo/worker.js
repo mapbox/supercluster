@@ -9,6 +9,19 @@ var index;
 getJSON('../trees-na.json', function (trees) {
     console.log('loaded ' + trees.length + ' points JSON in ' + ((Date.now() - now) / 1000) + 's');
 
+    console.time('map to GeoJSON');
+    trees = trees.map(function (p) {
+        return {
+            type: 'Feature',
+            properties: {},
+            geometry: {
+                type: 'Point',
+                coordinates: p
+            }
+        };
+    });
+    console.timeEnd('map to GeoJSON');
+
     index = supercluster({
         log: true,
         radius: 60,

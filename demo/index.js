@@ -37,8 +37,9 @@ function update() {
 map.on('moveend', update);
 
 function createClusterIcon(feature, latlng) {
+    if (!feature.properties.cluster) return L.marker(latlng);
+
     var count = feature.properties.numPoints;
-    if (count === 1) return L.marker(latlng);
 
     var size = count < 10 ? 'small' : count < 100 ? 'medium' : 'large';
     var counth = count >= 10000 ? Math.round(count / 1000) + 'k' : count;
