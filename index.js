@@ -59,6 +59,37 @@ SuperCluster.prototype = {
         return clusters.map(getCluster);
     },
 
+    getTile: function (z, x, y) {
+        var z2 = Math.pow(2, z);
+        var extent = this.options.extent;
+        var p = this.options.radius / extent;
+        var clusters = this.trees[z].search([
+            (x - p) / z2,
+            (y - p) / z2,
+            (x + 1 + p) / z2,
+            (y + 1 + p) / z2
+        ]);
+        var tile = {
+            features: []
+        };
+        for (var i = 0; i < clusters.length; i++) {
+            var c = clusters[i];
+            var feature = {
+                type: 1,
+                geometry: [[
+                    Math.round(extent * (c.wx * z2 - x)),
+                    Math.round(extent * (c.wy * z2 - y))
+                ]],
+                tags: c.point ? c.point.properties : {
+                    cluster: true,
+                    numPoints: c.numPoints
+                }
+            };
+            tile.features.push(feature);
+        }
+        return tile;
+    },
+
     _initTrees: function () {
         this.trees = [];
         // make an R-Tree index for each zoom level
