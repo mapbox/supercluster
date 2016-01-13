@@ -82,7 +82,9 @@ SuperCluster.prototype = {
                 ]],
                 tags: c.point ? c.point.properties : {
                     cluster: true,
-                    numPoints: c.numPoints
+                    numPoints: c.numPoints,
+                    numPointsH: c.numPoints >= 10000 ? Math.round(c.numPoints / 1000) + 'k' :
+                                c.numPoints >= 1000 ? (Math.round(c.numPoints / 100) / 10) + 'k' : c.numPoints
                 }
             };
             tile.features.push(feature);
