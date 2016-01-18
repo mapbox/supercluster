@@ -1,5 +1,7 @@
 'use strict';
 
+// generate supercluster.js from the repo root with:
+// browserify index.js -s supercluster > demo/supercluster.js
 importScripts('supercluster.js');
 
 var now = Date.now();
@@ -28,6 +30,8 @@ getJSON('../trees-na.json', function (trees) {
         extent: 256,
         maxZoom: 17
     }).load(trees);
+
+    console.log(index.getTile(0, 0, 0));
 
     postMessage({ready: true});
 });

@@ -69,11 +69,13 @@ SuperCluster.prototype = {
             (x + 1 + p) / z2,
             (y + 1 + p) / z2
         ]);
+        if (!clusters.length) return null;
         var tile = {
             features: []
         };
         for (var i = 0; i < clusters.length; i++) {
             var c = clusters[i];
+            var count = c.numPoints;
             var feature = {
                 type: 1,
                 geometry: [[
@@ -82,9 +84,9 @@ SuperCluster.prototype = {
                 ]],
                 tags: c.point ? c.point.properties : {
                     cluster: true,
-                    numPoints: c.numPoints,
-                    numPointsH: c.numPoints >= 10000 ? Math.round(c.numPoints / 1000) + 'k' :
-                                c.numPoints >= 1000 ? (Math.round(c.numPoints / 100) / 10) + 'k' : c.numPoints
+                    numPoints: count,
+                    numPointsH: count >= 10000 ? Math.round(count / 1000) + 'k' :
+                                count >= 1000 ? (Math.round(count / 100) / 10) + 'k' : count
                 }
             };
             tile.features.push(feature);

@@ -40,11 +40,11 @@ function createClusterIcon(feature, latlng) {
     if (!feature.properties.cluster) return L.marker(latlng);
 
     var count = feature.properties.numPoints;
-
-    var size = count < 10 ? 'small' : count < 100 ? 'medium' : 'large';
-    var counth = count >= 10000 ? Math.round(count / 1000) + 'k' : count;
+    var size =
+        count < 100 ? 'small' :
+        count < 1000 ? 'medium' : 'large';
     var icon = L.divIcon({
-        html: '<div><span>' + counth + '</span></div>',
+        html: '<div><span>' + feature.properties.numPointsH + '</span></div>',
         className: 'marker-cluster marker-cluster-' + size,
         iconSize: L.point(40, 40)
     });
