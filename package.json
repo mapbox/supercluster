@@ -21,7 +21,10 @@
     "eslint-config-mourner": "^1.0.1"
   },
   "eslintConfig": {
-    "extends": "mourner"
+    "extends": "mourner",
+    "rules": {
+      "camelcase": 0
+    }
   },
   "license": "ISC"
 }

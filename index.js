@@ -56,7 +56,7 @@ SuperCluster.prototype = {
         var projBBox = [lngX(bbox[0]), latY(bbox[3]), lngX(bbox[2]), latY(bbox[1])];
         var z = Math.max(this.options.minZoom, Math.min(zoom, this.options.maxZoom + 1));
         var clusters = this.trees[z].search(projBBox);
-        return clusters.map(getCluster);
+        return clusters.map(getClusterJSON);
     },
 
     getTile: function (z, x, y) {
@@ -75,19 +75,13 @@ SuperCluster.prototype = {
         };
         for (var i = 0; i < clusters.length; i++) {
             var c = clusters[i];
-            var count = c.numPoints;
             var feature = {
                 type: 1,
                 geometry: [[
                     Math.round(extent * (c.wx * z2 - x)),
                     Math.round(extent * (c.wy * z2 - y))
                 ]],
-                tags: c.point ? c.point.properties : {
-                    cluster: true,
-                    numPoints: count,
-                    numPointsH: count >= 10000 ? Math.round(count / 1000) + 'k' :
-                                count >= 1000 ? (Math.round(count / 100) / 10) + 'k' : count
-                }
+                tags: c.point ? c.point.properties : getClusterProperties(c)
             };
             tile.features.push(feature);
         }
@@ -190,17 +184,25 @@ function createPointCluster(p) {
     return cluster;
 }
 
-function getCluster(cluster) {
+function getClusterJSON(cluster) {
     return cluster.point ? cluster.point : {
         type: 'Feature',
-        properties: {
-            cluster: true,
-            numPoints: cluster.numPoints
-        },
+        properties: getClusterProperties(cluster),
         geometry: {
             type: 'Point',
             coordinates: [xLng(cluster.wx), yLat(cluster.wy)]
         }
+    };
+}
+
+function getClusterProperties(cluster) {
+    var count = cluster.numPoints;
+    var abbrev = count >= 10000 ? Math.round(count / 1000) + 'k' :
+                 count >= 1000 ? (Math.round(count / 100) / 10) + 'k' : count;
+    return {
+        cluster: true,
+        point_count: count,
+        point_count_abbreviated: abbrev
     };
 }
 

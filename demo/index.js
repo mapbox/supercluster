@@ -39,12 +39,12 @@ map.on('moveend', update);
 function createClusterIcon(feature, latlng) {
     if (!feature.properties.cluster) return L.marker(latlng);
 
-    var count = feature.properties.numPoints;
+    var count = feature.properties.point_count;
     var size =
         count < 100 ? 'small' :
         count < 1000 ? 'medium' : 'large';
     var icon = L.divIcon({
-        html: '<div><span>' + feature.properties.numPointsH + '</span></div>',
+        html: '<div><span>' + feature.properties.point_count_abbreviated + '</span></div>',
         className: 'marker-cluster marker-cluster-' + size,
         iconSize: L.point(40, 40)
     });
