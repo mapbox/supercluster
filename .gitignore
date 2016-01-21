@@ -1,6 +1,7 @@
 node_modules
-.nyc-output
+.nyc_output
 coverage
-gettrees.js
+tmp
+*.log
 trees*.json
 demo/supercluster.js
