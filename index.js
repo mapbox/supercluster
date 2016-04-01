@@ -84,6 +84,19 @@ SuperCluster.prototype = {
                 tags: c.point ? c.point.properties : getClusterProperties(c)
             };
             tile.features.push(feature);
+
+            if (c.pz !== z - 1) continue;
+
+            var line = {
+                type: 2,
+                geometry: [[feature.geometry[0], [
+                    Math.round(extent * (c.px * z2 - x)),
+                    Math.round(extent * (c.py * z2 - y))
+                ]]],
+                tags: {clusterLine: true}
+            };
+
+            tile.features.push(line);
         }
         return tile;
     },
@@ -123,6 +136,8 @@ SuperCluster.prototype = {
             var wx = p.wx * numPoints;
             var wy = p.wy * numPoints;
 
+            var neighbors = [p];
+
             for (var j = 0; j < bboxNeighbors.length; j++) {
                 var b = bboxNeighbors[j];
                 // filter out neighbors that are too far or already processed
@@ -132,6 +147,7 @@ SuperCluster.prototype = {
                     wx += b.wx * b.numPoints; // accumulate coordinates for calculating weighted center
                     wy += b.wy * b.numPoints;
                     numPoints += b.numPoints;
+                    neighbors.push(b);
                 }
             }
 
@@ -147,6 +163,13 @@ SuperCluster.prototype = {
             // save weighted cluster center for display
             cluster.wx = wx / numPoints;
             cluster.wy = wy / numPoints;
+
+            for (var j = 0; j < neighbors.length; j++) {
+                var b = neighbors[j];
+                b.px = cluster.wx;
+                b.py = cluster.wy;
+                b.pz = zoom;
+            }
 
             clusters.push(cluster);
         }
@@ -171,6 +194,9 @@ function createCluster(x, y) {
         y: y,
         wx: x, // weighted cluster center
         wy: y,
+        px: x, // parent cluster center
+        py: y,
+        pz: null,
         zoom: Infinity, // the last zoom the cluster was processed at
         point: null,
         numPoints: 1
