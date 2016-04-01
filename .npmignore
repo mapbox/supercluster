@@ -1,0 +1,8 @@
+.nyc_output
+coverage
+tmp
+*.log
+test
+demo
+.travis.yml
+debug.js
