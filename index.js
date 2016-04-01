@@ -54,8 +54,7 @@ SuperCluster.prototype = {
 
     getClusters: function (bbox, zoom) {
         var projBBox = [lngX(bbox[0]), latY(bbox[3]), lngX(bbox[2]), latY(bbox[1])];
-        var z = Math.max(this.options.minZoom, Math.min(zoom, this.options.maxZoom + 1));
-        var clusters = this.trees[z].search(projBBox);
+        var clusters = this.trees[this._limitZoom(zoom)].search(projBBox);
         return clusters.map(getClusterJSON);
     },
 
@@ -63,7 +62,7 @@ SuperCluster.prototype = {
         var z2 = Math.pow(2, z);
         var extent = this.options.extent;
         var p = this.options.radius / extent;
-        var clusters = this.trees[z].search([
+        var clusters = this.trees[this._limitZoom(z)].search([
             (x - p) / z2,
             (y - p) / z2,
             (x + 1 + p) / z2,
@@ -86,6 +85,10 @@ SuperCluster.prototype = {
             tile.features.push(feature);
         }
         return tile;
+    },
+
+    _limitZoom: function (z) {
+        return Math.max(this.options.minZoom, Math.min(z, this.options.maxZoom + 1));
     },
 
     _initTrees: function () {
