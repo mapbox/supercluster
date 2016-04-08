@@ -16,7 +16,7 @@
   "author": "Vladimir Agafonkin",
   "license": "ISC",
   "dependencies": {
-    "rbush": "^1.4.1"
+    "kdbush": "^1.0.0"
   },
   "devDependencies": {
     "eslint": "^1.10.3",
