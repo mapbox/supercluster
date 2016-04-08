@@ -2,34 +2,22 @@
 
 // generate supercluster.js from the repo root with:
 // browserify index.js -s supercluster > demo/supercluster.js
+
 importScripts('supercluster.js');
 
 var now = Date.now();
 
 var index;
 
-getJSON('../trees-na.json', function (trees) {
-    console.log('loaded ' + trees.length + ' points JSON in ' + ((Date.now() - now) / 1000) + 's');
-
-    console.time('map to GeoJSON');
-    trees = trees.map(function (p) {
-        return {
-            type: 'Feature',
-            properties: {},
-            geometry: {
-                type: 'Point',
-                coordinates: p
-            }
-        };
-    });
-    console.timeEnd('map to GeoJSON');
+getJSON('../test/fixtures/places.json', function (geojson) {
+    console.log('loaded ' + geojson.length + ' points JSON in ' + ((Date.now() - now) / 1000) + 's');
 
     index = supercluster({
         log: true,
         radius: 60,
         extent: 256,
         maxZoom: 17
-    }).load(trees);
+    }).load(geojson.features);
 
     console.log(index.getTile(0, 0, 0));
 
