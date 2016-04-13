@@ -89,10 +89,10 @@ SuperCluster.prototype = {
             var feature = {
                 type: 1,
                 geometry: [[
-                    Math.round(extent * (c.wx * z2 - x)),
-                    Math.round(extent * (c.wy * z2 - y))
+                    Math.round(extent * (c.x * z2 - x)),
+                    Math.round(extent * (c.y * z2 - y))
                 ]],
-                tags: c.point ? c.point.properties : getClusterProperties(c)
+                tags: c.id !== -1 ? this.points[c.id].properties : getClusterProperties(c)
             };
             tile.features.push(feature);
         }
@@ -106,7 +106,6 @@ SuperCluster.prototype = {
     _cluster: function (points, zoom) {
         var clusters = [];
         var r = this.options.radius / (this.options.extent * Math.pow(2, zoom));
-        var bbox = [0, 0, 0, 0];
 
         // loop through each point
         for (var i = 0; i < points.length; i++) {
@@ -117,12 +116,12 @@ SuperCluster.prototype = {
 
             // find all nearby points
             var tree = this.trees[zoom + 1];
-            var neighborIds = tree.within(p.wx, p.wy, r);
+            var neighborIds = tree.within(p.x, p.y, r);
 
             var foundNeighbors = false;
             var numPoints = p.numPoints;
-            var wx = p.wx * numPoints;
-            var wy = p.wy * numPoints;
+            var wx = p.x * numPoints;
+            var wy = p.y * numPoints;
 
             for (var j = 0; j < neighborIds.length; j++) {
                 var b = tree.points[neighborIds[j]];
@@ -130,8 +129,8 @@ SuperCluster.prototype = {
                 if (zoom < b.zoom) {
                     foundNeighbors = true;
                     b.zoom = zoom; // save the zoom (so it doesn't get processed twice)
-                    wx += b.wx * b.numPoints; // accumulate coordinates for calculating weighted center
-                    wy += b.wy * b.numPoints;
+                    wx += b.x * b.numPoints; // accumulate coordinates for calculating weighted center
+                    wy += b.y * b.numPoints;
                     numPoints += b.numPoints;
                 }
             }
@@ -146,8 +145,8 @@ SuperCluster.prototype = {
             cluster.numPoints = numPoints;
 
             // save weighted cluster center for display
-            cluster.wx = wx / numPoints;
-            cluster.wy = wy / numPoints;
+            cluster.x = wx / numPoints;
+            cluster.y = wy / numPoints;
 
             clusters.push(cluster);
         }
@@ -158,10 +157,8 @@ SuperCluster.prototype = {
 
 function createCluster(x, y) {
     return {
-        x: x, // cluster center
+        x: x, // weighted cluster center
         y: y,
-        wx: x, // weighted cluster center
-        wy: y,
         zoom: Infinity, // the last zoom the cluster was processed at
         id: -1,
         numPoints: 1
@@ -181,7 +178,7 @@ function getClusterJSON(cluster, points) {
         properties: getClusterProperties(cluster),
         geometry: {
             type: 'Point',
-            coordinates: [xLng(cluster.wx), yLat(cluster.wy)]
+            coordinates: [xLng(cluster.x), yLat(cluster.y)]
         }
     };
 }
@@ -223,8 +220,8 @@ function extend(dest, src) {
 }
 
 function getX(p) {
-    return p.wx;
+    return p.x;
 }
 function getY(p) {
-    return p.wy;
+    return p.y;
 }
