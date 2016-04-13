@@ -63,7 +63,8 @@ SuperCluster.prototype = {
         var ids = tree.range(lngX(bbox[0]), latY(bbox[3]), lngX(bbox[2]), latY(bbox[1]));
         var clusters = [];
         for (var i = 0; i < ids.length; i++) {
-            clusters.push(getClusterJSON(tree.points[ids[i]], this.points));
+            var c = tree.points[ids[i]];
+            clusters.push(c.id !== -1 ? this.points[c.id] : getClusterJSON(c));
         }
         return clusters;
     },
@@ -135,45 +136,30 @@ SuperCluster.prototype = {
                 }
             }
 
-            if (!foundNeighbors) {
-                clusters.push(p); // no neighbors, add a single point as cluster
-                continue;
-            }
-
-            // form a cluster with neighbors
-            var cluster = createCluster(p.x, p.y);
-            cluster.numPoints = numPoints;
-
-            // save weighted cluster center for display
-            cluster.x = wx / numPoints;
-            cluster.y = wy / numPoints;
-
-            clusters.push(cluster);
+            clusters.push(foundNeighbors ? createCluster(wx / numPoints, wy / numPoints, numPoints, -1) : p);
         }
 
         return clusters;
     }
 };
 
-function createCluster(x, y) {
+function createCluster(x, y, numPoints, id) {
     return {
         x: x, // weighted cluster center
         y: y,
         zoom: Infinity, // the last zoom the cluster was processed at
-        id: -1,
-        numPoints: 1
+        id: id, // index of the source feature in the original input array
+        numPoints: numPoints
     };
 }
 
 function createPointCluster(p, i) {
     var coords = p.geometry.coordinates;
-    var cluster = createCluster(lngX(coords[0]), latY(coords[1]));
-    cluster.id = i;
-    return cluster;
+    return createCluster(lngX(coords[0]), latY(coords[1]), 1, i);
 }
 
-function getClusterJSON(cluster, points) {
-    return cluster.id !== -1 ? points[cluster.id] : {
+function getClusterJSON(cluster) {
+    return {
         type: 'Feature',
         properties: getClusterProperties(cluster),
         geometry: {
