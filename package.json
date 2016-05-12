@@ -8,6 +8,10 @@
     "test": "tap test",
     "cov": "tap test --cov"
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/mapbox/supercluster.git"
+  },
   "keywords": [
     "clustering",
     "geospatial",
