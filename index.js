@@ -22,7 +22,7 @@ SuperCluster.prototype = {
         nodeSize: 64, // size of the KD-tree leaf node, affects performance
         log: false,    // whether to log timing info
         metricKey: undefined, // the key on each point's property to reduce on
-        metricReducer: function add(a, b) { return a + b } // reducer function for metric values
+        metricReducer: function add(a, b) { return a + b; } // reducer function for metric values
     },
 
     load: function (points) {
@@ -160,7 +160,8 @@ function createCluster(x, y, numPoints, id, metric) {
 
 function createPointCluster(p, i) {
     var coords = p.geometry.coordinates;
-    return createCluster(lngX(coords[0]), latY(coords[1]), 1, i, p.properties[this.metricKey]);
+    var metric = this.metricKey === undefined ? 0 : p.properties[this.metricKey];
+    return createCluster(lngX(coords[0]), latY(coords[1]), 1, i, metric);
 }
 
 function getClusterJSON(cluster) {
