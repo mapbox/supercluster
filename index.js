@@ -70,34 +70,48 @@ SuperCluster.prototype = {
     },
 
     getTile: function (z, x, y) {
+        var tree = this.trees[this._limitZoom(z)];
         var z2 = Math.pow(2, z);
         var extent = this.options.extent;
-        var p = this.options.radius / extent;
-        var tree = this.trees[this._limitZoom(z)];
-        var ids = tree.range(
-            (x - p) / z2,
-            (y - p) / z2,
-            (x + 1 + p) / z2,
-            (y + 1 + p) / z2);
-
-        if (!ids.length) return null;
+        var r = this.options.radius;
+        var p = r / extent;
+        var top = (y - p) / z2;
+        var bottom = (y + 1 + p) / z2;
 
         var tile = {
             features: []
         };
+
+        this._addTileFeatures(
+            tree.range((x - p) / z2, top, (x + 1 + p) / z2, bottom),
+            tree.points, x, y, z2, tile);
+
+        if (x === 0) {
+            this._addTileFeatures(
+                tree.range(1 - p / z2, top, 1, bottom),
+                tree.points, z2, y, z2, tile);
+        }
+        if (x === z2 - 1) {
+            this._addTileFeatures(
+                tree.range(0, top, p / z2, bottom),
+                tree.points, -1, y, z2, tile);
+        }
+
+        return tile.features.length ? tile : null;
+    },
+
+    _addTileFeatures: function (ids, points, x, y, z2, tile) {
         for (var i = 0; i < ids.length; i++) {
-            var c = tree.points[ids[i]];
-            var feature = {
+            var c = points[ids[i]];
+            tile.features.push({
                 type: 1,
                 geometry: [[
-                    Math.round(extent * (c.x * z2 - x)),
-                    Math.round(extent * (c.y * z2 - y))
+                    Math.round(this.options.extent * (c.x * z2 - x)),
+                    Math.round(this.options.extent * (c.y * z2 - y))
                 ]],
                 tags: c.id !== -1 ? this.points[c.id].properties : getClusterProperties(c)
-            };
-            tile.features.push(feature);
+            });
         }
-        return tile;
     },
 
     _limitZoom: function (z) {
