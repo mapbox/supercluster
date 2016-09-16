@@ -6,8 +6,14 @@
   "scripts": {
     "pretest": "eslint index.js test/test.js",
     "test": "tap test",
-    "cov": "tap test --cov"
+    "cov": "tap test --cov",
+    "build-dev": "mkdir -p dist && browserify -d index.js -s supercluster > dist/supercluster.js",
+    "build-min": "mkdir -p dist && browserify index.js -s supercluster | uglifyjs -c warnings=false -m > dist/supercluster.min.js",
+    "prepublish": "npm run build-dev && npm run build-min"
   },
+  "files": [
+    "dist"
+  ],
   "repository": {
     "type": "git",
     "url": "git://github.com/mapbox/supercluster.git"
@@ -23,9 +29,11 @@
     "kdbush": "^1.0.0"
   },
   "devDependencies": {
+    "browserify": "^13.1.0",
     "eslint": "^2.7.0",
     "eslint-config-mourner": "^2.0.1",
-    "tap": "^5.7.1"
+    "tap": "^5.7.1",
+    "uglifyjs": "^2.4.10"
   },
   "eslintConfig": {
     "extends": "mourner",
