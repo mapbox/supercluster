@@ -2,6 +2,10 @@
 
 A very fast JavaScript library for geospatial point clustering for browsers and Node. _A work in progress._
 
+```html
+<script src="https://unpkg.com/supercluster@2.2.0/dist/supercluster.min.js"></script>
+```
+
 ```js
 var index = supercluster({
     radius: 40,
