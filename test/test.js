@@ -12,3 +12,14 @@ test(function (t) {
     t.same(tile.features, placesTile.features);
     t.end();
 });
+
+test(function (t) {
+    var index = supercluster({includeSubPoints: true}).load(places.features);
+    var tile = index.getTile(0, 0, 0);
+    tile.features.forEach((feature) => {
+        if (feature.tags.cluster) {
+            t.same(feature.tags.point_count, feature.tags.subPoints.length);
+        }
+    });
+    t.end();
+});
