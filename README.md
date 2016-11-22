@@ -18,3 +18,24 @@ index.getClusters([-180, -85, 180, 85], 2);
 Clustering 6 million points in Leaflet:
 
 ![clusters2](https://cloud.githubusercontent.com/assets/25395/11857351/43407b46-a40c-11e5-8662-e99ab1cd2cb7.gif)
+
+## Methods
+
+* load(`points`) : `this`
+
+Loads an array of points, in [GeoJSON.Point](http://geojson.org/geojson-spec.html#point) format. Once loaded, index is immutable.
+
+* getClusters(`bbox`, `zoom`) : Array<[GeoJSON.Feature](http://geojson.org/geojson-spec.html#feature-objects)>
+
+For the given `bbox` array (`[westLng, southLat, eastLng, northLat]`) and integer `zoom`, returns an array of clusters as [GeoJSON.Feature](http://geojson.org/geojson-spec.html#feature-objects) objects.
+
+## Options
+
+| Option   | Default | Description                                         |
+|----------|---------|-----------------------------------------------------|
+| minZoom  | 0       | Minimum zoom level at which clusters are generated. |
+| maxZoom  | 16      | Maximum zoom level at which clusters are generated. |
+| radius   | 40      | (Tiles) Cluster radius, in pixels.                  |
+| extent   | 512     | (Tiles) Tile extent.                                |
+| nodeSize | 64      | Size of the KD-tree leaf node. Affects performance. |
+| log      | false   | Whether timing info should be logged.               |
