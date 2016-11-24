@@ -65,7 +65,7 @@ SuperCluster.prototype = {
         var clusters = [];
         for (var i = 0; i < ids.length; i++) {
             var c = tree.points[ids[i]];
-            clusters.push(c.id !== -1 ? this.points[c.id] : getClusterJSON(c));
+            clusters.push(c.id !== -1 ? this.points[c.id] : getClusterJSON(c, !!this.options.trackPointsInClusterByPropertyField));
         }
         return clusters;
     },
@@ -149,9 +149,9 @@ SuperCluster.prototype = {
                     wx += b.x * b.numPoints; // accumulate coordinates for calculating weighted center
                     wy += b.y * b.numPoints;
                     numPoints += b.numPoints;
-                    if(this.options.trackPointsInClusterByPropertyField){
-                        if(b.id == -1){
-                            for(var k = 0; k < b.includedPoints.length; k++){
+                    if (this.options.trackPointsInClusterByPropertyField) {
+                        if (b.id === -1) {
+                            for (var k = 0; k < b.includedPoints.length; k++) {
                                 includedPoints.push(b.includedPoints[k]);
                             }
                         } else {
@@ -184,10 +184,10 @@ function createPointCluster(p, i) {
     return createCluster(lngX(coords[0]), latY(coords[1]), 1, i);
 }
 
-function getClusterJSON(cluster) {
+function getClusterJSON(cluster, trackPoints) {
     return {
         type: 'Feature',
-        properties: getClusterProperties(cluster),
+        properties: getClusterProperties(cluster, trackPoints),
         geometry: {
             type: 'Point',
             coordinates: [xLng(cluster.x), yLat(cluster.y)]
@@ -195,16 +195,20 @@ function getClusterJSON(cluster) {
     };
 }
 
-function getClusterProperties(cluster) {
+function getClusterProperties(cluster, trackPoints) {
     var count = cluster.numPoints;
     var abbrev = count >= 10000 ? Math.round(count / 1000) + 'k' :
                  count >= 1000 ? (Math.round(count / 100) / 10) + 'k' : count;
-    return {
+    var clusterProperties = {
         cluster: true,
         point_count: count,
-        point_count_abbreviated: abbrev,
-        includedPoints: cluster.includedPoints
+        point_count_abbreviated: abbrev
     };
+
+    if (trackPoints) {
+        clusterProperties.includedPoints = cluster.includedPoints;
+    }
+    return clusterProperties;
 }
 
 // longitude/latitude to spherical mercator in [0..1] range
