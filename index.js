@@ -110,7 +110,7 @@ SuperCluster.prototype = {
                     Math.round(this.options.extent * (c.x * z2 - x)),
                     Math.round(this.options.extent * (c.y * z2 - y))
                 ]],
-                tags: c.id !== -1 ? this.points[c.id].properties : getClusterProperties(c)
+                tags: c.id !== -1 ? this.points[c.id].properties : getClusterProperties(c, !!this.options.trackPointsInClusterByPropertyField)
             });
         }
     },
