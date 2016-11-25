@@ -1,502 +1,542 @@
 {
-  "features": [{
-    "type": 1,
-    "geometry": [
-      [150, 205]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 16,
-      "point_count_abbreviated": 16,
-      "includedPoints": ["San  Salvador", "I. de Cozumel", "Grand Cayman", "Miquelon", "Bermuda Islands"]
+  "features": [
+    {
+      "type": 1,
+      "geometry": [
+        [150, 205]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 16,
+        "point_count_abbreviated": 16,
+        "includedPoints": ["Niagara Falls", "Cape May", "Cape Cod", "Cape Sable", "Cape Hatteras", "Cape Fear", "Cape Canaveral", "Cape San Blas", "Cape Sable", "San  Salvador", "Cabo Gracias a Dios", "I. de Cozumel", "Grand Cayman", "Cape Bauld", "Miquelon", "Bermuda Islands"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [165, 240]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 18,
+        "point_count_abbreviated": 18,
+        "includedPoints": ["Salto Angel", "Cabo Orange", "Curaao", "Aruba", "St. Croix", "Barbuda", "Antigua", "Guadeloupe", "Dominica", "Grenada", "Tobago", "Saint Vincent", "Martinique", "Saint Lucia", "Barbados", "Margarita", "Punta Negra", "Punta Galera"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [179, 303]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 13,
+        "point_count_abbreviated": 13,
+        "includedPoints": ["Iguazu Falls", "Cabo de Santa Marta Grande", "Ponta da Baleia", "Cabo de São Tomé", "Cabo Frio", "Punta del Este", "Cabo San Antonio", "Cabo Corrientes", "Punta Lavapié", "I. Robinson Crusoe", "Punta Rasa", "Cabo Dos Bahías", "Is. Martin Vaz"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [336, 234]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 8,
+        "point_count_abbreviated": 8,
+        "includedPoints": ["Gees Gwardafuy", "Ras Fartak", "Ras Sharbatat", "Ra's al Had", "Ras Banäs", "Ras Kasr", "Cape Comorin", "Dondra Head"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [299, 285]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 15,
+        "point_count_abbreviated": 15,
+        "includedPoints": ["Victoria Falls", "Ponta da Barra", "Ponta São Sebastio", "Cape St. Lucia", "Cape of Good Hope", "Cape Agulhas", "Cape St. Francis", "Cape Vohimena", "Cape Bobaomby", "Cap Saint André", "Cap Est", "Cap Lopez", "Ponta das Salinas", "Ponta das Palmeirinhas", "Cabo Delgado"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [71, 419]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 4,
+        "point_count_abbreviated": 4,
+        "includedPoints": ["Wright I.", "Grant I.", "Dean I.", "Newman I."]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [92, 212]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 6,
+        "point_count_abbreviated": 6,
+        "includedPoints": ["Cape Mendocino", "Point Conception", "Cabo San Lucas", "Cabo Corrientes", "Pt. Eugenia", "I. Guadalupe"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [123, 152]
+      ],
+      "tags": {
+        "scalerank": 3,
+        "name": "Cape Churchill",
+        "comment": null,
+        "name_alt": null,
+        "lat_y": 58.752014,
+        "long_x": -93.182023,
+        "region": "North America",
+        "subregion": null,
+        "featureclass": "cape"
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [162, 345]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 3,
+        "point_count_abbreviated": 3,
+        "includedPoints": ["Cabo de Hornos", "Cabo San Diego", "Cabo Tres Puntas"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [236, 232]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 4,
+        "point_count_abbreviated": 4,
+        "includedPoints": ["Cape Palmas", "Cape Verde", "Cap Blanc", "Cabo Bojador"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [259, 193]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 6,
+        "point_count_abbreviated": 6,
+        "includedPoints": ["Cap Bon", "Lands End", "Cabo Fisterra", "Cape Ince", "Cabo de São Vicentete", "Ras Cantin"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [80, 336]
+      ],
+      "tags": {
+        "scalerank": 3,
+        "name": "Oceanic pole of inaccessibility",
+        "comment": null,
+        "name_alt": null,
+        "lat_y": -48.865032,
+        "long_x": -123.401986,
+        "region": "Seven seas (open ocean)",
+        "subregion": "South Pacific Ocean",
+        "featureclass": "pole"
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [452, 377]
+      ],
+      "tags": {
+        "scalerank": 3,
+        "name": "South Magnetic Pole 2005 (est)",
+        "comment": null,
+        "name_alt": null,
+        "lat_y": -48.865032,
+        "long_x": -123.401986,
+        "region": "Antarctica",
+        "subregion": "Southern Ocean",
+        "featureclass": "pole"
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [93, 32]
+      ],
+      "tags": {
+        "scalerank": 3,
+        "name": "North Magnetic Pole 2005 (est)",
+        "comment": null,
+        "name_alt": null,
+        "lat_y": -48.865032,
+        "long_x": -123.401986,
+        "region": "Seven seas (open ocean)",
+        "subregion": "Arctic Ocean",
+        "featureclass": "pole"
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [159, 84]
+      ],
+      "tags": {
+        "scalerank": 4,
+        "name": "Cape York",
+        "comment": null,
+        "name_alt": null,
+        "lat_y": 76.218919,
+        "long_x": -68.218612,
+        "region": "North America",
+        "subregion": "Greenland",
+        "featureclass": "cape"
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [220, 147]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 3,
+        "point_count_abbreviated": 3,
+        "includedPoints": ["Nunap Isua", "Surtsey", "Rockall"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [27, 270]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 6,
+        "point_count_abbreviated": 6,
+        "includedPoints": ["Vavau", "Kanton", "Tabuaeran", "Malden", "Rangiroa", "Rarotonga"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [100, 296]
+      ],
+      "tags": {
+        "scalerank": 4,
+        "name": "I. de Pascua",
+        "comment": null,
+        "name_alt": "Easter I.",
+        "lat_y": -27.102117,
+        "long_x": -109.367953,
+        "region": "Oceania",
+        "subregion": "Polynesia",
+        "featureclass": "island"
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [401, 226]
+      ],
+      "tags": {
+        "scalerank": 4,
+        "name": "Plain of Jars",
+        "comment": null,
+        "name_alt": null,
+        "lat_y": 20.550709,
+        "long_x": 101.890532,
+        "region": "Asia",
+        "subregion": null,
+        "featureclass": "plain"
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [26, 115]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 2,
+        "point_count_abbreviated": 2,
+        "includedPoints": ["Cape Hope", "Point Barrow"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [449, 304]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 13,
+        "point_count_abbreviated": 13,
+        "includedPoints": ["South West Cape", "Cape Otway", "Cape Howe", "Cape Jaffa", "Cape Carnot", "Cape Byron", "Cape Manifold", "Îles Chesterfield", "West Cape Howe", "Cape Leeuwin", "Steep Point", "North West Cape", "Cape Pasley"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [455, 272]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 5,
+        "point_count_abbreviated": 5,
+        "includedPoints": ["Cape York", "Cape Cretin", "Cape Melville", "Cape Arnhem", "Cape Londonderry"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [227, 121]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 2,
+        "point_count_abbreviated": 2,
+        "includedPoints": ["Cape Brewster", "Grmsey"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [210, 21]
+      ],
+      "tags": {
+        "scalerank": 5,
+        "name": "Cape Morris Jesup",
+        "comment": null,
+        "name_alt": null,
+        "lat_y": 83.626331,
+        "long_x": -32.491541,
+        "region": "North America",
+        "subregion": "Greenland",
+        "featureclass": "cape"
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [484, 235]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 13,
+        "point_count_abbreviated": 13,
+        "includedPoints": ["Pagan", "Minamitori-shima", "Wake I.", "Ebon", "Jaluit", "Ailinglapalap", "Kwajalein", "Mili", "Majuro", "Rongelap", "Bikini", "Cape Sata", "Hachijjima"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [503, 260]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 4,
+        "point_count_abbreviated": 4,
+        "includedPoints": ["Tabiteuea", "Aranuka", "Funafuti", "Nauru"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [502, 308]
+      ],
+      "tags": {
+        "scalerank": 5,
+        "name": "Cape Reinga",
+        "comment": null,
+        "name_alt": null,
+        "lat_y": -34.432767,
+        "long_x": 172.7285,
+        "region": "Oceania",
+        "subregion": "New Zealand",
+        "featureclass": "cape"
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [475, 165]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 7,
+        "point_count_abbreviated": 7,
+        "includedPoints": ["Cape Yelizavety", "Cape Aniva", "Cape Terpeniya", "Pt. Yuzhnyy", "Cape Ozernoy", "Cape Olyutorskiy", "Cape Lopatka"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [511, 142]
+      ],
+      "tags": {
+        "scalerank": 5,
+        "name": "Cape Navarin",
+        "comment": null,
+        "name_alt": null,
+        "lat_y": 62.327239,
+        "long_x": 179.074225,
+        "region": "Asia",
+        "subregion": null,
+        "featureclass": "cape"
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [469, 106]
+      ],
+      "tags": {
+        "scalerank": 5,
+        "name": "Cape Lopatka",
+        "comment": null,
+        "name_alt": null,
+        "lat_y": 71.907853,
+        "long_x": 150.066042,
+        "region": "Asia",
+        "subregion": null,
+        "featureclass": "cape"
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [292, 110]
+      ],
+      "tags": {
+        "scalerank": 5,
+        "name": "Nordkapp",
+        "comment": null,
+        "name_alt": null,
+        "lat_y": 71.18337,
+        "long_x": 25.662398,
+        "region": "Europe",
+        "subregion": null,
+        "featureclass": "cape"
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [202, 262]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 2,
+        "point_count_abbreviated": 2,
+        "includedPoints": ["Ponta de Jericoacoara", "Cabo de São Roque"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [-28, 235]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 13,
+        "point_count_abbreviated": 13,
+        "includedPoints": ["Pagan", "Minamitori-shima", "Wake I.", "Ebon", "Jaluit", "Ailinglapalap", "Kwajalein", "Mili", "Majuro", "Rongelap", "Bikini", "Cape Sata", "Hachijjima"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [-9, 260]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 4,
+        "point_count_abbreviated": 4,
+        "includedPoints": ["Tabiteuea", "Aranuka", "Funafuti", "Nauru"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [-10, 308]
+      ],
+      "tags": {
+        "scalerank": 5,
+        "name": "Cape Reinga",
+        "comment": null,
+        "name_alt": null,
+        "lat_y": -34.432767,
+        "long_x": 172.7285,
+        "region": "Oceania",
+        "subregion": "New Zealand",
+        "featureclass": "cape"
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [-37, 165]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 7,
+        "point_count_abbreviated": 7,
+        "includedPoints": ["Cape Yelizavety", "Cape Aniva", "Cape Terpeniya", "Pt. Yuzhnyy", "Cape Ozernoy", "Cape Olyutorskiy", "Cape Lopatka"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [-1, 142]                                                                                               
+      ],
+      "tags": {
+        "scalerank": 5,
+        "name": "Cape Navarin",
+        "comment": null,
+        "name_alt": null,
+        "lat_y": 62.327239,
+        "long_x": 179.074225,
+        "region": "Asia",
+        "subregion": null,
+        "featureclass": "cape"
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [539, 270]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 6,
+        "point_count_abbreviated": 6,
+        "includedPoints": ["Vavau", "Kanton", "Tabuaeran", "Malden", "Rangiroa", "Rarotonga"]
+      }
+    }, 
+    {
+      "type": 1,
+      "geometry": [
+        [538, 115]
+      ],
+      "tags": {
+        "cluster": true,
+        "point_count": 2,
+        "point_count_abbreviated": 2,
+        "includedPoints": ["Cape Hope", "Point Barrow"]
+      }
     }
-  }, {
-    "type": 1,
-    "geometry": [
-      [165, 240]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 18,
-      "point_count_abbreviated": 18,
-      "includedPoints": ["Punta Galera"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [179, 303]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 13,
-      "point_count_abbreviated": 13,
-      "includedPoints": ["I. Robinson Crusoe", "Cabo Dos Bahías", "Is. Martin Vaz"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [336, 234]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 8,
-      "point_count_abbreviated": 8,
-      "includedPoints": ["Ras Kasr", "Dondra Head"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [299, 285]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 15,
-      "point_count_abbreviated": 15,
-      "includedPoints": ["Cape St. Francis", "Cap Saint André", "Cap Est", "Ponta das Palmeirinhas", "Cabo Delgado"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [71, 419]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 4,
-      "point_count_abbreviated": 4,
-      "includedPoints": ["Newman I."]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [92, 212]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 6,
-      "point_count_abbreviated": 6,
-      "includedPoints": ["I. Guadalupe"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [123, 152]
-    ],
-    "tags": {
-      "scalerank": 3,
-      "name": "Cape Churchill",
-      "comment": null,
-      "name_alt": null,
-      "lat_y": 58.752014,
-      "long_x": -93.182023,
-      "region": "North America",
-      "subregion": null,
-      "featureclass": "cape"
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [162, 345]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 3,
-      "point_count_abbreviated": 3,
-      "includedPoints": ["Cabo Tres Puntas"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [236, 232]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 4,
-      "point_count_abbreviated": 4,
-      "includedPoints": ["Cabo Bojador"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [259, 193]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 6,
-      "point_count_abbreviated": 6,
-      "includedPoints": ["Cabo Fisterra", "Cape Ince", "Ras Cantin"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [80, 336]
-    ],
-    "tags": {
-      "scalerank": 3,
-      "name": "Oceanic pole of inaccessibility",
-      "comment": null,
-      "name_alt": null,
-      "lat_y": -48.865032,
-      "long_x": -123.401986,
-      "region": "Seven seas (open ocean)",
-      "subregion": "South Pacific Ocean",
-      "featureclass": "pole"
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [452, 377]
-    ],
-    "tags": {
-      "scalerank": 3,
-      "name": "South Magnetic Pole 2005 (est)",
-      "comment": null,
-      "name_alt": null,
-      "lat_y": -48.865032,
-      "long_x": -123.401986,
-      "region": "Antarctica",
-      "subregion": "Southern Ocean",
-      "featureclass": "pole"
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [93, 32]
-    ],
-    "tags": {
-      "scalerank": 3,
-      "name": "North Magnetic Pole 2005 (est)",
-      "comment": null,
-      "name_alt": null,
-      "lat_y": -48.865032,
-      "long_x": -123.401986,
-      "region": "Seven seas (open ocean)",
-      "subregion": "Arctic Ocean",
-      "featureclass": "pole"
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [159, 84]
-    ],
-    "tags": {
-      "scalerank": 4,
-      "name": "Cape York",
-      "comment": null,
-      "name_alt": null,
-      "lat_y": 76.218919,
-      "long_x": -68.218612,
-      "region": "North America",
-      "subregion": "Greenland",
-      "featureclass": "cape"
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [220, 147]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 3,
-      "point_count_abbreviated": 3,
-      "includedPoints": ["Rockall"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [27, 270]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 6,
-      "point_count_abbreviated": 6,
-      "includedPoints": ["Tabuaeran", "Rangiroa", "Rarotonga"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [100, 296]
-    ],
-    "tags": {
-      "scalerank": 4,
-      "name": "I. de Pascua",
-      "comment": null,
-      "name_alt": "Easter I.",
-      "lat_y": -27.102117,
-      "long_x": -109.367953,
-      "region": "Oceania",
-      "subregion": "Polynesia",
-      "featureclass": "island"
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [401, 226]
-    ],
-    "tags": {
-      "scalerank": 4,
-      "name": "Plain of Jars",
-      "comment": null,
-      "name_alt": null,
-      "lat_y": 20.550709,
-      "long_x": 101.890532,
-      "region": "Asia",
-      "subregion": null,
-      "featureclass": "plain"
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [26, 115]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 2,
-      "point_count_abbreviated": 2,
-      "includedPoints": ["Point Barrow"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [449, 304]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 13,
-      "point_count_abbreviated": 13,
-      "includedPoints": ["Cape Manifold", "Îles Chesterfield", "North West Cape", "Cape Pasley"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [455, 272]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 5,
-      "point_count_abbreviated": 5,
-      "includedPoints": ["Cape Londonderry"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [227, 121]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 2,
-      "point_count_abbreviated": 2,
-      "includedPoints": ["Grmsey"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [210, 21]
-    ],
-    "tags": {
-      "scalerank": 5,
-      "name": "Cape Morris Jesup",
-      "comment": null,
-      "name_alt": null,
-      "lat_y": 83.626331,
-      "long_x": -32.491541,
-      "region": "North America",
-      "subregion": "Greenland",
-      "featureclass": "cape"
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [484, 235]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 13,
-      "point_count_abbreviated": 13,
-      "includedPoints": ["Bikini", "Hachijjima"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [503, 260]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 4,
-      "point_count_abbreviated": 4,
-      "includedPoints": ["Funafuti", "Nauru"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [502, 308]
-    ],
-    "tags": {
-      "scalerank": 5,
-      "name": "Cape Reinga",
-      "comment": null,
-      "name_alt": null,
-      "lat_y": -34.432767,
-      "long_x": 172.7285,
-      "region": "Oceania",
-      "subregion": "New Zealand",
-      "featureclass": "cape"
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [475, 165]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 7,
-      "point_count_abbreviated": 7,
-      "includedPoints": ["Cape Olyutorskiy", "Cape Lopatka"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [511, 142]
-    ],
-    "tags": {
-      "scalerank": 5,
-      "name": "Cape Navarin",
-      "comment": null,
-      "name_alt": null,
-      "lat_y": 62.327239,
-      "long_x": 179.074225,
-      "region": "Asia",
-      "subregion": null,
-      "featureclass": "cape"
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [469, 106]
-    ],
-    "tags": {
-      "scalerank": 5,
-      "name": "Cape Lopatka",
-      "comment": null,
-      "name_alt": null,
-      "lat_y": 71.907853,
-      "long_x": 150.066042,
-      "region": "Asia",
-      "subregion": null,
-      "featureclass": "cape"
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [292, 110]
-    ],
-    "tags": {
-      "scalerank": 5,
-      "name": "Nordkapp",
-      "comment": null,
-      "name_alt": null,
-      "lat_y": 71.18337,
-      "long_x": 25.662398,
-      "region": "Europe",
-      "subregion": null,
-      "featureclass": "cape"
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [202, 262]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 2,
-      "point_count_abbreviated": 2,
-      "includedPoints": ["Cabo de São Roque"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [-28, 235]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 13,
-      "point_count_abbreviated": 13,
-      "includedPoints": ["Bikini", "Hachijjima"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [-9, 260]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 4,
-      "point_count_abbreviated": 4,
-      "includedPoints": ["Funafuti", "Nauru"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [-10, 308]
-    ],
-    "tags": {
-      "scalerank": 5,
-      "name": "Cape Reinga",
-      "comment": null,
-      "name_alt": null,
-      "lat_y": -34.432767,
-      "long_x": 172.7285,
-      "region": "Oceania",
-      "subregion": "New Zealand",
-      "featureclass": "cape"
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [-37, 165]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 7,
-      "point_count_abbreviated": 7,
-      "includedPoints": ["Cape Olyutorskiy", "Cape Lopatka"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [-1, 142]
-    ],
-    "tags": {
-      "scalerank": 5,
-      "name": "Cape Navarin",
-      "comment": null,
-      "name_alt": null,
-      "lat_y": 62.327239,
-      "long_x": 179.074225,
-      "region": "Asia",
-      "subregion": null,
-      "featureclass": "cape"
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [539, 270]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 6,
-      "point_count_abbreviated": 6,
-      "includedPoints": ["Tabuaeran", "Rangiroa", "Rarotonga"]
-    }
-  }, {
-    "type": 1,
-    "geometry": [
-      [538, 115]
-    ],
-    "tags": {
-      "cluster": true,
-      "point_count": 2,
-      "point_count_abbreviated": 2,
-      "includedPoints": ["Point Barrow"]
-    }
-  }]
+  ]
 }

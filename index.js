@@ -138,7 +138,12 @@ SuperCluster.prototype = {
             var numPoints = p.numPoints;
             var wx = p.x * numPoints;
             var wy = p.y * numPoints;
-            var includedPoints = [];
+            var includedPoints;
+
+            if (this.options.trackPointsInClusterByPropertyField) {
+                includedPoints = [];
+                this._trackPoint(p, includedPoints);
+            }
 
             for (var j = 0; j < neighborIds.length; j++) {
                 var b = tree.points[neighborIds[j]];
@@ -150,13 +155,7 @@ SuperCluster.prototype = {
                     wy += b.y * b.numPoints;
                     numPoints += b.numPoints;
                     if (this.options.trackPointsInClusterByPropertyField) {
-                        if (b.id === -1) {
-                            for (var k = 0; k < b.includedPoints.length; k++) {
-                                includedPoints.push(b.includedPoints[k]);
-                            }
-                        } else {
-                            includedPoints.push(this.points[b.id].properties[this.options.trackPointsInClusterByPropertyField]);
-                        }
+                        this._trackPoint(b, includedPoints);
                     }
                 }
             }
@@ -165,7 +164,22 @@ SuperCluster.prototype = {
         }
 
         return clusters;
+    },
+
+    _trackPoint: function (treePoint, includedPoints) {
+        var trackByField = this.options.trackPointsInClusterByPropertyField;
+        if (treePoint.id === -1) {
+            // Add includedPoints in subCluster into cluster's includedPoints
+            for (var i = 0; i < treePoint.includedPoints.length; i++) {
+                includedPoints.push(treePoint.includedPoints[i]);
+            }
+        } else {
+            // Add point into cluster's includedPoints
+            var point = this.points[treePoint.id];
+            includedPoints.push(point.properties[trackByField]);
+        }
     }
+
 };
 
 function createCluster(x, y, numPoints, id, includedPoints) {

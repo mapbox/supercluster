@@ -17,6 +17,13 @@ test(function (t) {
 test(function (t) {
     var index = supercluster({trackPointsInClusterByPropertyField: 'name'}).load(places.features);
     var tile = index.getTile(0, 0, 0);
+
     t.same(tile.features, placesTileWithPointsTracked.features);
+
+    for (var i = 0; i < tile.features.length; i++) {
+        if (tile.features[i].tags.cluster) {
+            t.equal(tile.features[i].tags.point_count, tile.features[i].tags.includedPoints.length);
+        }
+    }
     t.end();
 });
