@@ -21,7 +21,8 @@ SuperCluster.prototype = {
         extent: 512,  // tile extent (radius is calculated relative to it)
         nodeSize: 64, // size of the KD-tree leaf node, affects performance
         log: false,    // whether to log timing info
-        trackPointsInClusterByPropertyField: false // track points included in cluster by the property field
+        trackPointsInClusterByPropertyField: false, // track points included in cluster by the property field
+        trackPointsInClusterFromZoom: null // track points included in cluster starting from zoom level
     },
 
     load: function (points) {
@@ -65,7 +66,7 @@ SuperCluster.prototype = {
         var clusters = [];
         for (var i = 0; i < ids.length; i++) {
             var c = tree.points[ids[i]];
-            clusters.push(c.id !== -1 ? this.points[c.id] : getClusterJSON(c, !!this.options.trackPointsInClusterByPropertyField));
+            clusters.push(c.id !== -1 ? this.points[c.id] : getClusterJSON(c));
         }
         return clusters;
     },
@@ -110,7 +111,7 @@ SuperCluster.prototype = {
                     Math.round(this.options.extent * (c.x * z2 - x)),
                     Math.round(this.options.extent * (c.y * z2 - y))
                 ]],
-                tags: c.id !== -1 ? this.points[c.id].properties : getClusterProperties(c, !!this.options.trackPointsInClusterByPropertyField)
+                tags: c.id !== -1 ? this.points[c.id].properties : getClusterProperties(c)
             });
         }
     },
@@ -122,6 +123,7 @@ SuperCluster.prototype = {
     _cluster: function (points, zoom) {
         var clusters = [];
         var r = this.options.radius / (this.options.extent * Math.pow(2, zoom));
+        var trackPoints = this._shouldTrackPoints(zoom);
 
         // loop through each point
         for (var i = 0; i < points.length; i++) {
@@ -140,7 +142,7 @@ SuperCluster.prototype = {
             var wy = p.y * numPoints;
             var includedPoints;
 
-            if (this.options.trackPointsInClusterByPropertyField) {
+            if (trackPoints) {
                 includedPoints = [];
                 this._trackPoint(p, includedPoints);
             }
@@ -154,7 +156,7 @@ SuperCluster.prototype = {
                     wx += b.x * b.numPoints; // accumulate coordinates for calculating weighted center
                     wy += b.y * b.numPoints;
                     numPoints += b.numPoints;
-                    if (this.options.trackPointsInClusterByPropertyField) {
+                    if (trackPoints) {
                         this._trackPoint(b, includedPoints);
                     }
                 }
@@ -178,6 +180,10 @@ SuperCluster.prototype = {
             var point = this.points[treePoint.id];
             includedPoints.push(point.properties[trackByField]);
         }
+    },
+
+    _shouldTrackPoints: function (zoom) {
+        return this.options.trackPointsInClusterByPropertyField && zoom >= this.options.trackPointsInClusterFromZoom;
     }
 
 };
@@ -198,10 +204,10 @@ function createPointCluster(p, i) {
     return createCluster(lngX(coords[0]), latY(coords[1]), 1, i);
 }
 
-function getClusterJSON(cluster, trackPoints) {
+function getClusterJSON(cluster) {
     return {
         type: 'Feature',
-        properties: getClusterProperties(cluster, trackPoints),
+        properties: getClusterProperties(cluster),
         geometry: {
             type: 'Point',
             coordinates: [xLng(cluster.x), yLat(cluster.y)]
@@ -209,7 +215,7 @@ function getClusterJSON(cluster, trackPoints) {
     };
 }
 
-function getClusterProperties(cluster, trackPoints) {
+function getClusterProperties(cluster) {
     var count = cluster.numPoints;
     var abbrev = count >= 10000 ? Math.round(count / 1000) + 'k' :
                  count >= 1000 ? (Math.round(count / 100) / 10) + 'k' : count;
@@ -219,7 +225,7 @@ function getClusterProperties(cluster, trackPoints) {
         point_count_abbreviated: abbrev
     };
 
-    if (trackPoints) {
+    if (cluster.includedPoints) {
         clusterProperties.includedPoints = cluster.includedPoints;
     }
     return clusterProperties;

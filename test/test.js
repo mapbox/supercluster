@@ -14,8 +14,26 @@ test(function (t) {
     t.end();
 });
 
+
+// Should not track points in cluster if cluster's zoom lesser than 'trackPointsInClusterFromZoom'.
 test(function (t) {
-    var index = supercluster({trackPointsInClusterByPropertyField: 'name'}).load(places.features);
+    var index = supercluster({
+        trackPointsInClusterByPropertyField: 'name',
+        trackPointsInClusterFromZoom: 15
+    }).load(places.features);
+
+    var tile = index.getTile(0, 0, 0);
+    t.same(tile.features, placesTile.features);
+    t.end();
+});
+
+// Should track points by field in cluster if cluster's zoom greater than 'trackPointsInClusterFromZoom'.
+test(function (t) {
+    var index = supercluster({
+        trackPointsInClusterByPropertyField: 'name',
+        trackPointsInClusterFromZoom: 0
+    }).load(places.features);
+
     var tile = index.getTile(0, 0, 0);
 
     t.same(tile.features, placesTileWithPointsTracked.features);
