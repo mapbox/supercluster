@@ -23,7 +23,7 @@ Clustering 6 million points in Leaflet:
 
 * load(`points`) : `this`
 
-Loads an array of points, in [GeoJSON.Point](http://geojson.org/geojson-spec.html#point) format. Once loaded, index is immutable.
+Loads an array of [GeoJSON.Feature](http://geojson.org/geojson-spec.html#feature-objects) objects. Each feature's `geometry` must be a [GeoJSON.Point](http://geojson.org/geojson-spec.html#point). Once loaded, index is immutable.
 
 * getClusters(`bbox`, `zoom`) : Array<[GeoJSON.Feature](http://geojson.org/geojson-spec.html#feature-objects)>
 
