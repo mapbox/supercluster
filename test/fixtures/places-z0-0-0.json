@@ -7,6 +7,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 0,
         "point_count": 16,
         "point_count_abbreviated": 16
       }
@@ -18,6 +19,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 1,
         "point_count": 18,
         "point_count_abbreviated": 18
       }
@@ -29,6 +31,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 2,
         "point_count": 13,
         "point_count_abbreviated": 13
       }
@@ -40,6 +43,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 3,
         "point_count": 8,
         "point_count_abbreviated": 8
       }
@@ -51,6 +55,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 4,
         "point_count": 15,
         "point_count_abbreviated": 15
       }
@@ -62,6 +67,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 5,
         "point_count": 4,
         "point_count_abbreviated": 4
       }
@@ -73,6 +79,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 8,
         "point_count": 6,
         "point_count_abbreviated": 6
       }
@@ -101,6 +108,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 11,
         "point_count": 3,
         "point_count_abbreviated": 3
       }
@@ -112,6 +120,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 13,
         "point_count": 4,
         "point_count_abbreviated": 4
       }
@@ -123,6 +132,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 15,
         "point_count": 6,
         "point_count_abbreviated": 6
       }
@@ -202,6 +212,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 21,
         "point_count": 3,
         "point_count_abbreviated": 3
       }
@@ -213,6 +224,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 23,
         "point_count": 6,
         "point_count_abbreviated": 6
       }
@@ -258,6 +270,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 26,
         "point_count": 2,
         "point_count_abbreviated": 2
       }
@@ -269,6 +282,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 30,
         "point_count": 13,
         "point_count_abbreviated": 13
       }
@@ -280,6 +294,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 32,
         "point_count": 5,
         "point_count_abbreviated": 5
       }
@@ -291,6 +306,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 35,
         "point_count": 2,
         "point_count_abbreviated": 2
       }
@@ -319,6 +335,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 38,
         "point_count": 13,
         "point_count_abbreviated": 13
       }
@@ -330,6 +347,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 40,
         "point_count": 4,
         "point_count_abbreviated": 4
       }
@@ -358,6 +376,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 47,
         "point_count": 7,
         "point_count_abbreviated": 7
       }
@@ -420,6 +439,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 58,
         "point_count": 2,
         "point_count_abbreviated": 2
       }
@@ -431,6 +451,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 38,
         "point_count": 13,
         "point_count_abbreviated": 13
       }
@@ -442,6 +463,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 40,
         "point_count": 4,
         "point_count_abbreviated": 4
       }
@@ -470,6 +492,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 47,
         "point_count": 7,
         "point_count_abbreviated": 7
       }
@@ -498,6 +521,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 23,
         "point_count": 6,
         "point_count_abbreviated": 6
       }
@@ -509,6 +533,7 @@
       ],
       "tags": {
         "cluster": true,
+        "cluster_id": 26,
         "point_count": 2,
         "point_count_abbreviated": 2
       }
