@@ -20,11 +20,13 @@ SuperCluster.prototype = {
         radius: 40,   // cluster radius in pixels
         extent: 512,  // tile extent (radius is calculated relative to it)
         nodeSize: 64, // size of the KD-tree leaf node, affects performance
-        log: false    // whether to log timing info
+        log: false,   // whether to log timing info
+        includeSubPoints: false // whether to include subPoints in clusters
     },
 
     load: function (points) {
         var log = this.options.log;
+        var includeSubPoints = this.options.includeSubPoints;
 
         if (log) console.time('total time');
 
@@ -34,7 +36,9 @@ SuperCluster.prototype = {
         this.points = points;
 
         // generate a cluster object for each point
-        var clusters = points.map(createPointCluster);
+        var clusters = points.map(function (p, i) {
+            return createPointCluster(p, i, includeSubPoints);
+        });
         if (log) console.timeEnd(timerId);
 
         // cluster points on max zoom, then cluster the results on previous zoom, etc.;
@@ -125,6 +129,7 @@ SuperCluster.prototype = {
         // loop through each point
         for (var i = 0; i < points.length; i++) {
             var p = points[i];
+            var subPoints = (this.options.includeSubPoints) ? [].concat(p.subPoints) : null;
             // if we've already visited the point at this zoom level, skip it
             if (p.zoom <= zoom) continue;
             p.zoom = zoom;
@@ -147,29 +152,34 @@ SuperCluster.prototype = {
                     wx += b.x * b.numPoints; // accumulate coordinates for calculating weighted center
                     wy += b.y * b.numPoints;
                     numPoints += b.numPoints;
+                    if (this.options.includeSubPoints) {
+                        subPoints = subPoints.concat(b.subPoints);
+                    }
                 }
             }
 
-            clusters.push(foundNeighbors ? createCluster(wx / numPoints, wy / numPoints, numPoints, -1) : p);
+            clusters.push(foundNeighbors ? createCluster(wx / numPoints, wy / numPoints, numPoints, -1, subPoints) : p);
         }
 
         return clusters;
     }
 };
 
-function createCluster(x, y, numPoints, id) {
+function createCluster(x, y, numPoints, id, subPoints) {
     return {
         x: x, // weighted cluster center
         y: y,
         zoom: Infinity, // the last zoom the cluster was processed at
         id: id, // index of the source feature in the original input array
-        numPoints: numPoints
+        numPoints: numPoints,
+        subPoints: subPoints
     };
 }
 
-function createPointCluster(p, i) {
+function createPointCluster(p, i, addSubPoints) {
     var coords = p.geometry.coordinates;
-    return createCluster(lngX(coords[0]), latY(coords[1]), 1, i);
+    var subPoints = (addSubPoints) ? [coords] : null;
+    return createCluster(lngX(coords[0]), latY(coords[1]), 1, i, subPoints);
 }
 
 function getClusterJSON(cluster) {
@@ -190,7 +200,8 @@ function getClusterProperties(cluster) {
     return {
         cluster: true,
         point_count: count,
-        point_count_abbreviated: abbrev
+        point_count_abbreviated: abbrev,
+        subPoints: cluster.subPoints
     };
 }
 
