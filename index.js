@@ -20,7 +20,9 @@ SuperCluster.prototype = {
         radius: 40,   // cluster radius in pixels
         extent: 512,  // tile extent (radius is calculated relative to it)
         nodeSize: 64, // size of the KD-tree leaf node, affects performance
-        log: false    // whether to log timing info
+        log: false,    // whether to log timing info
+        trackPointsInClusterByPropertyField: false, // track points included in cluster by the property field
+        trackPointsInClusterFromZoom: null // track points included in cluster starting from zoom level
     },
 
     load: function (points) {
@@ -121,6 +123,7 @@ SuperCluster.prototype = {
     _cluster: function (points, zoom) {
         var clusters = [];
         var r = this.options.radius / (this.options.extent * Math.pow(2, zoom));
+        var trackPoints = this._shouldTrackPoints(zoom);
 
         // loop through each point
         for (var i = 0; i < points.length; i++) {
@@ -137,6 +140,12 @@ SuperCluster.prototype = {
             var numPoints = p.numPoints;
             var wx = p.x * numPoints;
             var wy = p.y * numPoints;
+            var includedPoints;
+
+            if (trackPoints) {
+                includedPoints = [];
+                this._trackPoint(p, includedPoints);
+            }
 
             for (var j = 0; j < neighborIds.length; j++) {
                 var b = tree.points[neighborIds[j]];
@@ -147,23 +156,46 @@ SuperCluster.prototype = {
                     wx += b.x * b.numPoints; // accumulate coordinates for calculating weighted center
                     wy += b.y * b.numPoints;
                     numPoints += b.numPoints;
+                    if (trackPoints) {
+                        this._trackPoint(b, includedPoints);
+                    }
                 }
             }
 
-            clusters.push(foundNeighbors ? createCluster(wx / numPoints, wy / numPoints, numPoints, -1) : p);
+            clusters.push(foundNeighbors ? createCluster(wx / numPoints, wy / numPoints, numPoints, -1, includedPoints) : p);
         }
 
         return clusters;
+    },
+
+    _trackPoint: function (treePoint, includedPoints) {
+        var trackByField = this.options.trackPointsInClusterByPropertyField;
+        if (treePoint.id === -1) {
+            // Add includedPoints in subCluster into cluster's includedPoints
+            for (var i = 0; i < treePoint.includedPoints.length; i++) {
+                includedPoints.push(treePoint.includedPoints[i]);
+            }
+        } else {
+            // Add point into cluster's includedPoints
+            var point = this.points[treePoint.id];
+            includedPoints.push(point.properties[trackByField]);
+        }
+    },
+
+    _shouldTrackPoints: function (zoom) {
+        return this.options.trackPointsInClusterByPropertyField && zoom >= this.options.trackPointsInClusterFromZoom;
     }
+
 };
 
-function createCluster(x, y, numPoints, id) {
+function createCluster(x, y, numPoints, id, includedPoints) {
     return {
         x: x, // weighted cluster center
         y: y,
         zoom: Infinity, // the last zoom the cluster was processed at
         id: id, // index of the source feature in the original input array
-        numPoints: numPoints
+        numPoints: numPoints,
+        includedPoints: includedPoints
     };
 }
 
@@ -187,11 +219,16 @@ function getClusterProperties(cluster) {
     var count = cluster.numPoints;
     var abbrev = count >= 10000 ? Math.round(count / 1000) + 'k' :
                  count >= 1000 ? (Math.round(count / 100) / 10) + 'k' : count;
-    return {
+    var clusterProperties = {
         cluster: true,
         point_count: count,
         point_count_abbreviated: abbrev
     };
+
+    if (cluster.includedPoints) {
+        clusterProperties.includedPoints = cluster.includedPoints;
+    }
+    return clusterProperties;
 }
 
 // longitude/latitude to spherical mercator in [0..1] range
