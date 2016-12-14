@@ -35,7 +35,7 @@ For the given `bbox` array (`[westLng, southLat, eastLng, northLat]`) and intege
 |----------|---------|-----------------------------------------------------|
 | minZoom  | 0       | Minimum zoom level at which clusters are generated. |
 | maxZoom  | 16      | Maximum zoom level at which clusters are generated. |
-| radius   | 40      | (Tiles) Cluster radius, in pixels.                  |
+| radius   | 40      | Cluster radius, in pixels.                  |
 | extent   | 512     | (Tiles) Tile extent.                                |
 | nodeSize | 64      | Size of the KD-tree leaf node. Affects performance. |
 | log      | false   | Whether timing info should be logged.               |
