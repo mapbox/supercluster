@@ -26,14 +26,14 @@
   "author": "Vladimir Agafonkin",
   "license": "ISC",
   "dependencies": {
-    "kdbush": "^1.0.0"
+    "kdbush": "^1.0.1"
   },
   "devDependencies": {
-    "browserify": "^13.1.0",
-    "eslint": "^2.7.0",
+    "browserify": "^13.1.1",
+    "eslint": "^3.12.2",
     "eslint-config-mourner": "^2.0.1",
     "mkdirp": "^0.5.1",
-    "tap": "^5.7.1",
+    "tap": "^8.0.1",
     "uglifyjs": "^2.4.10"
   },
   "eslintConfig": {
