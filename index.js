@@ -34,7 +34,7 @@ SuperCluster.prototype = {
         this.points = points;
 
         // generate a cluster object for each point
-        var clusters = points.map(createPointCluster);
+        var clusters = points.map(createPointCluster.bind(this));
         if (log) console.timeEnd(timerId);
 
         // cluster points on max zoom, then cluster the results on previous zoom, etc.;
@@ -148,6 +148,7 @@ SuperCluster.prototype = {
             var neighborIds = tree.within(p.x, p.y, r);
 
             var numPoints = p.numPoints;
+            var aggregate = p.aggregate;
             var wx = p.x * numPoints;
             var wy = p.y * numPoints;
 
@@ -159,6 +160,9 @@ SuperCluster.prototype = {
                     wx += b.x * b.numPoints; // accumulate coordinates for calculating weighted center
                     wy += b.y * b.numPoints;
                     numPoints += b.numPoints;
+                    if (this.options.aggregateBy) {
+                        aggregate += b.aggregate;
+                    }
                     b.parentId = i;
                 }
             }
@@ -167,7 +171,7 @@ SuperCluster.prototype = {
                 clusters.push(p);
             } else {
                 p.parentId = i;
-                clusters.push(createCluster(wx / numPoints, wy / numPoints, numPoints, i));
+                clusters.push(createCluster(wx / numPoints, wy / numPoints, numPoints, i, aggregate));
             }
         }
 
@@ -175,7 +179,7 @@ SuperCluster.prototype = {
     }
 };
 
-function createCluster(x, y, numPoints, id) {
+function createCluster(x, y, numPoints, id, aggregate) {
     return {
         x: x, // weighted cluster center
         y: y,
@@ -186,13 +190,15 @@ function createCluster(x, y, numPoints, id) {
         id: id,
 
         parentId: -1, // parent cluster id
-        numPoints: numPoints
+        numPoints: numPoints,
+        aggregate: aggregate
     };
 }
 
 function createPointCluster(p, i) {
     var coords = p.geometry.coordinates;
-    return createCluster(lngX(coords[0]), latY(coords[1]), 1, i);
+    var aggregate = this.options.aggregateBy ? p.properties[this.options.aggregateBy] || 0 : false;
+    return createCluster(lngX(coords[0]), latY(coords[1]), 1, i, aggregate);
 }
 
 function getClusterJSON(cluster) {
@@ -210,12 +216,18 @@ function getClusterProperties(cluster) {
     var count = cluster.numPoints;
     var abbrev = count >= 10000 ? Math.round(count / 1000) + 'k' :
                  count >= 1000 ? (Math.round(count / 100) / 10) + 'k' : count;
-    return {
+    var clusterProperties = {
         cluster: true,
         cluster_id: cluster.id,
         point_count: count,
         point_count_abbreviated: abbrev
     };
+
+    if (cluster.aggregate !== false) {
+        clusterProperties.aggregate = cluster.aggregate;
+    }
+
+    return clusterProperties;
 }
 
 // longitude/latitude to spherical mercator in [0..1] range
