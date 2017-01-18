@@ -124,6 +124,16 @@ SuperCluster.prototype = {
         return tile.features.length ? tile : null;
     },
 
+    getClusterExpansionZoom: function (clusterId, zoom) {
+        while (zoom < this.options.maxZoom) {
+            var children = this.getChildren(clusterId, zoom);
+            zoom++;
+            if (children.length !== 1) break;
+            clusterId = children[0].properties.cluster_id;
+        }
+        return zoom;
+    },
+
     _appendLeaves: function (result, clusterId, zoom, limit, offset, skipped) {
         var children = this.getChildren(clusterId, zoom);
 

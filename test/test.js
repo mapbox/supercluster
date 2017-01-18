@@ -37,3 +37,13 @@ test('returns leaves of a cluster', function (t) {
     ]);
     t.end();
 });
+
+test('returns cluster expansion zoom', function (t) {
+    var index = supercluster().load(places.features);
+    t.same(index.getClusterExpansionZoom(0, 0), 1);
+    t.same(index.getClusterExpansionZoom(1, 0), 1);
+    t.same(index.getClusterExpansionZoom(11, 0), 2);
+    t.same(index.getClusterExpansionZoom(26, 0), 2);
+    t.same(index.getClusterExpansionZoom(58, 0), 3);
+    t.end();
+});
