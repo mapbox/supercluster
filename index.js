@@ -83,6 +83,16 @@ SuperCluster.prototype = {
         return children;
     },
 
+    getLeaves: function (clusterId, zoom, limit, offset) {
+        limit = limit || 10;
+        offset = offset || 0;
+
+        var leaves = [];
+        this._appendLeaves(leaves, clusterId, zoom, limit, offset, 0);
+
+        return leaves;
+    },
+
     getTile: function (z, x, y) {
         var tree = this.trees[this._limitZoom(z)];
         var z2 = Math.pow(2, z);
@@ -112,6 +122,34 @@ SuperCluster.prototype = {
         }
 
         return tile.features.length ? tile : null;
+    },
+
+    _appendLeaves: function (result, clusterId, zoom, limit, offset, skipped) {
+        var children = this.getChildren(clusterId, zoom);
+
+        for (var i = 0; i < children.length; i++) {
+            var props = children[i].properties;
+
+            if (props.cluster) {
+                if (skipped + props.point_count <= offset) {
+                    // skip the whole cluster
+                    skipped += props.point_count;
+                } else {
+                    // enter the cluster
+                    skipped = this._appendLeaves(result, props.cluster_id, zoom + 1, limit, offset, skipped);
+                    // exit the cluster
+                }
+            } else if (skipped < offset) {
+                // skip a single point
+                skipped++;
+            } else {
+                // add a single point
+                result.push(children[i]);
+            }
+            if (result.length === limit) break;
+        }
+
+        return skipped;
     },
 
     _addTileFeatures: function (ids, points, x, y, z2, tile) {
