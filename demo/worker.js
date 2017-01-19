@@ -1,9 +1,6 @@
 'use strict';
 
-// generate supercluster.js from the repo root with:
-// browserify index.js -s supercluster > demo/supercluster.js
-
-importScripts('supercluster.js');
+importScripts('../dist/supercluster.js');
 
 var now = Date.now();
 

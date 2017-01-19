@@ -1,6 +1,6 @@
 # supercluster [![Simply Awesome](https://img.shields.io/badge/simply-awesome-brightgreen.svg)](https://github.com/mourner/projects) [![Build Status](https://travis-ci.org/mapbox/supercluster.svg?branch=master)](https://travis-ci.org/mapbox/supercluster)
 
-A very fast JavaScript library for geospatial point clustering for browsers and Node. _A work in progress._
+A very fast JavaScript library for geospatial point clustering for browsers and Node.
 
 ```html
 <script src="https://unpkg.com/supercluster@2.2.0/dist/supercluster.min.js"></script>
@@ -39,3 +39,12 @@ For the given `bbox` array (`[westLng, southLat, eastLng, northLat]`) and intege
 | extent   | 512     | (Tiles) Tile extent. Radius is calculated relative to this value. |
 | nodeSize | 64      | Size of the KD-tree leaf node. Affects performance.               |
 | log      | false   | Whether timing info should be logged.                             |
+
+## Developing Supercluster
+
+```
+npm install       # install dependencies
+npm run build-dev # generate dist/supercluster.js
+npm run build-min # generate dist/supercluster.min.js
+npm test          # run tests
+```
