@@ -69,13 +69,13 @@ SuperCluster.prototype = {
         return clusters;
     },
 
-    getChildren: function (clusterId, zoom) {
-        var origin = this.trees[zoom + 1].points[clusterId];
-        var r = this.options.radius / (this.options.extent * Math.pow(2, zoom));
-        var points = this.trees[zoom + 1].within(origin.x, origin.y, r);
+    getChildren: function (clusterId, clusterZoom) {
+        var origin = this.trees[clusterZoom + 1].points[clusterId];
+        var r = this.options.radius / (this.options.extent * Math.pow(2, clusterZoom));
+        var points = this.trees[clusterZoom + 1].within(origin.x, origin.y, r);
         var children = [];
         for (var i = 0; i < points.length; i++) {
-            var c = this.trees[zoom + 1].points[points[i]];
+            var c = this.trees[clusterZoom + 1].points[points[i]];
             if (c.parentId === clusterId) {
                 children.push(c.numPoints === 1 ? this.points[c.id] : getClusterJSON(c));
             }
@@ -83,12 +83,12 @@ SuperCluster.prototype = {
         return children;
     },
 
-    getLeaves: function (clusterId, zoom, limit, offset) {
+    getLeaves: function (clusterId, clusterZoom, limit, offset) {
         limit = limit || 10;
         offset = offset || 0;
 
         var leaves = [];
-        this._appendLeaves(leaves, clusterId, zoom, limit, offset, 0);
+        this._appendLeaves(leaves, clusterId, clusterZoom, limit, offset, 0);
 
         return leaves;
     },
@@ -124,18 +124,18 @@ SuperCluster.prototype = {
         return tile.features.length ? tile : null;
     },
 
-    getClusterExpansionZoom: function (clusterId, zoom) {
-        while (zoom < this.options.maxZoom) {
-            var children = this.getChildren(clusterId, zoom);
-            zoom++;
+    getClusterExpansionZoom: function (clusterId, clusterZoom) {
+        while (clusterZoom < this.options.maxZoom) {
+            var children = this.getChildren(clusterId, clusterZoom);
+            clusterZoom++;
             if (children.length !== 1) break;
             clusterId = children[0].properties.cluster_id;
         }
-        return zoom;
+        return clusterZoom;
     },
 
-    _appendLeaves: function (result, clusterId, zoom, limit, offset, skipped) {
-        var children = this.getChildren(clusterId, zoom);
+    _appendLeaves: function (result, clusterId, clusterZoom, limit, offset, skipped) {
+        var children = this.getChildren(clusterId, clusterZoom);
 
         for (var i = 0; i < children.length; i++) {
             var props = children[i].properties;
@@ -146,7 +146,8 @@ SuperCluster.prototype = {
                     skipped += props.point_count;
                 } else {
                     // enter the cluster
-                    skipped = this._appendLeaves(result, props.cluster_id, zoom + 1, limit, offset, skipped);
+                    skipped = this._appendLeaves(
+                        result, props.cluster_id, clusterZoom + 1, limit, offset, skipped);
                     // exit the cluster
                 }
             } else if (skipped < offset) {
