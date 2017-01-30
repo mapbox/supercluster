@@ -26,10 +26,10 @@ SuperCluster.prototype = {
         reduce: null, // function (accumulated, props) { accumulated.sum += props.sum; }
 
         // initial properties of a cluster (before running the reducer)
-        initial: null, // function () { return {sum: 0}; },
+        initial: function () { return {}; }, // function () { return {sum: 0}; },
 
         // properties to use for individual points when running the reducer
-        map: null // function (props) { return {sum: props.my_value}; },
+        map: function (props) { return props; } // function (props) { return {sum: props.my_value}; },
     },
 
     load: function (points) {
