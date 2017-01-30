@@ -20,7 +20,16 @@ SuperCluster.prototype = {
         radius: 40,   // cluster radius in pixels
         extent: 512,  // tile extent (radius is calculated relative to it)
         nodeSize: 64, // size of the KD-tree leaf node, affects performance
-        log: false    // whether to log timing info
+        log: false,   // whether to log timing info
+
+        // a reduce function for calculating custom cluster properties
+        reduce: null, // function (accumulated, props) { accumulated.sum += props.sum; }
+
+        // initial properties of a cluster (before running the reducer)
+        initial: null, // function () { return {sum: 0}; },
+
+        // properties to use for individual points when running the reducer
+        map: null // function (props) { return {sum: props.my_value}; },
     },
 
     load: function (points) {
@@ -200,6 +209,13 @@ SuperCluster.prototype = {
             var wx = p.x * numPoints;
             var wy = p.y * numPoints;
 
+            var clusterProperties = null;
+
+            if (this.options.reduce) {
+                clusterProperties = this.options.initial();
+                this._accumulate(clusterProperties, p);
+            }
+
             for (var j = 0; j < neighborIds.length; j++) {
                 var b = tree.points[neighborIds[j]];
                 // filter out neighbors that are too far or already processed
@@ -209,6 +225,10 @@ SuperCluster.prototype = {
                     wy += b.y * b.numPoints;
                     numPoints += b.numPoints;
                     b.parentId = i;
+
+                    if (this.options.reduce) {
+                        this._accumulate(clusterProperties, b);
+                    }
                 }
             }
 
@@ -216,15 +236,23 @@ SuperCluster.prototype = {
                 clusters.push(p);
             } else {
                 p.parentId = i;
-                clusters.push(createCluster(wx / numPoints, wy / numPoints, numPoints, i));
+                clusters.push(createCluster(wx / numPoints, wy / numPoints, numPoints, i, clusterProperties));
             }
         }
 
         return clusters;
+    },
+
+    _accumulate: function (clusterProperties, point) {
+        var properties = point.numPoints === 1 ?
+            this.options.map(this.points[point.id].properties) :
+            point.properties;
+
+        this.options.reduce(clusterProperties, properties);
     }
 };
 
-function createCluster(x, y, numPoints, id) {
+function createCluster(x, y, numPoints, id, properties) {
     return {
         x: x, // weighted cluster center
         y: y,
@@ -234,6 +262,8 @@ function createCluster(x, y, numPoints, id) {
         // cluster id: index of the first child of the cluster in the zoom level tree
         id: id,
 
+        properties: properties,
+
         parentId: -1, // parent cluster id
         numPoints: numPoints
     };
@@ -241,7 +271,7 @@ function createCluster(x, y, numPoints, id) {
 
 function createPointCluster(p, i) {
     var coords = p.geometry.coordinates;
-    return createCluster(lngX(coords[0]), latY(coords[1]), 1, i);
+    return createCluster(lngX(coords[0]), latY(coords[1]), 1, i, null);
 }
 
 function getClusterJSON(cluster) {
@@ -259,12 +289,12 @@ function getClusterProperties(cluster) {
     var count = cluster.numPoints;
     var abbrev = count >= 10000 ? Math.round(count / 1000) + 'k' :
                  count >= 1000 ? (Math.round(count / 100) / 10) + 'k' : count;
-    return {
+    return extend(extend({}, cluster.properties), {
         cluster: true,
         cluster_id: cluster.id,
         point_count: count,
         point_count_abbreviated: abbrev
-    };
+    });
 }
 
 // longitude/latitude to spherical mercator in [0..1] range
