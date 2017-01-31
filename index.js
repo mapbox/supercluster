@@ -73,7 +73,7 @@ SuperCluster.prototype = {
         var clusters = [];
         for (var i = 0; i < ids.length; i++) {
             var c = tree.points[ids[i]];
-            clusters.push(c.numPoints === 1 ? this.points[c.id] : getClusterJSON(c));
+            clusters.push(c.numPoints ? getClusterJSON(c) : this.points[c.id]);
         }
         return clusters;
     },
@@ -86,7 +86,7 @@ SuperCluster.prototype = {
         for (var i = 0; i < points.length; i++) {
             var c = this.trees[clusterZoom + 1].points[points[i]];
             if (c.parentId === clusterId) {
-                children.push(c.numPoints === 1 ? this.points[c.id] : getClusterJSON(c));
+                children.push(c.numPoints ? getClusterJSON(c) : this.points[c.id]);
             }
         }
         return children;
@@ -181,7 +181,7 @@ SuperCluster.prototype = {
                     Math.round(this.options.extent * (c.x * z2 - x)),
                     Math.round(this.options.extent * (c.y * z2 - y))
                 ]],
-                tags: c.numPoints === 1 ? this.points[c.id].properties : getClusterProperties(c)
+                tags: c.numPoints ? getClusterProperties(c) : this.points[c.id].properties
             });
         }
     },
@@ -205,7 +205,7 @@ SuperCluster.prototype = {
             var tree = this.trees[zoom + 1];
             var neighborIds = tree.within(p.x, p.y, r);
 
-            var numPoints = p.numPoints;
+            var numPoints = p.numPoints || 1;
             var wx = p.x * numPoints;
             var wy = p.y * numPoints;
 
@@ -220,10 +220,11 @@ SuperCluster.prototype = {
                 var b = tree.points[neighborIds[j]];
                 // filter out neighbors that are too far or already processed
                 if (zoom < b.zoom) {
+                    var numPoints2 = b.numPoints || 1;
                     b.zoom = zoom; // save the zoom (so it doesn't get processed twice)
-                    wx += b.x * b.numPoints; // accumulate coordinates for calculating weighted center
-                    wy += b.y * b.numPoints;
-                    numPoints += b.numPoints;
+                    wx += b.x * numPoints2; // accumulate coordinates for calculating weighted center
+                    wy += b.y * numPoints2;
+                    numPoints += numPoints2;
                     b.parentId = i;
 
                     if (this.options.reduce) {
@@ -244,9 +245,9 @@ SuperCluster.prototype = {
     },
 
     _accumulate: function (clusterProperties, point) {
-        var properties = point.numPoints === 1 ?
-            this.options.map(this.points[point.id].properties) :
-            point.properties;
+        var properties = point.numPoints ?
+            point.properties :
+            this.options.map(this.points[point.id].properties);
 
         this.options.reduce(clusterProperties, properties);
     }
@@ -257,21 +258,22 @@ function createCluster(x, y, numPoints, id, properties) {
         x: x, // weighted cluster center
         y: y,
         zoom: Infinity, // the last zoom the cluster was processed at
-
-        // point id: index of the source feature in the original input array
-        // cluster id: index of the first child of the cluster in the zoom level tree
-        id: id,
-
+        id: id, // index of the first child of the cluster in the zoom level tree
         properties: properties,
-
         parentId: -1, // parent cluster id
         numPoints: numPoints
     };
 }
 
-function createPointCluster(p, i) {
+function createPointCluster(p, id) {
     var coords = p.geometry.coordinates;
-    return createCluster(lngX(coords[0]), latY(coords[1]), 1, i, null);
+    return {
+        x: lngX(coords[0]), // projected point coordinates
+        y: latY(coords[1]),
+        zoom: Infinity, // the last zoom the point was processed at
+        id: id, // index of the source feature in the original input array
+        parentId: -1 // parent cluster id
+    };
 }
 
 function getClusterJSON(cluster) {
