@@ -47,3 +47,15 @@ test('returns cluster expansion zoom', function (t) {
     t.same(index.getClusterExpansionZoom(58, 0), 3);
     t.end();
 });
+
+test('aggregates cluster properties with reduce', function (t) {
+    var index = supercluster({
+        initial: function () { return {sum: 0}; },
+        map: function (props) { return {sum: props.scalerank}; },
+        reduce: function (a, b) { a.sum += b.sum; }
+    }).load(places.features);
+
+    t.equal(index.getTile(0, 0, 0).features[0].tags.sum, 69);
+
+    t.end();
+});
