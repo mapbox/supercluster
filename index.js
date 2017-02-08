@@ -53,7 +53,7 @@ SuperCluster.prototype = {
         for (var z = this.options.maxZoom; z >= this.options.minZoom; z--) {
             var now = +Date.now();
 
-            // create a new set of clusters for the zoom and index input points into a KD-tree
+            // create a new set of clusters for the zoom and index them with a KD-tree
             clusters = this._cluster(clusters, z);
             this.trees[z] = kdbush(clusters, getX, getY, this.options.nodeSize, Float32Array);
 
@@ -216,7 +216,7 @@ SuperCluster.prototype = {
 
             for (var j = 0; j < neighborIds.length; j++) {
                 var b = tree.points[neighborIds[j]];
-                // filter out neighbors that already processed
+                // filter out neighbors that are already processed
                 if (b.zoom <= zoom) continue;
                 b.zoom = zoom; // save the zoom (so it doesn't get processed twice)
 
