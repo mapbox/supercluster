@@ -42,8 +42,10 @@ SuperCluster.prototype = {
 
         this.points = points;
 
-        // generate a cluster object for each point
+        // generate a cluster object for each point and index input points into a KD-tree
         var clusters = points.map(createPointCluster);
+        this.trees[this.options.maxZoom + 1] = kdbush(clusters, getX, getY, this.options.nodeSize, Float32Array);
+
         if (log) console.timeEnd(timerId);
 
         // cluster points on max zoom, then cluster the results on previous zoom, etc.;
@@ -51,16 +53,12 @@ SuperCluster.prototype = {
         for (var z = this.options.maxZoom; z >= this.options.minZoom; z--) {
             var now = +Date.now();
 
-            // index input points into a KD-tree
-            this.trees[z + 1] = kdbush(clusters, getX, getY, this.options.nodeSize, Float32Array);
-
-            clusters = this._cluster(clusters, z); // create a new set of clusters for the zoom
+            // create a new set of clusters for the zoom and index input points into a KD-tree
+            clusters = this._cluster(clusters, z);
+            this.trees[z] = kdbush(clusters, getX, getY, this.options.nodeSize, Float32Array);
 
             if (log) console.log('z%d: %d clusters in %dms', z, clusters.length, +Date.now() - now);
         }
-
-        // index top-level clusters
-        this.trees[this.options.minZoom] = kdbush(clusters, getX, getY, this.options.nodeSize, Float32Array);
 
         if (log) console.timeEnd('total time');
 
@@ -81,10 +79,10 @@ SuperCluster.prototype = {
     getChildren: function (clusterId, clusterZoom) {
         var origin = this.trees[clusterZoom + 1].points[clusterId];
         var r = this.options.radius / (this.options.extent * Math.pow(2, clusterZoom));
-        var points = this.trees[clusterZoom + 1].within(origin.x, origin.y, r);
+        var ids = this.trees[clusterZoom + 1].within(origin.x, origin.y, r);
         var children = [];
-        for (var i = 0; i < points.length; i++) {
-            var c = this.trees[clusterZoom + 1].points[points[i]];
+        for (var i = 0; i < ids.length; i++) {
+            var c = this.trees[clusterZoom + 1].points[ids[i]];
             if (c.parentId === clusterId) {
                 children.push(c.numPoints ? getClusterJSON(c) : this.points[c.id]);
             }
@@ -218,18 +216,19 @@ SuperCluster.prototype = {
 
             for (var j = 0; j < neighborIds.length; j++) {
                 var b = tree.points[neighborIds[j]];
-                // filter out neighbors that are too far or already processed
-                if (zoom < b.zoom) {
-                    var numPoints2 = b.numPoints || 1;
-                    b.zoom = zoom; // save the zoom (so it doesn't get processed twice)
-                    wx += b.x * numPoints2; // accumulate coordinates for calculating weighted center
-                    wy += b.y * numPoints2;
-                    numPoints += numPoints2;
-                    b.parentId = i;
+                // filter out neighbors that already processed
+                if (b.zoom <= zoom) continue;
+                b.zoom = zoom; // save the zoom (so it doesn't get processed twice)
 
-                    if (this.options.reduce) {
-                        this._accumulate(clusterProperties, b);
-                    }
+                var numPoints2 = b.numPoints || 1;
+                wx += b.x * numPoints2; // accumulate coordinates for calculating weighted center
+                wy += b.y * numPoints2;
+
+                numPoints += numPoints2;
+                b.parentId = i;
+
+                if (this.options.reduce) {
+                    this._accumulate(clusterProperties, b);
                 }
             }
 
@@ -237,7 +236,7 @@ SuperCluster.prototype = {
                 clusters.push(p);
             } else {
                 p.parentId = i;
-                clusters.push(createCluster(wx / numPoints, wy / numPoints, numPoints, i, clusterProperties));
+                clusters.push(createCluster(wx / numPoints, wy / numPoints, i, numPoints, clusterProperties));
             }
         }
 
@@ -253,15 +252,15 @@ SuperCluster.prototype = {
     }
 };
 
-function createCluster(x, y, numPoints, id, properties) {
+function createCluster(x, y, id, numPoints, properties) {
     return {
         x: x, // weighted cluster center
         y: y,
         zoom: Infinity, // the last zoom the cluster was processed at
         id: id, // index of the first child of the cluster in the zoom level tree
-        properties: properties,
         parentId: -1, // parent cluster id
-        numPoints: numPoints
+        numPoints: numPoints,
+        properties: properties
     };
 }
 
