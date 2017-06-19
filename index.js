@@ -43,7 +43,7 @@ SuperCluster.prototype = {
         this.points = points;
 
         // generate a cluster object for each point and index input points into a KD-tree
-        var clusters = points.map(createPointCluster);
+        var clusters = points.map(createPointCluster).filter(function (i) { return i !== null; });
         this.trees[this.options.maxZoom + 1] = kdbush(clusters, getX, getY, this.options.nodeSize, Float32Array);
 
         if (log) console.timeEnd(timerId);
@@ -265,6 +265,10 @@ function createCluster(x, y, id, numPoints, properties) {
 }
 
 function createPointCluster(p, id) {
+    if (!p.geometry) {
+        return null;
+    }
+
     var coords = p.geometry.coordinates;
     return {
         x: lngX(coords[0]), // projected point coordinates
