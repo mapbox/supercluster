@@ -2916,6 +2916,13 @@
         "type": "Point",
         "coordinates": [-64.74290930897877, 32.31726715702533]
       }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "name": "Null Island"
+      },
+      "geometry": null
     }
   ]
 }
