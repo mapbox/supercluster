@@ -34,7 +34,7 @@
     "eslint-config-mourner": "^2.0.1",
     "mkdirp": "^0.5.1",
     "tap": "^10.0.2",
-    "uglifyjs": "^2.4.10"
+    "uglify-js": "^3.0.18"
   },
   "eslintConfig": {
     "extends": "mourner",
