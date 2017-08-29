@@ -294,8 +294,9 @@ function getClusterJSON(cluster) {
 
 function getClusterProperties(cluster) {
     var count = cluster.numPoints;
-    var abbrev = count >= 10000 ? Math.round(count / 1000) + 'k' :
-                 count >= 1000 ? (Math.round(count / 100) / 10) + 'k' : count;
+    var abbrev =
+        count >= 10000 ? Math.round(count / 1000) + 'k' :
+        count >= 1000 ? (Math.round(count / 100) / 10) + 'k' : count;
     return extend(extend({}, cluster.properties), {
         cluster: true,
         cluster_id: cluster.id,
@@ -311,8 +312,7 @@ function lngX(lng) {
 function latY(lat) {
     var sin = Math.sin(lat * Math.PI / 180),
         y = (0.5 - 0.25 * Math.log((1 + sin) / (1 - sin)) / Math.PI);
-    return y < 0 ? 0 :
-           y > 1 ? 1 : y;
+    return y < 0 ? 0 : y > 1 ? 1 : y;
 }
 
 // spherical mercator to longitude/latitude
