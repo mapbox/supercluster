@@ -149,9 +149,10 @@ SuperCluster.prototype = {
         return tile.features.length ? tile : null;
     },
 
-    getClusterExpansionZoom: function (clusterId, clusterZoom) {
+    getClusterExpansionZoom: function (clusterId) {
+        var clusterZoom = (clusterId % 32) - 1;
         while (clusterZoom < this.options.maxZoom) {
-            var children = this.getChildren(clusterId, clusterZoom);
+            var children = this.getChildren(clusterId);
             clusterZoom++;
             if (children.length !== 1) break;
             clusterId = children[0].properties.cluster_id;
