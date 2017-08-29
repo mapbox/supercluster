@@ -15,14 +15,14 @@ test('generates clusters properly', function (t) {
 
 test('returns children of a cluster', function (t) {
     var index = supercluster().load(places.features);
-    var childCounts = index.getChildren(0, 0).map((p) => p.properties.point_count || 1);
+    var childCounts = index.getChildren(1).map((p) => p.properties.point_count || 1);
     t.same(childCounts, [6, 7, 2, 1]);
     t.end();
 });
 
 test('returns leaves of a cluster', function (t) {
     var index = supercluster().load(places.features);
-    var leafNames = index.getLeaves(0, 0, 10, 5).map((p) => p.properties.name);
+    var leafNames = index.getLeaves(1, 10, 5).map((p) => p.properties.name);
     t.same(leafNames, [
         'Niagara Falls',
         'Cape San Blas',
@@ -47,18 +47,18 @@ test('getLeaves handles null-property features', function (t) {
             coordinates: [-79.04411780507252, 43.08771393436908]
         }
     }]));
-    var leaves = index.getLeaves(0, 0, 1, 6);
+    var leaves = index.getLeaves(1, 1, 6);
     t.equal(leaves[0].properties, null);
     t.end();
 });
 
 test('returns cluster expansion zoom', function (t) {
     var index = supercluster().load(places.features);
-    t.same(index.getClusterExpansionZoom(0, 0), 1);
     t.same(index.getClusterExpansionZoom(1, 0), 1);
-    t.same(index.getClusterExpansionZoom(11, 0), 2);
-    t.same(index.getClusterExpansionZoom(26, 0), 2);
-    t.same(index.getClusterExpansionZoom(58, 0), 3);
+    t.same(index.getClusterExpansionZoom(33, 0), 1);
+    t.same(index.getClusterExpansionZoom(353, 0), 2);
+    t.same(index.getClusterExpansionZoom(833, 0), 2);
+    t.same(index.getClusterExpansionZoom(1857, 0), 3);
     t.end();
 });
 

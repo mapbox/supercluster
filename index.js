@@ -82,26 +82,38 @@ SuperCluster.prototype = {
         return clusters;
     },
 
-    getChildren: function (clusterId, clusterZoom) {
-        var origin = this.trees[clusterZoom + 1].points[clusterId];
-        var r = this.options.radius / (this.options.extent * Math.pow(2, clusterZoom));
-        var ids = this.trees[clusterZoom + 1].within(origin.x, origin.y, r);
+    getChildren: function (clusterId) {
+        var originId = clusterId >> 5;
+        var originZoom = clusterId % 32;
+        var errorMsg = 'No cluster with the specified id.';
+
+        var index = this.trees[originZoom];
+        if (!index) throw new Error(errorMsg);
+
+        var origin = index.points[originId];
+        if (!origin) throw new Error(errorMsg);
+
+        var r = this.options.radius / (this.options.extent * Math.pow(2, originZoom - 1));
+        var ids = index.within(origin.x, origin.y, r);
         var children = [];
         for (var i = 0; i < ids.length; i++) {
-            var c = this.trees[clusterZoom + 1].points[ids[i]];
+            var c = index.points[ids[i]];
             if (c.parentId === clusterId) {
                 children.push(c.numPoints ? getClusterJSON(c) : this.points[c.id]);
             }
         }
+
+        if (children.length === 0) throw new Error(errorMsg);
+
         return children;
     },
 
-    getLeaves: function (clusterId, clusterZoom, limit, offset) {
+    getLeaves: function (clusterId, limit, offset) {
         limit = limit || 10;
         offset = offset || 0;
 
         var leaves = [];
-        this._appendLeaves(leaves, clusterId, clusterZoom, limit, offset, 0);
+        this._appendLeaves(leaves, clusterId, limit, offset, 0);
 
         return leaves;
     },
@@ -147,8 +159,8 @@ SuperCluster.prototype = {
         return clusterZoom;
     },
 
-    _appendLeaves: function (result, clusterId, clusterZoom, limit, offset, skipped) {
-        var children = this.getChildren(clusterId, clusterZoom);
+    _appendLeaves: function (result, clusterId, limit, offset, skipped) {
+        var children = this.getChildren(clusterId);
 
         for (var i = 0; i < children.length; i++) {
             var props = children[i].properties;
@@ -159,8 +171,7 @@ SuperCluster.prototype = {
                     skipped += props.point_count;
                 } else {
                     // enter the cluster
-                    skipped = this._appendLeaves(
-                        result, props.cluster_id, clusterZoom + 1, limit, offset, skipped);
+                    skipped = this._appendLeaves(result, props.cluster_id, limit, offset, skipped);
                     // exit the cluster
                 }
             } else if (skipped < offset) {
@@ -220,6 +231,9 @@ SuperCluster.prototype = {
                 this._accumulate(clusterProperties, p);
             }
 
+            // encode both zoom and point index on which the cluster originated
+            var id = (i << 5) + (zoom + 1);
+
             for (var j = 0; j < neighborIds.length; j++) {
                 var b = tree.points[neighborIds[j]];
                 // filter out neighbors that are already processed
@@ -231,7 +245,7 @@ SuperCluster.prototype = {
                 wy += b.y * numPoints2;
 
                 numPoints += numPoints2;
-                b.parentId = i;
+                b.parentId = id;
 
                 if (this.options.reduce) {
                     this._accumulate(clusterProperties, b);
@@ -241,8 +255,8 @@ SuperCluster.prototype = {
             if (numPoints === 1) {
                 clusters.push(p);
             } else {
-                p.parentId = i;
-                clusters.push(createCluster(wx / numPoints, wy / numPoints, i, numPoints, clusterProperties));
+                p.parentId = id;
+                clusters.push(createCluster(wx / numPoints, wy / numPoints, id, numPoints, clusterProperties));
             }
         }
 
@@ -263,7 +277,7 @@ function createCluster(x, y, id, numPoints, properties) {
         x: x, // weighted cluster center
         y: y,
         zoom: Infinity, // the last zoom the cluster was processed at
-        id: id, // index of the first child of the cluster in the zoom level tree
+        id: id, // encodes index of the first child of the cluster and its zoom level
         parentId: -1, // parent cluster id
         numPoints: numPoints,
         properties: properties
