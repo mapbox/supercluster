@@ -153,7 +153,7 @@ SuperCluster.prototype = {
         for (var i = 0; i < children.length; i++) {
             var props = children[i].properties;
 
-            if (props.cluster) {
+            if (props && props.cluster) {
                 if (skipped + props.point_count <= offset) {
                     // skip the whole cluster
                     skipped += props.point_count;

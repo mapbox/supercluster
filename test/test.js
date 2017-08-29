@@ -38,6 +38,20 @@ test('returns leaves of a cluster', function (t) {
     t.end();
 });
 
+test('getLeaves handles null-property features', function (t) {
+    var index = supercluster().load(places.features.concat([{
+        type: 'Feature',
+        properties: null,
+        geometry: {
+            type: 'Point',
+            coordinates: [-79.04411780507252, 43.08771393436908]
+        }
+    }]));
+    var leaves = index.getLeaves(0, 0, 1, 6);
+    t.equal(leaves[0].properties, null);
+    t.end();
+});
+
 test('returns cluster expansion zoom', function (t) {
     var index = supercluster().load(places.features);
     t.same(index.getClusterExpansionZoom(0, 0), 1);
