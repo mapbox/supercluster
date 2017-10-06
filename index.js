@@ -3,6 +3,7 @@
 var kdbush = require('kdbush');
 
 module.exports = supercluster;
+module.exports.default = supercluster;
 
 function supercluster(options) {
     return new SuperCluster(options);
