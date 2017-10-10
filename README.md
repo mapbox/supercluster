@@ -23,11 +23,11 @@ Clustering 6 million points in Leaflet:
 
 #### `load(points)`
 
-Loads an array of [GeoJSON.Feature](http://geojson.org/geojson-spec.html#feature-objects) objects. Each feature's `geometry` must be a [GeoJSON.Point](http://geojson.org/geojson-spec.html#point). Once loaded, index is immutable.
+Loads an array of [GeoJSON Feature](https://tools.ietf.org/html/rfc7946#section-3.2) objects. Each feature's `geometry` must be a [GeoJSON Point](https://tools.ietf.org/html/rfc7946#section-3.1.2). Once loaded, index is immutable.
 
 #### `getClusters(bbox, zoom)`
 
-For the given `bbox` array (`[westLng, southLat, eastLng, northLat]`) and integer `zoom`, returns an array of clusters and points as [GeoJSON.Feature](http://geojson.org/geojson-spec.html#feature-objects) objects.
+For the given `bbox` array (`[westLng, southLat, eastLng, northLat]`) and integer `zoom`, returns an array of clusters and points as [GeoJSON Feature](https://tools.ietf.org/html/rfc7946#section-3.2) objects.
 
 #### `getTile(z, x, y)`
 
