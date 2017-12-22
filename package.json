@@ -3,16 +3,19 @@
   "version": "3.0.1",
   "description": "A crazy fast geospatial point clustering library.",
   "main": "index.js",
+  "jsdelivr": "dist/supercluster.min.js",
+  "unpkg": "dist/supercluster.min.js",
   "scripts": {
     "pretest": "eslint index.js bench.js test/test.js",
     "test": "tap test",
     "cov": "tap test --cov",
     "build-dev": "mkdirp dist && browserify -d index.js -s supercluster > dist/supercluster.js",
     "build-min": "mkdirp dist && browserify index.js -s supercluster | uglifyjs -c warnings=false -m > dist/supercluster.min.js",
-    "prepublish": "npm run build-dev && npm run build-min"
+    "prepare": "npm run build-dev && npm run build-min"
   },
   "files": [
-    "dist"
+    "dist/supercluster.js",
+    "dist/supercluster.min.js"
   ],
   "repository": {
     "type": "git",
@@ -29,12 +32,12 @@
     "kdbush": "^1.0.1"
   },
   "devDependencies": {
-    "browserify": "^14.4.0",
-    "eslint": "^4.5.0",
-    "eslint-config-mourner": "^2.0.1",
+    "browserify": "^14.5.0",
+    "eslint": "^4.13.1",
+    "eslint-config-mourner": "^2.0.3",
     "mkdirp": "^0.5.1",
-    "tap": "^10.7.2",
-    "uglify-js": "^3.0.28"
+    "tap": "^11.0.1",
+    "uglify-js": "^3.2.2"
   },
   "eslintConfig": {
     "extends": "mourner",
