@@ -73,3 +73,46 @@ test('aggregates cluster properties with reduce', function (t) {
 
     t.end();
 });
+
+test('returns clusters when query crosses international dateline', function (t) {
+    var index = supercluster().load([
+        {
+            type: 'Feature',
+            properties: null,
+            geometry: {
+                type: 'Point',
+                coordinates: [-178.989, 0]
+            }
+        }, {
+            type: 'Feature',
+            properties: null,
+            geometry: {
+                type: 'Point',
+                coordinates: [-178.990, 0]
+            }
+        }, {
+            type: 'Feature',
+            properties: null,
+            geometry: {
+                type: 'Point',
+                coordinates: [-178.991, 0]
+            }
+        }, {
+            type: 'Feature',
+            properties: null,
+            geometry: {
+                type: 'Point',
+                coordinates: [-178.992, 0]
+            }
+        }
+    ]);
+
+    var nonCrossing = index.getClusters([-179, -10, -177, 10], 1);
+    var crossing = index.getClusters([179, -10, -177, 10], 1);
+
+    t.ok(nonCrossing.length);
+    t.ok(crossing.length);
+    t.equal(nonCrossing.length, crossing.length);
+
+    t.end();
+});
