@@ -73,6 +73,12 @@ SuperCluster.prototype = {
     },
 
     getClusters: function (bbox, zoom) {
+        if (bbox[0] > bbox[2]) {
+            var easternHem = this.getClusters([bbox[0], bbox[1], 180, bbox[3]], zoom);
+            var westernHem = this.getClusters([-180, bbox[1], bbox[2], bbox[3]], zoom);
+            return easternHem.concat(westernHem);
+        }
+
         var tree = this.trees[this._limitZoom(zoom)];
         var ids = tree.range(lngX(bbox[0]), latY(bbox[3]), lngX(bbox[2]), latY(bbox[1]));
         var clusters = [];
