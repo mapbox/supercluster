@@ -22,7 +22,12 @@ getJSON('../test/fixtures/places.json', function (geojson) {
 });
 
 self.onmessage = function (e) {
-    if (e.data) {
+    if (e.data.getClusterExpansionZoom) {
+        postMessage({
+            expansionZoom: index.getClusterExpansionZoom(e.data.getClusterExpansionZoom),
+            center: e.data.center
+        });
+    } else if (e.data) {
         postMessage(index.getClusters(e.data.bbox, e.data.zoom));
     }
 };
