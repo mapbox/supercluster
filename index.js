@@ -158,7 +158,9 @@ SuperCluster.prototype = {
 
     getClusterExpansionZoom: function (clusterId) {
         var clusterZoom = (clusterId % 32) - 1;
-        while (clusterZoom < this.options.maxZoom) {
+        while (true) {
+            // if we've run out of cluster levels, return next zoom level
+            if (clusterZoom >= this.options.maxZoom) return clusterZoom + 1;
             var children = this.getChildren(clusterId);
             clusterZoom++;
             if (children.length !== 1) break;

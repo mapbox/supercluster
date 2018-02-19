@@ -62,6 +62,16 @@ test('returns cluster expansion zoom', function (t) {
     t.end();
 });
 
+test('returns maxZoom+1 when cluster doesn\'t expand', function (t) {
+    var index = supercluster({
+        radius: 60,
+        extent: 256,
+        maxZoom: 17
+    }).load(places.features.concat(places.features));
+    t.same(index.getClusterExpansionZoom(609), 18);
+    t.end();
+});
+
 test('aggregates cluster properties with reduce', function (t) {
     var index = supercluster({
         initial: function () { return {sum: 0}; },

@@ -45,7 +45,7 @@ and `offset` is the amount of points to skip (for pagination).
 
 #### `getClusterExpansionZoom(clusterId)`
 
-Returns the zoom on which the cluster expands into several children (useful for "click to zoom" feature) given the cluster's `cluster_id`.
+Returns the zoom on which the cluster expands into several children (useful for "click to zoom" feature) given the cluster's `cluster_id`. If the cluster doesn't expand at `maxZoom`, return `maxZoom + 1`.
 
 ## Options
 
