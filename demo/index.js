@@ -19,6 +19,8 @@ worker.onmessage = function (e) {
     if (e.data.ready) {
         ready = true;
         update();
+    } else if (e.data.expansionZoom) {
+        map.flyTo(e.data.center, e.data.expansionZoom);
     } else {
         markers.clearLayers();
         markers.addData(e.data);
@@ -48,5 +50,15 @@ function createClusterIcon(feature, latlng) {
         className: 'marker-cluster marker-cluster-' + size,
         iconSize: L.point(40, 40)
     });
+
     return L.marker(latlng, {icon: icon});
 }
+
+markers.on('click', function (e) {
+    if (e.layer.feature.properties.cluster_id) {
+        worker.postMessage({
+            getClusterExpansionZoom: e.layer.feature.properties.cluster_id,
+            center: e.latlng
+        });
+    }
+});
