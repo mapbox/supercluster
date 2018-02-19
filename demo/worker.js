@@ -1,5 +1,7 @@
 'use strict';
 
+/*global importScripts supercluster */
+
 importScripts('../dist/supercluster.js');
 
 var now = Date.now();

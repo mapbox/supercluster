@@ -6,7 +6,7 @@
   "jsdelivr": "dist/supercluster.min.js",
   "unpkg": "dist/supercluster.min.js",
   "scripts": {
-    "pretest": "eslint index.js bench.js test/test.js",
+    "pretest": "eslint index.js bench.js test/test.js demo/index.js demo/worker.js",
     "test": "tap test",
     "cov": "tap test --cov",
     "build-dev": "mkdirp dist && browserify -d index.js -s supercluster > dist/supercluster.js",
