@@ -46,7 +46,7 @@ SuperCluster.prototype = {
         // generate a cluster object for each point and index input points into a KD-tree
         var clusters = [];
         for (var i = 0; i < points.length; i++) {
-            if (!points[i].geometry) {
+            if (!points[i].geometry || !points[i].geometry.coordinates) {
                 continue;
             }
             clusters.push(createPointCluster(points[i], i));
