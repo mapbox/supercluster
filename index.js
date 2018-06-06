@@ -73,14 +73,19 @@ SuperCluster.prototype = {
     },
 
     getClusters: function (bbox, zoom) {
+        var minLng = ((bbox[0] + 180) % 360 + 360) % 360 - 180;
+        var minLat = Math.max(-90, Math.min(90, bbox[1]));
+        var maxLng = ((bbox[2] + 180) % 360 + 360) % 360 - 180;
+        var maxLat = Math.max(-90, Math.min(90, bbox[3]));
+
         if (bbox[0] > bbox[2]) {
-            var easternHem = this.getClusters([bbox[0], bbox[1], 180, bbox[3]], zoom);
-            var westernHem = this.getClusters([-180, bbox[1], bbox[2], bbox[3]], zoom);
+            var easternHem = this.getClusters([minLng, minLat, 180, maxLat], zoom);
+            var westernHem = this.getClusters([-180, minLat, maxLng, maxLat], zoom);
             return easternHem.concat(westernHem);
         }
 
         var tree = this.trees[this._limitZoom(zoom)];
-        var ids = tree.range(lngX(bbox[0]), latY(bbox[3]), lngX(bbox[2]), latY(bbox[1]));
+        var ids = tree.range(lngX(minLng), latY(maxLat), lngX(maxLng), latY(minLat));
         var clusters = [];
         for (var i = 0; i < ids.length; i++) {
             var c = tree.points[ids[i]];
