@@ -1,8 +1,8 @@
-'use strict';
 
-var test = require('tap').test;
-var supercluster = require('../');
+import tap from 'tap';
+import supercluster from '../index.js';
 
+var test = tap.test;
 var places = require('./fixtures/places.json');
 var placesTile = require('./fixtures/places-z0-0-0.json');
 
