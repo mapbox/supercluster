@@ -19,6 +19,24 @@ Clustering 6 million points in Leaflet:
 
 ![clusters2](https://cloud.githubusercontent.com/assets/25395/11857351/43407b46-a40c-11e5-8662-e99ab1cd2cb7.gif)
 
+## Install
+
+Install using NPM (`npm install supercluster`) or Yarn (`yarn add supercluster`), then:
+
+```js
+// import as a ES module
+import supercluster from 'supercluster';
+
+// or require in Node / Browserify
+const supercluster = require('supercluster');
+```
+
+Or use a browser build directly:
+
+```html
+<script src="https://unpkg.com/supercluster@4.0.0/dist/supercluster.min.js"></script>
+```
+
 ## Methods
 
 #### `load(points)`
