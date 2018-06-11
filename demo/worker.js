@@ -1,5 +1,3 @@
-'use strict';
-
 /*global importScripts supercluster */
 
 importScripts('../dist/supercluster.js');

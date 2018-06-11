@@ -1,11 +1,7 @@
-'use strict';
 
-var kdbush = require('kdbush');
+import kdbush from 'kdbush';
 
-module.exports = supercluster;
-module.exports.default = supercluster;
-
-function supercluster(options) {
+export default function supercluster(options) {
     return new SuperCluster(options);
 }
 

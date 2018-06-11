@@ -1,10 +1,6 @@
-'use strict';
 
-// run this benchmark with:
-// node --expose-gc bench.js
-
-var supercluster = require('./');
-var v8 = require('v8');
+import supercluster from './index.js';
+import v8 from 'v8';
 
 var points = [];
 for (var i = 0; i < 1000000; i++) {
