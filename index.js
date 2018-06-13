@@ -71,10 +71,13 @@ SuperCluster.prototype = {
     getClusters: function (bbox, zoom) {
         var minLng = ((bbox[0] + 180) % 360 + 360) % 360 - 180;
         var minLat = Math.max(-90, Math.min(90, bbox[1]));
-        var maxLng = ((bbox[2] + 180) % 360 + 360) % 360 - 180;
+        var maxLng = bbox[2] === 180 ? 180 : ((bbox[2] + 180) % 360 + 360) % 360 - 180;
         var maxLat = Math.max(-90, Math.min(90, bbox[3]));
 
-        if (bbox[0] > bbox[2]) {
+        if (bbox[2] - bbox[0] >= 360) {
+            minLng = -180;
+            maxLng = 180;
+        } else if (minLng > maxLng) {
             var easternHem = this.getClusters([minLng, minLat, 180, maxLat], zoom);
             var westernHem = this.getClusters([-180, minLat, maxLng, maxLat], zoom);
             return easternHem.concat(westernHem);
