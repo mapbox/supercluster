@@ -18,6 +18,7 @@ SuperCluster.prototype = {
         extent: 512,  // tile extent (radius is calculated relative to it)
         nodeSize: 64, // size of the KD-tree leaf node, affects performance
         log: false,   // whether to log timing info
+        featureId: false, // whether to assign cluster_id to the feature.id
 
         // a reduce function for calculating custom cluster properties
         reduce: null, // function (accumulated, props) { accumulated.sum += props.sum; }
@@ -88,7 +89,7 @@ SuperCluster.prototype = {
         var clusters = [];
         for (var i = 0; i < ids.length; i++) {
             var c = tree.points[ids[i]];
-            clusters.push(c.numPoints ? getClusterJSON(c) : this.points[c.id]);
+            clusters.push(c.numPoints ? getClusterJSON(c, this.options.featureId) : this.points[c.id]);
         }
         return clusters;
     },
@@ -110,7 +111,7 @@ SuperCluster.prototype = {
         for (var i = 0; i < ids.length; i++) {
             var c = index.points[ids[i]];
             if (c.parentId === clusterId) {
-                children.push(c.numPoints ? getClusterJSON(c) : this.points[c.id]);
+                children.push(c.numPoints ? getClusterJSON(c, this.options.featureId) : this.points[c.id]);
             }
         }
 
@@ -202,14 +203,18 @@ SuperCluster.prototype = {
     _addTileFeatures: function (ids, points, x, y, z2, tile) {
         for (var i = 0; i < ids.length; i++) {
             var c = points[ids[i]];
-            tile.features.push({
+            var cluster = {
                 type: 1,
                 geometry: [[
                     Math.round(this.options.extent * (c.x * z2 - x)),
                     Math.round(this.options.extent * (c.y * z2 - y))
                 ]],
                 tags: c.numPoints ? getClusterProperties(c) : this.points[c.id].properties
-            });
+            };
+            if (this.options.featureId) {
+                cluster.id = c.id;
+            }
+            tile.features.push(cluster);
         }
     },
 
@@ -307,8 +312,8 @@ function createPointCluster(p, id) {
     };
 }
 
-function getClusterJSON(cluster) {
-    return {
+function getClusterJSON(cluster, assignFeatureId) {
+    let clusterJson =  {
         type: 'Feature',
         properties: getClusterProperties(cluster),
         geometry: {
@@ -316,6 +321,10 @@ function getClusterJSON(cluster) {
             coordinates: [xLng(cluster.x), yLat(cluster.y)]
         }
     };
+    if (assignFeatureId) {
+        clusterJson.id = cluster.id;
+    }
+    return clusterJson;
 }
 
 function getClusterProperties(cluster) {
