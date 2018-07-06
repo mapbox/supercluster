@@ -13,14 +13,6 @@ test('generates clusters properly', function (t) {
     t.end();
 });
 
-test('generates feature.id for clusters', function (t) {
-    var index = supercluster({featureId: true}).load(places.features);
-    var clusterFeature = index.getTile(0, 0, 0).features[0];
-    console.log(JSON.stringify(clusterFeature));
-    t.equal(clusterFeature.id, clusterFeature.tags.cluster_id);
-    t.end();
-});
-
 test('returns children of a cluster', function (t) {
     var index = supercluster().load(places.features);
     var childCounts = index.getChildren(1).map((p) => p.properties.point_count || 1);
