@@ -88,7 +88,7 @@ SuperCluster.prototype = {
         var clusters = [];
         for (var i = 0; i < ids.length; i++) {
             var c = tree.points[ids[i]];
-            clusters.push(c.numPoints ? getClusterJSON(c) : this.points[c.id]);
+            clusters.push(c.numPoints ? getClusterJSON(c) : this.points[c.index]);
         }
         return clusters;
     },
@@ -110,7 +110,7 @@ SuperCluster.prototype = {
         for (var i = 0; i < ids.length; i++) {
             var c = index.points[ids[i]];
             if (c.parentId === clusterId) {
-                children.push(c.numPoints ? getClusterJSON(c) : this.points[c.id]);
+                children.push(c.numPoints ? getClusterJSON(c) : this.points[c.index]);
             }
         }
 
@@ -202,14 +202,19 @@ SuperCluster.prototype = {
     _addTileFeatures: function (ids, points, x, y, z2, tile) {
         for (var i = 0; i < ids.length; i++) {
             var c = points[ids[i]];
-            tile.features.push({
+            var f = {
                 type: 1,
                 geometry: [[
                     Math.round(this.options.extent * (c.x * z2 - x)),
                     Math.round(this.options.extent * (c.y * z2 - y))
                 ]],
-                tags: c.numPoints ? getClusterProperties(c) : this.points[c.id].properties
-            });
+                tags: c.numPoints ? getClusterProperties(c) : this.points[c.index].properties
+            };
+            const id = c.numPoints ? c.id : this.points[c.index].id;
+            if (id !== undefined) {
+                f.id = id;
+            }
+            tile.features.push(f);
         }
     },
 
@@ -278,7 +283,7 @@ SuperCluster.prototype = {
     _accumulate: function (clusterProperties, point) {
         var properties = point.numPoints ?
             point.properties :
-            this.options.map(this.points[point.id].properties);
+            this.options.map(this.points[point.index].properties);
 
         this.options.reduce(clusterProperties, properties);
     }
@@ -302,7 +307,7 @@ function createPointCluster(p, id) {
         x: lngX(coords[0]), // projected point coordinates
         y: latY(coords[1]),
         zoom: Infinity, // the last zoom the point was processed at
-        id: id, // index of the source feature in the original input array
+        index: id, // index of the source feature in the original input array,
         parentId: -1 // parent cluster id
     };
 }
@@ -310,6 +315,7 @@ function createPointCluster(p, id) {
 function getClusterJSON(cluster) {
     return {
         type: 'Feature',
+        id: cluster.id,
         properties: getClusterProperties(cluster),
         geometry: {
             type: 'Point',
