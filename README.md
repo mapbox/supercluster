@@ -3,7 +3,7 @@
 A very fast JavaScript library for geospatial point clustering for browsers and Node.
 
 ```html
-<script src="https://unpkg.com/supercluster@3.0.2/dist/supercluster.min.js"></script>
+<script src="https://unpkg.com/supercluster@4.0.0/dist/supercluster.min.js"></script>
 ```
 
 ```js
