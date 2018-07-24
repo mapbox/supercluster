@@ -210,7 +210,7 @@ SuperCluster.prototype = {
                 ]],
                 tags: c.numPoints ? getClusterProperties(c) : this.points[c.index].properties
             };
-            const id = c.numPoints ? c.id : this.points[c.index].id;
+            var id = c.numPoints ? c.id : this.points[c.index].id;
             if (id !== undefined) {
                 f.id = id;
             }
