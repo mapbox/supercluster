@@ -54,11 +54,11 @@ test('getLeaves handles null-property features', function (t) {
 
 test('returns cluster expansion zoom', function (t) {
     var index = supercluster().load(places.features);
-    t.same(index.getClusterExpansionZoom(1, 0), 1);
-    t.same(index.getClusterExpansionZoom(33, 0), 1);
-    t.same(index.getClusterExpansionZoom(353, 0), 2);
-    t.same(index.getClusterExpansionZoom(833, 0), 2);
-    t.same(index.getClusterExpansionZoom(1857, 0), 3);
+    t.same(index.getClusterExpansionZoom(1), 1);
+    t.same(index.getClusterExpansionZoom(33), 1);
+    t.same(index.getClusterExpansionZoom(353), 2);
+    t.same(index.getClusterExpansionZoom(833), 2);
+    t.same(index.getClusterExpansionZoom(1857), 3);
     t.end();
 });
 

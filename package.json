@@ -34,11 +34,11 @@
     "kdbush": "^2.0.1"
   },
   "devDependencies": {
-    "eslint": "^4.19.1",
+    "eslint": "^5.2.0",
     "eslint-config-mourner": "^2.0.3",
-    "esm": "^3.0.48",
+    "esm": "^3.0.72",
     "mkdirp": "^0.5.1",
-    "rollup": "^0.60.0",
+    "rollup": "^0.63.4",
     "rollup-plugin-node-resolve": "^3.3.0",
     "rollup-plugin-uglify": "^4.0.0",
     "tap": "^12.0.1"
