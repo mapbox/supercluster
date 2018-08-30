@@ -45,7 +45,7 @@ Loads an array of [GeoJSON Feature](https://tools.ietf.org/html/rfc7946#section-
 
 #### `getClusters(bbox, zoom)`
 
-For the given `bbox` array (`[westLng, southLat, eastLng, northLat]`) and integer `zoom`, returns an array of clusters and points as [GeoJSON Feature](https://tools.ietf.org/html/rfc7946#section-3.2) objects.
+For the given `bbox` array (`[southLat, westLng, northLat, eastLng]`) and integer `zoom`, returns an array of clusters and points as [GeoJSON Feature](https://tools.ietf.org/html/rfc7946#section-3.2) objects.
 
 #### `getTile(z, x, y)`
 
