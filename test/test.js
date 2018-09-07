@@ -64,9 +64,9 @@ test('returns cluster expansion zoom', (t) => {
 
 test('aggregates cluster properties with reduce', (t) => {
     const index = supercluster({
-        initial() { return {sum: 0}; },
-        map(props) { return {sum: props.scalerank}; },
-        reduce(a, b) { a.sum += b.sum; }
+        initial: () => ({sum: 0}),
+        map: props => ({sum: props.scalerank}),
+        reduce: (a, b) => { a.sum += b.sum; }
     }).load(places.features);
 
     t.equal(index.getTile(0, 0, 0).features[0].tags.sum, 69);
