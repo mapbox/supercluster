@@ -1,5 +1,6 @@
-import {uglify} from 'rollup-plugin-uglify';
+import {terser} from 'rollup-plugin-terser';
 import resolve from "rollup-plugin-node-resolve";
+import buble from 'rollup-plugin-buble';
 
 const config = (file, plugins) => ({
     input: 'index.js',
@@ -13,6 +14,6 @@ const config = (file, plugins) => ({
 });
 
 export default [
-    config('dist/supercluster.js', [resolve()]),
-    config('dist/supercluster.min.js', [resolve(), uglify()])
+    config('dist/supercluster.js', [resolve(), buble()]),
+    config('dist/supercluster.min.js', [resolve(), terser(), buble()])
 ];

@@ -1,5 +1,5 @@
 
-import kdbush from 'kdbush';
+import KDBush from 'kdbush';
 
 export default function supercluster(options) {
     return new SuperCluster(options);
@@ -23,42 +23,42 @@ SuperCluster.prototype = {
         reduce: null, // function (accumulated, props) { accumulated.sum += props.sum; }
 
         // initial properties of a cluster (before running the reducer)
-        initial: function () { return {}; }, // function () { return {sum: 0}; },
+        initial() { return {}; }, // function () { return {sum: 0}; },
 
         // properties to use for individual points when running the reducer
-        map: function (props) { return props; } // function (props) { return {sum: props.my_value}; },
+        map(props) { return props; } // function (props) { return {sum: props.my_value}; },
     },
 
-    load: function (points) {
-        var log = this.options.log;
+    load(points) {
+        const log = this.options.log;
 
         if (log) console.time('total time');
 
-        var timerId = 'prepare ' + points.length + ' points';
+        const timerId = `prepare ${  points.length  } points`;
         if (log) console.time(timerId);
 
         this.points = points;
 
         // generate a cluster object for each point and index input points into a KD-tree
-        var clusters = [];
-        for (var i = 0; i < points.length; i++) {
+        let clusters = [];
+        for (let i = 0; i < points.length; i++) {
             if (!points[i].geometry) {
                 continue;
             }
             clusters.push(createPointCluster(points[i], i));
         }
-        this.trees[this.options.maxZoom + 1] = kdbush(clusters, getX, getY, this.options.nodeSize, Float32Array);
+        this.trees[this.options.maxZoom + 1] = new KDBush(clusters, getX, getY, this.options.nodeSize, Float32Array);
 
         if (log) console.timeEnd(timerId);
 
         // cluster points on max zoom, then cluster the results on previous zoom, etc.;
         // results in a cluster hierarchy across zoom levels
-        for (var z = this.options.maxZoom; z >= this.options.minZoom; z--) {
-            var now = +Date.now();
+        for (let z = this.options.maxZoom; z >= this.options.minZoom; z--) {
+            const now = +Date.now();
 
             // create a new set of clusters for the zoom and index them with a KD-tree
             clusters = this._cluster(clusters, z);
-            this.trees[z] = kdbush(clusters, getX, getY, this.options.nodeSize, Float32Array);
+            this.trees[z] = new KDBush(clusters, getX, getY, this.options.nodeSize, Float32Array);
 
             if (log) console.log('z%d: %d clusters in %dms', z, clusters.length, +Date.now() - now);
         }
@@ -68,47 +68,47 @@ SuperCluster.prototype = {
         return this;
     },
 
-    getClusters: function (bbox, zoom) {
-        var minLng = ((bbox[0] + 180) % 360 + 360) % 360 - 180;
-        var minLat = Math.max(-90, Math.min(90, bbox[1]));
-        var maxLng = bbox[2] === 180 ? 180 : ((bbox[2] + 180) % 360 + 360) % 360 - 180;
-        var maxLat = Math.max(-90, Math.min(90, bbox[3]));
+    getClusters(bbox, zoom) {
+        let minLng = ((bbox[0] + 180) % 360 + 360) % 360 - 180;
+        const minLat = Math.max(-90, Math.min(90, bbox[1]));
+        let maxLng = bbox[2] === 180 ? 180 : ((bbox[2] + 180) % 360 + 360) % 360 - 180;
+        const maxLat = Math.max(-90, Math.min(90, bbox[3]));
 
         if (bbox[2] - bbox[0] >= 360) {
             minLng = -180;
             maxLng = 180;
         } else if (minLng > maxLng) {
-            var easternHem = this.getClusters([minLng, minLat, 180, maxLat], zoom);
-            var westernHem = this.getClusters([-180, minLat, maxLng, maxLat], zoom);
+            const easternHem = this.getClusters([minLng, minLat, 180, maxLat], zoom);
+            const westernHem = this.getClusters([-180, minLat, maxLng, maxLat], zoom);
             return easternHem.concat(westernHem);
         }
 
-        var tree = this.trees[this._limitZoom(zoom)];
-        var ids = tree.range(lngX(minLng), latY(maxLat), lngX(maxLng), latY(minLat));
-        var clusters = [];
-        for (var i = 0; i < ids.length; i++) {
-            var c = tree.points[ids[i]];
+        const tree = this.trees[this._limitZoom(zoom)];
+        const ids = tree.range(lngX(minLng), latY(maxLat), lngX(maxLng), latY(minLat));
+        const clusters = [];
+        for (let i = 0; i < ids.length; i++) {
+            const c = tree.points[ids[i]];
             clusters.push(c.numPoints ? getClusterJSON(c) : this.points[c.index]);
         }
         return clusters;
     },
 
-    getChildren: function (clusterId) {
-        var originId = clusterId >> 5;
-        var originZoom = clusterId % 32;
-        var errorMsg = 'No cluster with the specified id.';
+    getChildren(clusterId) {
+        const originId = clusterId >> 5;
+        const originZoom = clusterId % 32;
+        const errorMsg = 'No cluster with the specified id.';
 
-        var index = this.trees[originZoom];
+        const index = this.trees[originZoom];
         if (!index) throw new Error(errorMsg);
 
-        var origin = index.points[originId];
+        const origin = index.points[originId];
         if (!origin) throw new Error(errorMsg);
 
-        var r = this.options.radius / (this.options.extent * Math.pow(2, originZoom - 1));
-        var ids = index.within(origin.x, origin.y, r);
-        var children = [];
-        for (var i = 0; i < ids.length; i++) {
-            var c = index.points[ids[i]];
+        const r = this.options.radius / (this.options.extent * Math.pow(2, originZoom - 1));
+        const ids = index.within(origin.x, origin.y, r);
+        const children = [];
+        for (let i = 0; i < ids.length; i++) {
+            const c = index.points[ids[i]];
             if (c.parentId === clusterId) {
                 children.push(c.numPoints ? getClusterJSON(c) : this.points[c.index]);
             }
@@ -119,26 +119,26 @@ SuperCluster.prototype = {
         return children;
     },
 
-    getLeaves: function (clusterId, limit, offset) {
+    getLeaves(clusterId, limit, offset) {
         limit = limit || 10;
         offset = offset || 0;
 
-        var leaves = [];
+        const leaves = [];
         this._appendLeaves(leaves, clusterId, limit, offset, 0);
 
         return leaves;
     },
 
-    getTile: function (z, x, y) {
-        var tree = this.trees[this._limitZoom(z)];
-        var z2 = Math.pow(2, z);
-        var extent = this.options.extent;
-        var r = this.options.radius;
-        var p = r / extent;
-        var top = (y - p) / z2;
-        var bottom = (y + 1 + p) / z2;
+    getTile(z, x, y) {
+        const tree = this.trees[this._limitZoom(z)];
+        const z2 = Math.pow(2, z);
+        const extent = this.options.extent;
+        const r = this.options.radius;
+        const p = r / extent;
+        const top = (y - p) / z2;
+        const bottom = (y + 1 + p) / z2;
 
-        var tile = {
+        const tile = {
             features: []
         };
 
@@ -160,10 +160,10 @@ SuperCluster.prototype = {
         return tile.features.length ? tile : null;
     },
 
-    getClusterExpansionZoom: function (clusterId) {
-        var clusterZoom = (clusterId % 32) - 1;
+    getClusterExpansionZoom(clusterId) {
+        let clusterZoom = (clusterId % 32) - 1;
         while (clusterZoom < this.options.maxZoom) {
-            var children = this.getChildren(clusterId);
+            const children = this.getChildren(clusterId);
             clusterZoom++;
             if (children.length !== 1) break;
             clusterId = children[0].properties.cluster_id;
@@ -171,11 +171,11 @@ SuperCluster.prototype = {
         return clusterZoom;
     },
 
-    _appendLeaves: function (result, clusterId, limit, offset, skipped) {
-        var children = this.getChildren(clusterId);
+    _appendLeaves(result, clusterId, limit, offset, skipped) {
+        const children = this.getChildren(clusterId);
 
-        for (var i = 0; i < children.length; i++) {
-            var props = children[i].properties;
+        for (let i = 0; i < children.length; i++) {
+            const props = children[i].properties;
 
             if (props && props.cluster) {
                 if (skipped + props.point_count <= offset) {
@@ -199,10 +199,10 @@ SuperCluster.prototype = {
         return skipped;
     },
 
-    _addTileFeatures: function (ids, points, x, y, z2, tile) {
-        for (var i = 0; i < ids.length; i++) {
-            var c = points[ids[i]];
-            var f = {
+    _addTileFeatures(ids, points, x, y, z2, tile) {
+        for (let i = 0; i < ids.length; i++) {
+            const c = points[ids[i]];
+            const f = {
                 type: 1,
                 geometry: [[
                     Math.round(this.options.extent * (c.x * z2 - x)),
@@ -210,7 +210,7 @@ SuperCluster.prototype = {
                 ]],
                 tags: c.numPoints ? getClusterProperties(c) : this.points[c.index].properties
             };
-            var id = c.numPoints ? c.id : this.points[c.index].id;
+            const id = c.numPoints ? c.id : this.points[c.index].id;
             if (id !== undefined) {
                 f.id = id;
             }
@@ -218,30 +218,30 @@ SuperCluster.prototype = {
         }
     },
 
-    _limitZoom: function (z) {
+    _limitZoom(z) {
         return Math.max(this.options.minZoom, Math.min(z, this.options.maxZoom + 1));
     },
 
-    _cluster: function (points, zoom) {
-        var clusters = [];
-        var r = this.options.radius / (this.options.extent * Math.pow(2, zoom));
+    _cluster(points, zoom) {
+        const clusters = [];
+        const r = this.options.radius / (this.options.extent * Math.pow(2, zoom));
 
         // loop through each point
-        for (var i = 0; i < points.length; i++) {
-            var p = points[i];
+        for (let i = 0; i < points.length; i++) {
+            const p = points[i];
             // if we've already visited the point at this zoom level, skip it
             if (p.zoom <= zoom) continue;
             p.zoom = zoom;
 
             // find all nearby points
-            var tree = this.trees[zoom + 1];
-            var neighborIds = tree.within(p.x, p.y, r);
+            const tree = this.trees[zoom + 1];
+            const neighborIds = tree.within(p.x, p.y, r);
 
-            var numPoints = p.numPoints || 1;
-            var wx = p.x * numPoints;
-            var wy = p.y * numPoints;
+            let numPoints = p.numPoints || 1;
+            let wx = p.x * numPoints;
+            let wy = p.y * numPoints;
 
-            var clusterProperties = null;
+            let clusterProperties = null;
 
             if (this.options.reduce) {
                 clusterProperties = this.options.initial();
@@ -249,15 +249,15 @@ SuperCluster.prototype = {
             }
 
             // encode both zoom and point index on which the cluster originated
-            var id = (i << 5) + (zoom + 1);
+            const id = (i << 5) + (zoom + 1);
 
-            for (var j = 0; j < neighborIds.length; j++) {
-                var b = tree.points[neighborIds[j]];
+            for (let j = 0; j < neighborIds.length; j++) {
+                const b = tree.points[neighborIds[j]];
                 // filter out neighbors that are already processed
                 if (b.zoom <= zoom) continue;
                 b.zoom = zoom; // save the zoom (so it doesn't get processed twice)
 
-                var numPoints2 = b.numPoints || 1;
+                const numPoints2 = b.numPoints || 1;
                 wx += b.x * numPoints2; // accumulate coordinates for calculating weighted center
                 wy += b.y * numPoints2;
 
@@ -280,8 +280,8 @@ SuperCluster.prototype = {
         return clusters;
     },
 
-    _accumulate: function (clusterProperties, point) {
-        var properties = point.numPoints ?
+    _accumulate(clusterProperties, point) {
+        const properties = point.numPoints ?
             point.properties :
             this.options.map(this.points[point.index].properties);
 
@@ -291,21 +291,21 @@ SuperCluster.prototype = {
 
 function createCluster(x, y, id, numPoints, properties) {
     return {
-        x: x, // weighted cluster center
-        y: y,
+        x, // weighted cluster center
+        y,
         zoom: Infinity, // the last zoom the cluster was processed at
-        id: id, // encodes index of the first child of the cluster and its zoom level
+        id, // encodes index of the first child of the cluster and its zoom level
         parentId: -1, // parent cluster id
-        numPoints: numPoints,
-        properties: properties
+        numPoints,
+        properties
     };
 }
 
 function createPointCluster(p, id) {
-    var coords = p.geometry.coordinates;
+    const [x, y] = p.geometry.coordinates;
     return {
-        x: lngX(coords[0]), // projected point coordinates
-        y: latY(coords[1]),
+        x: lngX(x), // projected point coordinates
+        y: latY(y),
         zoom: Infinity, // the last zoom the point was processed at
         index: id, // index of the source feature in the original input array,
         parentId: -1 // parent cluster id
@@ -325,10 +325,10 @@ function getClusterJSON(cluster) {
 }
 
 function getClusterProperties(cluster) {
-    var count = cluster.numPoints;
-    var abbrev =
-        count >= 10000 ? Math.round(count / 1000) + 'k' :
-        count >= 1000 ? (Math.round(count / 100) / 10) + 'k' : count;
+    const count = cluster.numPoints;
+    const abbrev =
+        count >= 10000 ? `${Math.round(count / 1000)  }k` :
+        count >= 1000 ? `${Math.round(count / 100) / 10  }k` : count;
     return extend(extend({}, cluster.properties), {
         cluster: true,
         cluster_id: cluster.id,
@@ -342,8 +342,8 @@ function lngX(lng) {
     return lng / 360 + 0.5;
 }
 function latY(lat) {
-    var sin = Math.sin(lat * Math.PI / 180),
-        y = (0.5 - 0.25 * Math.log((1 + sin) / (1 - sin)) / Math.PI);
+    const sin = Math.sin(lat * Math.PI / 180);
+    const y = (0.5 - 0.25 * Math.log((1 + sin) / (1 - sin)) / Math.PI);
     return y < 0 ? 0 : y > 1 ? 1 : y;
 }
 
@@ -352,12 +352,12 @@ function xLng(x) {
     return (x - 0.5) * 360;
 }
 function yLat(y) {
-    var y2 = (180 - y * 360) * Math.PI / 180;
+    const y2 = (180 - y * 360) * Math.PI / 180;
     return 360 * Math.atan(Math.exp(y2)) / Math.PI - 90;
 }
 
 function extend(dest, src) {
-    for (var id in src) dest[id] = src[id];
+    for (const id in src) dest[id] = src[id];
     return dest;
 }
 
