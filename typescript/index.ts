@@ -1,36 +1,66 @@
-
 import KDBush from 'kdbush';
+import {
+    createCluster,
+    createPointCluster,
+    getClusterJSON,
+    getClusterProperties,
+    lngX,
+    latY,
+    extend,
+    getX,
+    getY
+} from '../typescript/helpers';
 
-const defaultOptions = {
-    minZoom: 0,   // min zoom to generate clusters on
-    maxZoom: 16,  // max zoom level to cluster the points on
-    radius: 40,   // cluster radius in pixels
-    extent: 512,  // tile extent (radius is calculated relative to it)
-    nodeSize: 64, // size of the KD-tree leaf node, affects performance
-    log: false,   // whether to log timing info
+type T_options = {
+    minZoom: number;
+    maxZoom: number;
+    radius: number;
+    extent: number;
+    nodeSize: number;
+    log: boolean;
+    minClusterSize: number;
 
-    // a reduce function for calculating custom cluster properties
-    reduce: null, // (accumulated, props) => { accumulated.sum += props.sum; }
-
-    // initial properties of a cluster (before running the reducer)
-    initial: () => ({}), // () => ({sum: 0})
-
-    // properties to use for individual points when running the reducer
-    map: props => props // props => ({sum: props.my_value})
-};
+    reduce: Function | null,
+    initial: Function,
+    map: Function
+}
 
 class SuperCluster {
+    options: any;
+    trees: Array<KDBush>;
+    points: Array<any>
+
+    private defaultOptions: T_options = {
+        minZoom: 0,   // min zoom to generate clusters on
+        maxZoom: 16,  // max zoom level to cluster the points on
+        radius: 40,   // cluster radius in pixels
+        extent: 512,  // tile extent (radius is calculated relative to it)
+        nodeSize: 64, // size of the KD-tree leaf node, affects performance
+        log: false,   // whether to log timing info
+
+        minClusterSize: 5,
+
+        // a reduce function for calculating custom cluster properties
+        reduce: null, // (accumulated, props) => { accumulated.sum += props.sum; }
+
+        // initial properties of a cluster (before running the reducer)
+        initial: () => ({}), // () => ({sum: 0})
+
+        // properties to use for individual points when running the reducer
+        map: props => props // props => ({sum: props.my_value})
+    }
+
     constructor(options) {
-        this.options = extend(Object.create(defaultOptions), options);
+        this.options = extend(Object.create(this.defaultOptions), options);
         this.trees = new Array(this.options.maxZoom + 1);
     }
 
     load(points) {
-        const {log, minZoom, maxZoom, nodeSize} = this.options;
+        const { log, minZoom, maxZoom, nodeSize } = this.options;
 
         if (log) console.time('total time');
 
-        const timerId = `prepare ${  points.length  } points`;
+        const timerId = `prepare ${points.length} points`;
         if (log) console.time(timerId);
 
         this.points = points;
@@ -79,10 +109,21 @@ class SuperCluster {
 
         const tree = this.trees[this._limitZoom(zoom)];
         const ids = tree.range(lngX(minLng), latY(maxLat), lngX(maxLng), latY(minLat));
+
         const clusters = [];
         for (const id of ids) {
             const c = tree.points[id];
-            clusters.push(c.numPoints ? getClusterJSON(c) : this.points[c.index]);
+            if (c.numPoints) {
+                if (c.numPoints < this.options.minClusterSize) {
+                    this.getLeaves(c.id, Infinity, 0).map(leaf => {
+                        clusters.push(leaf);
+                    })
+                } else {
+                    clusters.push(getClusterJSON(c));
+                }
+            } else {
+                clusters.push(this.points[c.index]);
+            }
         }
         return clusters;
     }
@@ -126,7 +167,7 @@ class SuperCluster {
     getTile(z, x, y) {
         const tree = this.trees[this._limitZoom(z)];
         const z2 = Math.pow(2, z);
-        const {extent, radius} = this.options;
+        const { extent, radius } = this.options;
         const p = radius / extent;
         const top = (y - p) / z2;
         const bottom = (y + 1 + p) / z2;
@@ -201,7 +242,8 @@ class SuperCluster {
                     Math.round(this.options.extent * (c.x * z2 - x)),
                     Math.round(this.options.extent * (c.y * z2 - y))
                 ]],
-                tags: c.numPoints ? getClusterProperties(c) : this.points[c.index].properties
+                tags: c.numPoints ? getClusterProperties(c) : this.points[c.index].properties,
+                id: null
             };
             const id = c.numPoints ? c.id : this.points[c.index].id;
             if (id !== undefined) {
@@ -217,7 +259,7 @@ class SuperCluster {
 
     _cluster(points, zoom) {
         const clusters = [];
-        const {radius, extent, reduce, initial} = this.options;
+        const { radius, extent, reduce, initial } = this.options;
         const r = radius / (extent * Math.pow(2, zoom));
 
         // loop through each point
@@ -263,100 +305,22 @@ class SuperCluster {
                 }
             }
 
-            p.parentId = id;
-            clusters.push(createCluster(wx / numPoints, wy / numPoints, id, numPoints, clusterProperties));
-            
+            if (numPoints === 1) {
+                clusters.push(p);
+            } else {
+                p.parentId = id;
+                clusters.push(createCluster(wx / numPoints, wy / numPoints, id, numPoints, clusterProperties));
+            }
         }
 
         return clusters;
     }
 
     _accumulate(clusterProperties, point) {
-        const {map, reduce} = this.options;
+        const { map, reduce } = this.options;
         const properties = point.numPoints ? point.properties : map(this.points[point.index].properties);
         reduce(clusterProperties, properties);
     }
 }
 
-function createCluster(x, y, id, numPoints, properties) {
-    return {
-        x, // weighted cluster center
-        y,
-        zoom: Infinity, // the last zoom the cluster was processed at
-        id, // encodes index of the first child of the cluster and its zoom level
-        parentId: -1, // parent cluster id
-        numPoints,
-        properties
-    };
-}
-
-function createPointCluster(p, id) {
-    const [x, y] = p.geometry.coordinates;
-    return {
-        x: lngX(x), // projected point coordinates
-        y: latY(y),
-        zoom: Infinity, // the last zoom the point was processed at
-        index: id, // index of the source feature in the original input array,
-        parentId: -1 // parent cluster id
-    };
-}
-
-function getClusterJSON(cluster) {
-    return {
-        type: 'Feature',
-        id: cluster.id,
-        properties: getClusterProperties(cluster),
-        geometry: {
-            type: 'Point',
-            coordinates: [xLng(cluster.x), yLat(cluster.y)]
-        }
-    };
-}
-
-function getClusterProperties(cluster) {
-    const count = cluster.numPoints;
-    const abbrev =
-        count >= 10000 ? `${Math.round(count / 1000)  }k` :
-        count >= 1000 ? `${Math.round(count / 100) / 10  }k` : count;
-    return extend(extend({}, cluster.properties), {
-        cluster: true,
-        cluster_id: cluster.id,
-        point_count: count,
-        point_count_abbreviated: abbrev
-    });
-}
-
-// longitude/latitude to spherical mercator in [0..1] range
-function lngX(lng) {
-    return lng / 360 + 0.5;
-}
-function latY(lat) {
-    const sin = Math.sin(lat * Math.PI / 180);
-    const y = (0.5 - 0.25 * Math.log((1 + sin) / (1 - sin)) / Math.PI);
-    return y < 0 ? 0 : y > 1 ? 1 : y;
-}
-
-// spherical mercator to longitude/latitude
-function xLng(x) {
-    return (x - 0.5) * 360;
-}
-function yLat(y) {
-    const y2 = (180 - y * 360) * Math.PI / 180;
-    return 360 * Math.atan(Math.exp(y2)) / Math.PI - 90;
-}
-
-function extend(dest, src) {
-    for (const id in src) dest[id] = src[id];
-    return dest;
-}
-
-function getX(p) {
-    return p.x;
-}
-function getY(p) {
-    return p.y;
-}
-
-export default function supercluster(options) {
-    return new SuperCluster(options);
-}
+export const supercluster = (options: T_options) => new SuperCluster(options);
