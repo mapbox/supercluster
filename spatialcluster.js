@@ -67,10 +67,10 @@ class SpatialCluster {
     const tree = this.trees[this._limitZoom(zoom)]
     const ids = tree.range(...bbox)
     const clusters = []
-    debugger
     for (const id of ids) {
       const c = tree.points[id]
-      clusters.push(c.numPoints ? getClusterJSON(c) : this.points[c.index])
+      c.numPoints && clusters.push(getClusterJSON(c))
+      // clusters.push(c.numPoints ? getClusterJSON(c) : this.points[c.index])
     }
     return clusters
   }
@@ -221,6 +221,7 @@ class SpatialCluster {
       // find all nearby points
       const tree = this.trees[zoom + 1]
       const neighborIds = tree.within(p.x, p.y, r)
+      // debugger
 
       let numPoints = p.numPoints || 1
       let wx = p.x * numPoints
@@ -320,25 +321,6 @@ function getClusterProperties(cluster) {
     point_count: count,
     point_count_abbreviated: abbrev
   })
-}
-
-// longitude/latitude to spherical mercator in [0..1] range
-function lngX(lng) {
-  return lng / 360 + 0.5
-}
-function latY(lat) {
-  const sin = Math.sin((lat * Math.PI) / 180)
-  const y = 0.5 - (0.25 * Math.log((1 + sin) / (1 - sin))) / Math.PI
-  return y < 0 ? 0 : y > 1 ? 1 : y
-}
-
-// spherical mercator to longitude/latitude
-function xLng(x) {
-  return (x - 0.5) * 360
-}
-function yLat(y) {
-  const y2 = ((180 - y * 360) * Math.PI) / 180
-  return (360 * Math.atan(Math.exp(y2))) / Math.PI - 90
 }
 
 function extend(dest, src) {
