@@ -1,13 +1,12 @@
-
 import KDBush from 'kdbush';
 
 const defaultOptions = {
-    minZoom: 0,   // min zoom to generate clusters on
-    maxZoom: 16,  // max zoom level to cluster the points on
-    radius: 40,   // cluster radius in pixels
-    extent: 512,  // tile extent (radius is calculated relative to it)
+    minZoom: 0, // min zoom to generate clusters on
+    maxZoom: 16, // max zoom level to cluster the points on
+    radius: 40, // cluster radius in pixels
+    extent: 512, // tile extent (radius is calculated relative to it)
     nodeSize: 64, // size of the KD-tree leaf node, affects performance
-    log: false,   // whether to log timing info
+    log: false, // whether to log timing info
 
     // a reduce function for calculating custom cluster properties
     reduce: null, // (accumulated, props) => { accumulated.sum += props.sum; }
@@ -30,7 +29,7 @@ class SuperCluster {
 
         if (log) console.time('total time');
 
-        const timerId = `prepare ${  points.length  } points`;
+        const timerId = `prepare ${points.length} points`;
         if (log) console.time(timerId);
 
         this.points = points;
@@ -41,8 +40,13 @@ class SuperCluster {
             if (!points[i].geometry) continue;
             clusters.push(createPointCluster(points[i], i));
         }
-        this.trees[maxZoom + 1] = new KDBush(clusters, getX, getY, nodeSize, Float32Array);
-
+        this.trees[maxZoom + 1] = new KDBush(
+            clusters,
+            getX,
+            getY,
+            nodeSize,
+            Float32Array
+        );
         if (log) console.timeEnd(timerId);
 
         // cluster points on max zoom, then cluster the results on previous zoom, etc.;
@@ -54,7 +58,13 @@ class SuperCluster {
             clusters = this._cluster(clusters, z);
             this.trees[z] = new KDBush(clusters, getX, getY, nodeSize, Float32Array);
 
-            if (log) console.log('z%d: %d clusters in %dms', z, clusters.length, +Date.now() - now);
+            if (log)
+                console.log(
+                    'z%d: %d clusters in %dms',
+                    z,
+                    clusters.length,
+                    +Date.now() - now
+                );
         }
 
         if (log) console.timeEnd('total time');
@@ -65,7 +75,8 @@ class SuperCluster {
     getClusters(bbox, zoom) {
         let minLng = ((bbox[0] + 180) % 360 + 360) % 360 - 180;
         const minLat = Math.max(-90, Math.min(90, bbox[1]));
-        let maxLng = bbox[2] === 180 ? 180 : ((bbox[2] + 180) % 360 + 360) % 360 - 180;
+        let maxLng =
+      bbox[2] === 180 ? 180 : ((bbox[2] + 180) % 360 + 360) % 360 - 180;
         const maxLat = Math.max(-90, Math.min(90, bbox[3]));
 
         if (bbox[2] - bbox[0] >= 360) {
@@ -78,7 +89,12 @@ class SuperCluster {
         }
 
         const tree = this.trees[this._limitZoom(zoom)];
-        const ids = tree.range(lngX(minLng), latY(maxLat), lngX(maxLng), latY(minLat));
+        const ids = tree.range(
+            lngX(minLng),
+            latY(maxLat),
+            lngX(maxLng),
+            latY(minLat)
+        );
         const clusters = [];
         for (const id of ids) {
             const c = tree.points[id];
@@ -98,7 +114,8 @@ class SuperCluster {
         const origin = index.points[originId];
         if (!origin) throw new Error(errorMsg);
 
-        const r = this.options.radius / (this.options.extent * Math.pow(2, originZoom - 1));
+        const r =
+      this.options.radius / (this.options.extent * Math.pow(2, originZoom - 1));
         const ids = index.within(origin.x, origin.y, r);
         const children = [];
         for (const id of ids) {
@@ -137,24 +154,39 @@ class SuperCluster {
 
         this._addTileFeatures(
             tree.range((x - p) / z2, top, (x + 1 + p) / z2, bottom),
-            tree.points, x, y, z2, tile);
+            tree.points,
+            x,
+            y,
+            z2,
+            tile
+        );
 
         if (x === 0) {
             this._addTileFeatures(
                 tree.range(1 - p / z2, top, 1, bottom),
-                tree.points, z2, y, z2, tile);
+                tree.points,
+                z2,
+                y,
+                z2,
+                tile
+            );
         }
         if (x === z2 - 1) {
             this._addTileFeatures(
                 tree.range(0, top, p / z2, bottom),
-                tree.points, -1, y, z2, tile);
+                tree.points,
+                -1,
+                y,
+                z2,
+                tile
+            );
         }
 
         return tile.features.length ? tile : null;
     }
 
     getClusterExpansionZoom(clusterId) {
-        let clusterZoom = (clusterId % 32) - 1;
+        let clusterZoom = clusterId % 32 - 1;
         while (clusterZoom < this.options.maxZoom) {
             const children = this.getChildren(clusterId);
             clusterZoom++;
@@ -176,7 +208,13 @@ class SuperCluster {
                     skipped += props.point_count;
                 } else {
                     // enter the cluster
-                    skipped = this._appendLeaves(result, props.cluster_id, limit, offset, skipped);
+                    skipped = this._appendLeaves(
+                        result,
+                        props.cluster_id,
+                        limit,
+                        offset,
+                        skipped
+                    );
                     // exit the cluster
                 }
             } else if (skipped < offset) {
@@ -197,11 +235,15 @@ class SuperCluster {
             const c = points[i];
             const f = {
                 type: 1,
-                geometry: [[
-                    Math.round(this.options.extent * (c.x * z2 - x)),
-                    Math.round(this.options.extent * (c.y * z2 - y))
-                ]],
-                tags: c.numPoints ? getClusterProperties(c) : this.points[c.index].properties
+                geometry: [
+                    [
+                        Math.round(this.options.extent * (c.x * z2 - x)),
+                        Math.round(this.options.extent * (c.y * z2 - y))
+                    ]
+                ],
+                tags: c.numPoints ?
+                    getClusterProperties(c) :
+                    this.points[c.index].properties
             };
             const id = c.numPoints ? c.id : this.points[c.index].id;
             if (id !== undefined) {
@@ -212,7 +254,10 @@ class SuperCluster {
     }
 
     _limitZoom(z) {
-        return Math.max(this.options.minZoom, Math.min(z, this.options.maxZoom + 1));
+        return Math.max(
+            this.options.minZoom,
+            Math.min(z, this.options.maxZoom + 1)
+        );
     }
 
     _cluster(points, zoom) {
@@ -267,7 +312,15 @@ class SuperCluster {
                 clusters.push(p);
             } else {
                 p.parentId = id;
-                clusters.push(createCluster(wx / numPoints, wy / numPoints, id, numPoints, clusterProperties));
+                clusters.push(
+                    createCluster(
+                        wx / numPoints,
+                        wy / numPoints,
+                        id,
+                        numPoints,
+                        clusterProperties
+                    )
+                );
             }
         }
 
@@ -276,7 +329,9 @@ class SuperCluster {
 
     _accumulate(clusterProperties, point) {
         const {map, reduce} = this.options;
-        const properties = point.numPoints ? point.properties : map(this.points[point.index].properties);
+        const properties = point.numPoints ?
+            point.properties :
+            map(this.points[point.index].properties);
         reduce(clusterProperties, properties);
     }
 }
@@ -319,8 +374,9 @@ function getClusterJSON(cluster) {
 function getClusterProperties(cluster) {
     const count = cluster.numPoints;
     const abbrev =
-        count >= 10000 ? `${Math.round(count / 1000)  }k` :
-        count >= 1000 ? `${Math.round(count / 100) / 10  }k` : count;
+    count >= 10000 ?
+        `${Math.round(count / 1000)}k` :
+        count >= 1000 ? `${Math.round(count / 100) / 10}k` : count;
     return extend(extend({}, cluster.properties), {
         cluster: true,
         cluster_id: cluster.id,
@@ -335,7 +391,7 @@ function lngX(lng) {
 }
 function latY(lat) {
     const sin = Math.sin(lat * Math.PI / 180);
-    const y = (0.5 - 0.25 * Math.log((1 + sin) / (1 - sin)) / Math.PI);
+    const y = 0.5 - 0.25 * Math.log((1 + sin) / (1 - sin)) / Math.PI;
     return y < 0 ? 0 : y > 1 ? 1 : y;
 }
 
@@ -363,3 +419,5 @@ function getY(p) {
 export default function supercluster(options) {
     return new SuperCluster(options);
 }
+
+export * from './spatialcluster';
