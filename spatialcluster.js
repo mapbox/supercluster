@@ -4,7 +4,7 @@ const defaultOptions = {
   minZoom: 0, // min zoom to generate clusters on
   maxZoom: 16, // max zoom level to cluster the points on
   radius: 40, // cluster radius in pixels
-  extent: 512, // tile extent (radius is calculated relative to it)
+  extent: 1, // tile extent (radius is calculated relative to it)
   nodeSize: 64, // size of the KD-tree leaf node, affects performance
   log: false, // whether to log timing info
 
@@ -70,7 +70,6 @@ class SpatialCluster {
     for (const id of ids) {
       const c = tree.points[id]
       c.numPoints && clusters.push(getClusterJSON(c))
-      // clusters.push(c.numPoints ? getClusterJSON(c) : this.points[c.index])
     }
     return clusters
   }
@@ -184,22 +183,13 @@ class SpatialCluster {
   _addTileFeatures(ids, points, x, y, z2, tile) {
     for (const i of ids) {
       const c = points[i]
-      const f = {
-        type: 1,
-        geometry: [
-          [
-            Math.round(this.options.extent * (c.x * z2 - x)),
-            Math.round(this.options.extent * (c.y * z2 - y))
-          ]
-        ],
-        tags: c.numPoints ? getClusterProperties(c) : this.points[c.index].properties
-      }
-      const id = c.numPoints ? c.id : this.points[c.index].id
-      if (id !== undefined) {
-        f.id = id
-      }
-      tile.features.push(f)
+      const f = c.numPoints ? getClusterProperties(c) : this.points[c.index].properties
     }
+    const id = c.numPoints ? c.id : this.points[c.index].id
+    if (id !== undefined) {
+      f.id = id
+    }
+    tile.features.push(f)
   }
 
   _limitZoom(z) {
@@ -328,6 +318,6 @@ function extend(dest, src) {
   return dest
 }
 
-export default function supercluster(options) {
+export default function spatialcluster(options) {
   return new SpatialCluster(options)
 }
