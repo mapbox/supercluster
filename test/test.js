@@ -62,6 +62,17 @@ test('returns cluster expansion zoom', (t) => {
     t.end();
 });
 
+test('returns cluster expansion zoom for maxZoom', (t) => {
+    const index = supercluster({
+        radius: 60,
+        extent: 256,
+        maxZoom: 4,
+    }).load(places.features);
+
+    t.same(index.getClusterExpansionZoom(2436), 5);
+    t.end();
+});
+
 test('aggregates cluster properties with reduce', (t) => {
     const index = supercluster({
         initial: () => ({sum: 0}),
