@@ -155,7 +155,7 @@ class SuperCluster {
 
     getClusterExpansionZoom(clusterId) {
         let clusterZoom = (clusterId % 32) - 1;
-        while (clusterZoom < this.options.maxZoom) {
+        while (clusterZoom <= this.options.maxZoom) {
             const children = this.getChildren(clusterId);
             clusterZoom++;
             if (children.length !== 1) break;
