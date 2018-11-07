@@ -78,7 +78,7 @@ class SuperCluster {
         }
 
         const tree = this.trees[this._limitZoom(zoom)];
-        const ids = tree.range(lngX(minLng), latY(maxLat), lngX(maxLng), latY(minLat));
+        const ids = tree.range(lngX(minLat), latY(minLng), lngX(maxLat), latY(maxLng));
         const clusters = [];
         for (const id of ids) {
             const c = tree.points[id];
