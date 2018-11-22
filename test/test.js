@@ -63,7 +63,7 @@ test('returns cluster expansion zoom', (t) => {
 });
 
 test('returns cluster expansion zoom for maxZoom', (t) => {
-    const index = supercluster({
+    const index = new Supercluster({
         radius: 60,
         extent: 256,
         maxZoom: 4,
