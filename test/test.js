@@ -1,27 +1,27 @@
 
 import tap from 'tap';
-import supercluster from '../index.js';
+import Supercluster from '../index.js';
 
 const test = tap.test;
 const places = require('./fixtures/places.json');
 const placesTile = require('./fixtures/places-z0-0-0.json');
 
 test('generates clusters properly', (t) => {
-    const index = supercluster().load(places.features);
+    const index = new Supercluster().load(places.features);
     const tile = index.getTile(0, 0, 0);
     t.same(tile.features, placesTile.features);
     t.end();
 });
 
 test('returns children of a cluster', (t) => {
-    const index = supercluster().load(places.features);
+    const index = new Supercluster().load(places.features);
     const childCounts = index.getChildren(1).map(p => p.properties.point_count || 1);
     t.same(childCounts, [6, 7, 2, 1]);
     t.end();
 });
 
 test('returns leaves of a cluster', (t) => {
-    const index = supercluster().load(places.features);
+    const index = new Supercluster().load(places.features);
     const leafNames = index.getLeaves(1, 10, 5).map(p => p.properties.name);
     t.same(leafNames, [
         'Niagara Falls',
@@ -39,7 +39,7 @@ test('returns leaves of a cluster', (t) => {
 });
 
 test('getLeaves handles null-property features', (t) => {
-    const index = supercluster().load(places.features.concat([{
+    const index = new Supercluster().load(places.features.concat([{
         type: 'Feature',
         properties: null,
         geometry: {
@@ -53,7 +53,7 @@ test('getLeaves handles null-property features', (t) => {
 });
 
 test('returns cluster expansion zoom', (t) => {
-    const index = supercluster().load(places.features);
+    const index = new Supercluster().load(places.features);
     t.same(index.getClusterExpansionZoom(1), 1);
     t.same(index.getClusterExpansionZoom(33), 1);
     t.same(index.getClusterExpansionZoom(353), 2);
@@ -63,7 +63,7 @@ test('returns cluster expansion zoom', (t) => {
 });
 
 test('aggregates cluster properties with reduce', (t) => {
-    const index = supercluster({
+    const index = new Supercluster({
         initial: () => ({sum: 0}),
         map: props => ({sum: props.scalerank}),
         reduce: (a, b) => { a.sum += b.sum; }
@@ -75,7 +75,7 @@ test('aggregates cluster properties with reduce', (t) => {
 });
 
 test('returns clusters when query crosses international dateline', (t) => {
-    const index = supercluster().load([
+    const index = new Supercluster().load([
         {
             type: 'Feature',
             properties: null,
@@ -118,7 +118,7 @@ test('returns clusters when query crosses international dateline', (t) => {
 });
 
 test('does not crash on weird bbox values', (t) => {
-    const index = supercluster().load(places.features);
+    const index = new Supercluster().load(places.features);
     t.equal(index.getClusters([129.426390, -103.720017, -445.930843, 114.518236], 1).length, 26);
     t.equal(index.getClusters([112.207836, -84.578666, -463.149397, 120.169159], 1).length, 27);
     t.equal(index.getClusters([129.886277, -82.332680, -445.470956, 120.390930], 1).length, 26);
