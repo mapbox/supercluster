@@ -5,7 +5,7 @@ import buble from 'rollup-plugin-buble';
 const config = (file, plugins) => ({
     input: 'index.js',
     output: {
-        name: 'supercluster',
+        name: 'Supercluster',
         format: 'umd',
         indent: false,
         file

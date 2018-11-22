@@ -19,7 +19,7 @@ const defaultOptions = {
     map: props => props // props => ({sum: props.my_value})
 };
 
-class SuperCluster {
+export default class Supercluster {
     constructor(options) {
         this.options = extend(Object.create(defaultOptions), options);
         this.trees = new Array(this.options.maxZoom + 1);
@@ -358,8 +358,4 @@ function getX(p) {
 }
 function getY(p) {
     return p.y;
-}
-
-export default function supercluster(options) {
-    return new SuperCluster(options);
 }

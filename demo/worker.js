@@ -1,4 +1,4 @@
-/*global importScripts supercluster */
+/*global importScripts Supercluster */
 
 importScripts('../dist/supercluster.js');
 
@@ -9,7 +9,7 @@ let index;
 getJSON('../test/fixtures/places.json', (geojson) => {
     console.log(`loaded ${  geojson.length  } points JSON in ${  (Date.now() - now) / 1000  }s`);
 
-    index = supercluster({
+    index = new Supercluster({
         log: true,
         radius: 60,
         extent: 256,
