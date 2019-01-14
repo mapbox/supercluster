@@ -3,11 +3,11 @@
 A very fast JavaScript library for geospatial point clustering for browsers and Node.
 
 ```html
-<script src="https://unpkg.com/supercluster@4.1.1/dist/supercluster.min.js"></script>
+<script src="https://unpkg.com/supercluster@5.0.0/dist/supercluster.min.js"></script>
 ```
 
 ```js
-var index = supercluster({
+var index = new Supercluster({
     radius: 40,
     maxZoom: 16
 });
@@ -25,16 +25,16 @@ Install using NPM (`npm install supercluster`) or Yarn (`yarn add supercluster`)
 
 ```js
 // import as a ES module
-import supercluster from 'supercluster';
+import Supercluster from 'supercluster';
 
 // or require in Node / Browserify
-const supercluster = require('supercluster');
+const Supercluster = require('supercluster');
 ```
 
 Or use a browser build directly:
 
 ```html
-<script src="https://unpkg.com/supercluster@4.1.1/dist/supercluster.min.js"></script>
+<script src="https://unpkg.com/supercluster@5.0.0/dist/supercluster.min.js"></script>
 ```
 
 ## Methods
@@ -87,7 +87,7 @@ In addition to the options above, supercluster supports property aggregation wit
 Example of setting up a `sum` cluster property that accumulates the sum of `myValue` property values:
 
 ```js
-var index = supercluster({
+var index = new Supercluster({
     initial: function() { return {sum: 0}; },
     map: function(props) { return {sum: props.myValue}; },
     reduce: function(accumulated, props) { accumulated.sum += props.sum; }
