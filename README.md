@@ -80,15 +80,15 @@ Returns the zoom on which the cluster expands into several children (useful for 
 
 In addition to the options above, supercluster supports property aggregation with the following three options:
 
-- `initial`: a function that returns an object with cluster's initial properties.
 - `map`: a function that returns properties to use for individual points.
 - `reduce`: a reduce function for calculating properties in clusters.
+- `initial`: an optional function that returns an object with cluster's initial properties;
+  if not provided, reduce will start with mapped values of the first cluster item.
 
 Example of setting up a `sum` cluster property that accumulates the sum of `myValue` property values:
 
 ```js
 var index = new Supercluster({
-    initial: function() { return {sum: 0}; },
     map: function(props) { return {sum: props.myValue}; },
     reduce: function(accumulated, props) { accumulated.sum += props.sum; }
 });
