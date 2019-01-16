@@ -13,7 +13,7 @@ const defaultOptions = {
     reduce: null, // (accumulated, props) => { accumulated.sum += props.sum; }
 
     // initial properties of a cluster (before running the reducer)
-    initial: () => ({}), // () => ({sum: 0})
+    initial: null, // () => ({sum: 0})
 
     // properties to use for individual points when running the reducer
     map: props => props // props => ({sum: props.my_value})
@@ -238,8 +238,12 @@ export default class Supercluster {
             let clusterProperties = null;
 
             if (reduce) {
-                clusterProperties = initial();
-                this._accumulate(clusterProperties, p);
+                if (initial) {
+                    clusterProperties = initial();
+                    reduce(clusterProperties, this._map(p));
+                } else {
+                    clusterProperties = this._map(p);
+                }
             }
 
             // encode both zoom and point index on which the cluster originated
@@ -259,7 +263,7 @@ export default class Supercluster {
                 b.parentId = id;
 
                 if (reduce) {
-                    this._accumulate(clusterProperties, b);
+                    reduce(clusterProperties, this._map(b));
                 }
             }
 
@@ -274,10 +278,8 @@ export default class Supercluster {
         return clusters;
     }
 
-    _accumulate(clusterProperties, point) {
-        const {map, reduce} = this.options;
-        const properties = point.numPoints ? point.properties : map(this.points[point.index].properties);
-        reduce(clusterProperties, properties);
+    _map(point) {
+        return point.numPoints ? point.properties : this.options.map(this.points[point.index].properties);
     }
 }
 
