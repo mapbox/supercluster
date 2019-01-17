@@ -7,7 +7,7 @@ A very fast JavaScript library for geospatial point clustering for browsers and 
 ```
 
 ```js
-var index = new Supercluster({
+const index = new Supercluster({
     radius: 40,
     maxZoom: 16
 });
@@ -80,17 +80,15 @@ Returns the zoom on which the cluster expands into several children (useful for 
 
 In addition to the options above, supercluster supports property aggregation with the following three options:
 
-- `map`: a function that returns properties to use for individual points.
-- `reduce`: a reduce function for calculating properties in clusters.
-- `initial`: an optional function that returns an object with cluster's initial properties;
-  if not provided, reduce will start with mapped values of the first cluster item.
+- `map`: a function that returns cluster properties corresponding to a single point.
+- `reduce`: a reduce function that merges properties of two clusters into one.
 
 Example of setting up a `sum` cluster property that accumulates the sum of `myValue` property values:
 
 ```js
-var index = new Supercluster({
-    map: function(props) { return {sum: props.myValue}; },
-    reduce: function(accumulated, props) { accumulated.sum += props.sum; }
+const index = new Supercluster({
+    map: (props) => ({sum: props.myValue}),
+    reduce: (accumulated, props) => { accumulated.sum += props.sum; }
 });
 ```
 

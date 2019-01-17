@@ -84,18 +84,6 @@ test('aggregates cluster properties with reduce', (t) => {
     t.end();
 });
 
-test('aggregates cluster properties with initial provided', (t) => {
-    const index = new Supercluster({
-        initial: () => ({sum: 0}),
-        map: props => ({sum: props.scalerank}),
-        reduce: (a, b) => { a.sum += b.sum; }
-    }).load(places.features);
-
-    t.equal(index.getTile(0, 0, 0).features[0].tags.sum, 69);
-
-    t.end();
-});
-
 test('returns clusters when query crosses international dateline', (t) => {
     const index = new Supercluster().load([
         {
