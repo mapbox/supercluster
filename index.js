@@ -13,20 +13,13 @@ const defaultOptions = {
     reduce: null, // (accumulated, props) => { accumulated.sum += props.sum; }
 
     // properties to use for individual points when running the reducer
-    map: props => extend({}, props) // props => ({sum: props.my_value})
+    map: props => props // props => ({sum: props.my_value})
 };
 
 export default class Supercluster {
     constructor(options) {
         this.options = extend(Object.create(defaultOptions), options);
         this.trees = new Array(this.options.maxZoom + 1);
-
-        if (this.options.map) {
-            const props = {};
-            if (props === this.options.map(props)) {
-                throw new Error('Map function must return a new object.');
-            }
-        }
     }
 
     load(points) {
@@ -277,7 +270,9 @@ export default class Supercluster {
         if (point.numPoints) {
             return clone ? extend({}, point.properties) : point.properties;
         }
-        return this.options.map(this.points[point.index].properties);
+        const original = this.points[point.index].properties;
+        const result = this.options.map(original);
+        return clone && result === original ? extend({}, result) : result;
     }
 }
 
