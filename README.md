@@ -92,6 +92,8 @@ const index = new Supercluster({
 });
 ```
 
+Note that `reduce` must not mutate the second argument (`props`).
+
 ## Developing Supercluster
 
 ```

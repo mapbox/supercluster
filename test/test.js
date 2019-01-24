@@ -76,10 +76,14 @@ test('returns cluster expansion zoom for maxZoom', (t) => {
 test('aggregates cluster properties with reduce', (t) => {
     const index = new Supercluster({
         map: props => ({sum: props.scalerank}),
-        reduce: (a, b) => { a.sum += b.sum; }
+        reduce: (a, b) => { a.sum += b.sum; },
+        radius: 100
     }).load(places.features);
 
-    t.equal(index.getTile(0, 0, 0).features[0].tags.sum, 69);
+    t.same(index.getTile(1, 0, 0).features.map(f => f.tags.sum).filter(Boolean),
+        [146, 84, 63, 23, 34, 12, 19, 29, 8, 8, 80, 35]);
+    t.same(index.getTile(0, 0, 0).features.map(f => f.tags.sum).filter(Boolean),
+        [298, 122, 12, 36, 98, 7, 24, 8, 125, 98, 125, 12, 36, 8]);
 
     t.end();
 });

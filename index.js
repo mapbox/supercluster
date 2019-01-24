@@ -232,7 +232,7 @@ export default class Supercluster {
             let wx = p.x * numPoints;
             let wy = p.y * numPoints;
 
-            const clusterProperties = reduce ? this._map(p) : null;
+            const clusterProperties = reduce ? this._map(p, true) : null;
 
             // encode both zoom and point index on which the cluster originated
             const id = (i << 5) + (zoom + 1);
@@ -266,8 +266,13 @@ export default class Supercluster {
         return clusters;
     }
 
-    _map(point) {
-        return point.numPoints ? point.properties : this.options.map(this.points[point.index].properties);
+    _map(point, clone) {
+        if (point.numPoints) {
+            return clone ? extend({}, point.properties) : point.properties;
+        }
+        const original = this.points[point.index].properties;
+        const result = this.options.map(original);
+        return clone && result === original ? extend({}, result) : result;
     }
 }
 
