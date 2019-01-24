@@ -92,6 +92,8 @@ const index = new Supercluster({
 });
 ```
 
+Note that `map` must return a new object (not a reference to original properties), and `reduce` must not mutate the second argument (`props`).
+
 ## Developing Supercluster
 
 ```
