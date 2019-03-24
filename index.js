@@ -228,9 +228,10 @@ export default class Supercluster {
             const tree = this.trees[zoom + 1];
             const neighborIds = tree.within(p.x, p.y, r);
 
+            let weight = p.weight || 1;
             let numPoints = p.numPoints || 1;
-            let wx = p.x * numPoints;
-            let wy = p.y * numPoints;
+            let wx = p.x * weight;
+            let wy = p.y * weight;
 
             const clusterProperties = reduce ? this._map(p, true) : null;
 
@@ -243,10 +244,12 @@ export default class Supercluster {
                 if (b.zoom <= zoom) continue;
                 b.zoom = zoom; // save the zoom (so it doesn't get processed twice)
 
+                const weight2 = b.weight || 1;
                 const numPoints2 = b.numPoints || 1;
-                wx += b.x * numPoints2; // accumulate coordinates for calculating weighted center
-                wy += b.y * numPoints2;
+                wx += b.x * weight2; // accumulate coordinates for calculating weighted center
+                wy += b.y * weight2;
 
+                weight += weight2;
                 numPoints += numPoints2;
                 b.parentId = id;
 
@@ -259,7 +262,7 @@ export default class Supercluster {
                 clusters.push(p);
             } else {
                 p.parentId = id;
-                clusters.push(createCluster(wx / numPoints, wy / numPoints, id, numPoints, clusterProperties));
+                clusters.push(createCluster(wx / weight, wy / weight, id, numPoints, weight, clusterProperties));
             }
         }
 
@@ -276,7 +279,7 @@ export default class Supercluster {
     }
 }
 
-function createCluster(x, y, id, numPoints, properties) {
+function createCluster(x, y, id, numPoints, weight, properties) {
     return {
         x, // weighted cluster center
         y,
@@ -284,6 +287,7 @@ function createCluster(x, y, id, numPoints, properties) {
         id, // encodes index of the first child of the cluster and its zoom level
         parentId: -1, // parent cluster id
         numPoints,
+        weight,
         properties
     };
 }
@@ -293,6 +297,7 @@ function createPointCluster(p, id) {
     return {
         x: lngX(x), // projected point coordinates
         y: latY(y),
+        weight: p.properties.weight || 1,
         zoom: Infinity, // the last zoom the point was processed at
         index: id, // index of the source feature in the original input array,
         parentId: -1 // parent cluster id

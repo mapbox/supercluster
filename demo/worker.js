@@ -9,6 +9,7 @@ let index;
 getJSON('../test/fixtures/places.json', (geojson) => {
     console.log(`loaded ${  geojson.length  } points JSON in ${  (Date.now() - now) / 1000  }s`);
 
+    geojson.features.forEach((d) => { d.properties.weight = Math.random() * 1000; });
     index = new Supercluster({
         log: true,
         radius: 60,
