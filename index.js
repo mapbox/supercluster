@@ -200,10 +200,7 @@ export default class Supercluster {
                 ]],
                 tags: c.numPoints ? getClusterProperties(c) : this.points[c.index].properties
             };
-            const id = c.numPoints ? c.id : this.points[c.index].id;
-            if (id !== undefined) {
-                f.id = id;
-            }
+            f.id = c.numPoints ? c.id : (this.points[c.index].id || c.index);
             tile.features.push(f);
         }
     }
@@ -235,7 +232,7 @@ export default class Supercluster {
             const clusterProperties = reduce ? this._map(p, true) : null;
 
             // encode both zoom and point index on which the cluster originated
-            const id = (i << 5) + (zoom + 1);
+            const id = (i << 5) + (zoom + 1) + this.points.length;
 
             for (const neighborId of neighborIds) {
                 const b = tree.points[neighborId];
