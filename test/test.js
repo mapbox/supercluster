@@ -1,8 +1,7 @@
 
-import tap from 'tap';
+import {test} from 'tape';
 import Supercluster from '../index.js';
 
-const test = tap.test;
 const places = require('./fixtures/places.json');
 const placesTile = require('./fixtures/places-z0-0-0.json');
 
