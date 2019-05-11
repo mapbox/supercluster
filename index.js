@@ -192,15 +192,30 @@ export default class Supercluster {
     _addTileFeatures(ids, points, x, y, z2, tile) {
         for (const i of ids) {
             const c = points[i];
+            const isCluster = c.numPoints;
             const f = {
                 type: 1,
                 geometry: [[
                     Math.round(this.options.extent * (c.x * z2 - x)),
                     Math.round(this.options.extent * (c.y * z2 - y))
                 ]],
-                tags: c.numPoints ? getClusterProperties(c) : this.points[c.index].properties
+                tags: isCluster ? getClusterProperties(c) : this.points[c.index].properties
             };
-            f.id = c.numPoints ? c.id : (this.points[c.index].id || c.index);
+
+            // assign id
+            let id;
+            if (isCluster) {
+                id = c.id;
+            } else if (this.options.generateId) {
+                // optionally generate id
+                id = c.index;
+            } else if (this.points[c.index].id) {
+                // keep id if already assigned
+                id = this.points[c.index].id;
+            }
+
+            if (id !== undefined) f.id = id;
+
             tile.features.push(f);
         }
     }
