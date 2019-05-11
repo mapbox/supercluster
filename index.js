@@ -278,8 +278,9 @@ export default class Supercluster {
     }
 
     _decodeClusterId(clusterId) {
-        const originId = (clusterId - this.points.length) >> 5;
-        const originZoom = (clusterId - this.points.length) % 32;
+        const decremented = clusterId - this.points.length
+        const originId = decremented >> 5;
+        const originZoom = decremented % 32;
         return { originZoom, originId };
     }
 
