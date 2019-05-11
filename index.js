@@ -85,7 +85,7 @@ export default class Supercluster {
     }
 
     getChildren(clusterId) {
-        const { originId, originZoom } = this._decodeClusterId(clusterId);
+        const {originId, originZoom} = this._decodeClusterId(clusterId);
         const errorMsg = 'No cluster with the specified id.';
 
         const index = this.trees[originZoom];
@@ -278,10 +278,10 @@ export default class Supercluster {
     }
 
     _decodeClusterId(clusterId) {
-        const decremented = clusterId - this.points.length
+        const decremented = clusterId - this.points.length;
         const originId = decremented >> 5;
         const originZoom = decremented % 32;
-        return { originZoom, originId };
+        return {originZoom, originId};
     }
 
     _map(point, clone) {
