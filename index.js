@@ -85,8 +85,7 @@ export default class Supercluster {
     }
 
     getChildren(clusterId) {
-        const originId = clusterId >> 5;
-        const originZoom = clusterId % 32;
+        const { originId, originZoom } = this._decodeClusterId(clusterId);
         const errorMsg = 'No cluster with the specified id.';
 
         const index = this.trees[originZoom];
@@ -151,14 +150,14 @@ export default class Supercluster {
     }
 
     getClusterExpansionZoom(clusterId) {
-        let clusterZoom = (clusterId % 32) - 1;
-        while (clusterZoom <= this.options.maxZoom) {
+        let expansionZoom = this._decodeClusterId(clusterId).originZoom - 1;
+        while (expansionZoom <= this.options.maxZoom) {
             const children = this.getChildren(clusterId);
-            clusterZoom++;
+            expansionZoom++;
             if (children.length !== 1) break;
             clusterId = children[0].properties.cluster_id;
         }
-        return clusterZoom;
+        return expansionZoom;
     }
 
     _appendLeaves(result, clusterId, limit, offset, skipped) {
@@ -246,7 +245,7 @@ export default class Supercluster {
 
             const clusterProperties = reduce ? this._map(p, true) : null;
 
-            // encode both zoom and point index on which the cluster originated
+            // encode both zoom and point index on which the cluster originated -- offset by total length of features
             const id = (i << 5) + (zoom + 1) + this.points.length;
 
             for (const neighborId of neighborIds) {
@@ -276,6 +275,12 @@ export default class Supercluster {
         }
 
         return clusters;
+    }
+
+    _decodeClusterId(clusterId) {
+        const originId = (clusterId - this.points.length) >> 5;
+        const originZoom = (clusterId - this.points.length) % 32;
+        return { originZoom, originId };
     }
 
     _map(point, clone) {
