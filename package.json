@@ -15,9 +15,7 @@
     "prepublishOnly": "npm run test && npm run build"
   },
   "files": [
-    "index.js",
-    "dist/supercluster.js",
-    "dist/supercluster.min.js"
+    "dist"
   ],
   "repository": {
     "type": "git",

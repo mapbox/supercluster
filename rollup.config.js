@@ -16,6 +16,6 @@ const config = (file, plugins) => ({
 const bubleConfig = {transforms: {dangerousForOf: true}};
 
 export default [
-    config('dist/supercluster.js', [resolve(), buble(bubleConfig)]),
-    config('dist/supercluster.min.js', [resolve(), terser(), buble(bubleConfig)])
+    config('dist/index.js', [resolve(), buble(bubleConfig)]),
+    config('dist/index.min.js', [resolve(), terser(), buble(bubleConfig)])
 ];
