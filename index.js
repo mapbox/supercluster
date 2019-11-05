@@ -9,7 +9,7 @@ const defaultOptions = {
     nodeSize: 64, // size of the KD-tree leaf node, affects performance
     log: false,   // whether to log timing info
 
-    // whether to generate numeric ids for input features that don't have them
+    // whether to generate numeric ids for input features
     generateId: false,
 
     // a reduce function for calculating custom cluster properties
