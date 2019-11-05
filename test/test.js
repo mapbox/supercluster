@@ -14,14 +14,14 @@ test('generates clusters properly', (t) => {
 
 test('returns children of a cluster', (t) => {
     const index = new Supercluster().load(places.features);
-    const childCounts = index.getChildren(1).map(p => p.properties.point_count || 1);
+    const childCounts = index.getChildren(164).map(p => p.properties.point_count || 1);
     t.same(childCounts, [6, 7, 2, 1]);
     t.end();
 });
 
 test('returns leaves of a cluster', (t) => {
     const index = new Supercluster().load(places.features);
-    const leafNames = index.getLeaves(1, 10, 5).map(p => p.properties.name);
+    const leafNames = index.getLeaves(164, 10, 5).map(p => p.properties.name);
     t.same(leafNames, [
         'Niagara Falls',
         'Cape San Blas',
@@ -46,18 +46,18 @@ test('getLeaves handles null-property features', (t) => {
             coordinates: [-79.04411780507252, 43.08771393436908]
         }
     }]));
-    const leaves = index.getLeaves(1, 1, 6);
+    const leaves = index.getLeaves(165, 1, 6);
     t.equal(leaves[0].properties, null);
     t.end();
 });
 
 test('returns cluster expansion zoom', (t) => {
     const index = new Supercluster().load(places.features);
-    t.same(index.getClusterExpansionZoom(1), 1);
-    t.same(index.getClusterExpansionZoom(33), 1);
-    t.same(index.getClusterExpansionZoom(353), 2);
-    t.same(index.getClusterExpansionZoom(833), 2);
-    t.same(index.getClusterExpansionZoom(1857), 3);
+    t.same(index.getClusterExpansionZoom(164), 1);
+    t.same(index.getClusterExpansionZoom(196), 1);
+    t.same(index.getClusterExpansionZoom(516), 2);
+    t.same(index.getClusterExpansionZoom(996), 2);
+    t.same(index.getClusterExpansionZoom(2020), 3);
     t.end();
 });
 
@@ -68,7 +68,7 @@ test('returns cluster expansion zoom for maxZoom', (t) => {
         maxZoom: 4,
     }).load(places.features);
 
-    t.same(index.getClusterExpansionZoom(2436), 5);
+    t.same(index.getClusterExpansionZoom(2599), 5);
     t.end();
 });
 

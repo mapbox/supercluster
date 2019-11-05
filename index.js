@@ -85,8 +85,7 @@ export default class Supercluster {
     }
 
     getChildren(clusterId) {
-        const originId = clusterId >> 5;
-        const originZoom = clusterId % 32;
+        const {originId, originZoom} = this._decodeClusterId(clusterId);
         const errorMsg = 'No cluster with the specified id.';
 
         const index = this.trees[originZoom];
@@ -151,14 +150,14 @@ export default class Supercluster {
     }
 
     getClusterExpansionZoom(clusterId) {
-        let clusterZoom = (clusterId % 32) - 1;
-        while (clusterZoom <= this.options.maxZoom) {
+        let expansionZoom = this._decodeClusterId(clusterId).originZoom - 1;
+        while (expansionZoom <= this.options.maxZoom) {
             const children = this.getChildren(clusterId);
-            clusterZoom++;
+            expansionZoom++;
             if (children.length !== 1) break;
             clusterId = children[0].properties.cluster_id;
         }
-        return clusterZoom;
+        return expansionZoom;
     }
 
     _appendLeaves(result, clusterId, limit, offset, skipped) {
@@ -192,18 +191,30 @@ export default class Supercluster {
     _addTileFeatures(ids, points, x, y, z2, tile) {
         for (const i of ids) {
             const c = points[i];
+            const isCluster = c.numPoints;
             const f = {
                 type: 1,
                 geometry: [[
                     Math.round(this.options.extent * (c.x * z2 - x)),
                     Math.round(this.options.extent * (c.y * z2 - y))
                 ]],
-                tags: c.numPoints ? getClusterProperties(c) : this.points[c.index].properties
+                tags: isCluster ? getClusterProperties(c) : this.points[c.index].properties
             };
-            const id = c.numPoints ? c.id : this.points[c.index].id;
-            if (id !== undefined) {
-                f.id = id;
+
+            // assign id
+            let id;
+            if (isCluster) {
+                id = c.id;
+            } else if (this.options.generateId) {
+                // optionally generate id
+                id = c.index;
+            } else if (this.points[c.index].id) {
+                // keep id if already assigned
+                id = this.points[c.index].id;
             }
+
+            if (id !== undefined) f.id = id;
+
             tile.features.push(f);
         }
     }
@@ -234,8 +245,8 @@ export default class Supercluster {
 
             let clusterProperties = reduce && numPoints > 1 ? this._map(p, true) : null;
 
-            // encode both zoom and point index on which the cluster originated
-            const id = (i << 5) + (zoom + 1);
+            // encode both zoom and point index on which the cluster originated -- offset by total length of features
+            const id = (i << 5) + (zoom + 1) + this.points.length;
 
             for (const neighborId of neighborIds) {
                 const b = tree.points[neighborId];
@@ -265,6 +276,13 @@ export default class Supercluster {
         }
 
         return clusters;
+    }
+
+    _decodeClusterId(clusterId) {
+        const decremented = clusterId - this.points.length;
+        const originId = decremented >> 5;
+        const originZoom = decremented % 32;
+        return {originZoom, originId};
     }
 
     _map(point, clone) {
