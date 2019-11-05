@@ -67,14 +67,15 @@ Returns the zoom on which the cluster expands into several children (useful for 
 
 ## Options
 
-| Option   | Default | Description                                                       |
-|----------|---------|-------------------------------------------------------------------|
-| minZoom  | 0       | Minimum zoom level at which clusters are generated.               |
-| maxZoom  | 16      | Maximum zoom level at which clusters are generated.               |
-| radius   | 40      | Cluster radius, in pixels.                                        |
-| extent   | 512     | (Tiles) Tile extent. Radius is calculated relative to this value. |
-| nodeSize | 64      | Size of the KD-tree leaf node. Affects performance.               |
-| log      | false   | Whether timing info should be logged.                             |
+| Option     | Default | Description                                                       |
+|------------|---------|-------------------------------------------------------------------|
+| minZoom    | 0       | Minimum zoom level at which clusters are generated.               |
+| maxZoom    | 16      | Maximum zoom level at which clusters are generated.               |
+| radius     | 40      | Cluster radius, in pixels.                                        |
+| extent     | 512     | (Tiles) Tile extent. Radius is calculated relative to this value. |
+| nodeSize   | 64      | Size of the KD-tree leaf node. Affects performance.               |
+| log        | false   | Whether timing info should be logged.                             |
+| generateId | false   | Whether to generate ids for input features that don't have them.  |
 
 ### Property map/reduce options
 

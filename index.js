@@ -9,6 +9,9 @@ const defaultOptions = {
     nodeSize: 64, // size of the KD-tree leaf node, affects performance
     log: false,   // whether to log timing info
 
+    // whether to generate numeric ids for input features that don't have them
+    generateId: false,
+
     // a reduce function for calculating custom cluster properties
     reduce: null, // (accumulated, props) => { accumulated.sum += props.sum; }
 
@@ -85,7 +88,8 @@ export default class Supercluster {
     }
 
     getChildren(clusterId) {
-        const {originId, originZoom} = this._decodeClusterId(clusterId);
+        const originId = this._getOriginId(clusterId);
+        const originZoom = this._getOriginZoom(clusterId);
         const errorMsg = 'No cluster with the specified id.';
 
         const index = this.trees[originZoom];
@@ -150,7 +154,7 @@ export default class Supercluster {
     }
 
     getClusterExpansionZoom(clusterId) {
-        let expansionZoom = this._decodeClusterId(clusterId).originZoom - 1;
+        let expansionZoom = this._getOriginZoom(clusterId) - 1;
         while (expansionZoom <= this.options.maxZoom) {
             const children = this.getChildren(clusterId);
             expansionZoom++;
@@ -278,11 +282,14 @@ export default class Supercluster {
         return clusters;
     }
 
-    _decodeClusterId(clusterId) {
-        const decremented = clusterId - this.points.length;
-        const originId = decremented >> 5;
-        const originZoom = decremented % 32;
-        return {originZoom, originId};
+    // get index of the point from which the cluster originated
+    _getOriginId(clusterId) {
+        return (clusterId - this.points.length) >> 5;
+    }
+
+    // get zoom of the point from which the cluster originated
+    _getOriginZoom(clusterId) {
+        return (clusterId - this.points.length) % 32;
     }
 
     _map(point, clone) {
