@@ -37,6 +37,13 @@ test('returns leaves of a cluster', (t) => {
     t.end();
 });
 
+test('generates unique ids with generateId option', (t) => {
+    const index = new Supercluster({generateId: true}).load(places.features);
+    const ids = index.getTile(0, 0, 0).features.filter(f => !f.tags.cluster).map(f => f.id);
+    t.same(ids, [12, 20, 21, 22, 24, 28, 30, 62, 81, 118, 119, 125, 81, 118]);
+    t.end();
+});
+
 test('getLeaves handles null-property features', (t) => {
     const index = new Supercluster().load(places.features.concat([{
         type: 'Feature',

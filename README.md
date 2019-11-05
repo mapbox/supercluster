@@ -75,7 +75,7 @@ Returns the zoom on which the cluster expands into several children (useful for 
 | extent     | 512     | (Tiles) Tile extent. Radius is calculated relative to this value. |
 | nodeSize   | 64      | Size of the KD-tree leaf node. Affects performance.               |
 | log        | false   | Whether timing info should be logged.                             |
-| generateId | false   | Whether to generate unique numeric ids for input features.        |
+| generateId | false   | Whether to generate ids for input features in vector tiles.       |
 
 ### Property map/reduce options
 
