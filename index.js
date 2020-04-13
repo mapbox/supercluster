@@ -43,7 +43,7 @@ export default class Supercluster {
                 continue;
             } else if (points[i].geometry.type === 'MultiPoint') {
                 const newPointFeatures = multiToSingles(points[i]);
-		for (let j = 0; j < newPointFeatures.length; j++) {
+                for (let j = 0; j < newPointFeatures.length; j++) {
                     clusters.push(createPointCluster(newPointFeatures[j], i));
                 }
             } else {
@@ -51,8 +51,7 @@ export default class Supercluster {
             }
         }
         this.trees[maxZoom + 1] = new KDBush(clusters, getX, getY, nodeSize, Float32Array);
-	    
-	    
+
         if (log) console.timeEnd(timerId);
 
         // cluster points on max zoom, then cluster the results on previous zoom, etc.;
