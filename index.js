@@ -41,18 +41,18 @@ export default class Supercluster {
         for (let i = 0; i < points.length; i++) {
             if (!points[i].geometry) {
                 continue;
-	    } else if (points[i].geometry.type === 'MultiPoint') {
-	        const newPointFeatures = multiToSingles(points[i]);
-		for (let j=0; j < newPointFeatures.length; j++) {
+            } else if (points[i].geometry.type === 'MultiPoint') {
+                const newPointFeatures = multiToSingles(points[i]);
+		for (let j = 0; j < newPointFeatures.length; j++) {
                     clusters.push(createPointCluster(newPointFeatures[j], i));
-		}
-	    } else {
+                }
+            } else {
                 clusters.push(createPointCluster(points[i], i));
-	    }
+            }
         }
         this.trees[maxZoom + 1] = new KDBush(clusters, getX, getY, nodeSize, Float32Array);
-
-        
+	    
+	    
         if (log) console.timeEnd(timerId);
 
         // cluster points on max zoom, then cluster the results on previous zoom, etc.;
@@ -392,13 +392,13 @@ function getY(p) {
 }
 
 function multiToSingles(multiPointFeature) {
-    let featureTemplate = $.extend(true, {}, multiPointFeature);
-    let newFeatures = [];
+    const featureTemplate = $.extend(true, {}, multiPointFeature);
+    const newFeatures = [];
     for (let i = 0;  i < multiPointFeature.geometry.coordinates.length; i++) {
         const newCoordinates = multiPointFeature.geometry.coordinates[i];
-	featureTemplate.geometry.coordinates = newCoordinates;
-	featureTemplate.geometry.type = 'Point';
-	newFeatures.push(featureTemplate);
+        featureTemplate.geometry.coordinates = newCoordinates;
+        featureTemplate.geometry.type = 'Point';
+        newFeatures.push(featureTemplate);
     }
     return newFeatures;
 }
