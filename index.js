@@ -1,8 +1,6 @@
 
 import KDBush from 'kdbush';
 
-const $ = window.$;
-
 const defaultOptions = {
     minZoom: 0,   // min zoom to generate clusters on
     maxZoom: 16,  // max zoom level to cluster the points on
