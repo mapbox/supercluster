@@ -391,13 +391,21 @@ function getY(p) {
 }
 
 function multiToSingles(multiPointFeature) {
-    const featureTemplate = $.extend(true, {}, multiPointFeature);
-    const newFeatures = [];
-    for (let i = 0;  i < multiPointFeature.geometry.coordinates.length; i++) {
-        const newCoordinates = multiPointFeature.geometry.coordinates[i];
-        featureTemplate.geometry.coordinates = newCoordinates;
-        featureTemplate.geometry.type = 'Point';
-        newFeatures.push(featureTemplate);
+    const featureTemplate = {
+      "type": "Feature",
+      "properties": {
+      },
+      "geometry": {
+      }
     }
-    return newFeatures;
+	const newFeatures = [];
+	for (let i = 0;  i < multiPointFeature.geometry.coordinates.length; i++) {
+		const newCoordinates = multiPointFeature.geometry.coordinates[i];
+        const newProperties = multiPointFeature.properties[i];
+        featureTemplate.geometry.properties = newProperties;
+		featureTemplate.geometry.coordinates = newCoordinates;
+		featureTemplate.geometry.type = 'Point';
+		newFeatures.push(featureTemplate);
+	}
+	return newFeatures;
 }
