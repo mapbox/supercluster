@@ -4,6 +4,7 @@ import KDBush from 'kdbush';
 const defaultOptions = {
     minZoom: 0,   // min zoom to generate clusters on
     maxZoom: 16,  // max zoom level to cluster the points on
+    minPoints: 2, // minimum points to form a cluster
     radius: 40,   // cluster radius in pixels
     extent: 512,  // tile extent (radius is calculated relative to it)
     nodeSize: 64, // size of the KD-tree leaf node, affects performance
@@ -229,7 +230,7 @@ export default class Supercluster {
 
     _cluster(points, zoom) {
         const clusters = [];
-        const {radius, extent, reduce} = this.options;
+        const {radius, extent, reduce, minPoints} = this.options;
         const r = radius / (extent * Math.pow(2, zoom));
 
         // loop through each point
@@ -243,39 +244,57 @@ export default class Supercluster {
             const tree = this.trees[zoom + 1];
             const neighborIds = tree.within(p.x, p.y, r);
 
-            let numPoints = p.numPoints || 1;
-            let wx = p.x * numPoints;
-            let wy = p.y * numPoints;
+            const numPointsOrigin = p.numPoints || 1;
+            let numPoints = numPointsOrigin;
 
-            let clusterProperties = reduce && numPoints > 1 ? this._map(p, true) : null;
-
-            // encode both zoom and point index on which the cluster originated -- offset by total length of features
-            const id = (i << 5) + (zoom + 1) + this.points.length;
-
+            // count the number of points in a potential cluster
             for (const neighborId of neighborIds) {
                 const b = tree.points[neighborId];
                 // filter out neighbors that are already processed
-                if (b.zoom <= zoom) continue;
-                b.zoom = zoom; // save the zoom (so it doesn't get processed twice)
-
-                const numPoints2 = b.numPoints || 1;
-                wx += b.x * numPoints2; // accumulate coordinates for calculating weighted center
-                wy += b.y * numPoints2;
-
-                numPoints += numPoints2;
-                b.parentId = id;
-
-                if (reduce) {
-                    if (!clusterProperties) clusterProperties = this._map(p, true);
-                    reduce(clusterProperties, this._map(b));
-                }
+                if (b.zoom > zoom) numPoints += b.numPoints || 1;
             }
 
-            if (numPoints === 1) {
-                clusters.push(p);
-            } else {
+            if (numPoints >= minPoints) { // enough points to form a cluster
+                let wx = p.x * numPointsOrigin;
+                let wy = p.y * numPointsOrigin;
+
+                let clusterProperties = reduce && numPointsOrigin > 1 ? this._map(p, true) : null;
+
+                // encode both zoom and point index on which the cluster originated -- offset by total length of features
+                const id = (i << 5) + (zoom + 1) + this.points.length;
+
+                for (const neighborId of neighborIds) {
+                    const b = tree.points[neighborId];
+
+                    if (b.zoom <= zoom) continue;
+                    b.zoom = zoom; // save the zoom (so it doesn't get processed twice)
+
+                    const numPoints2 = b.numPoints || 1;
+                    wx += b.x * numPoints2; // accumulate coordinates for calculating weighted center
+                    wy += b.y * numPoints2;
+
+                    b.parentId = id;
+
+                    if (reduce) {
+                        if (!clusterProperties) clusterProperties = this._map(p, true);
+                        reduce(clusterProperties, this._map(b));
+                    }
+                }
+
                 p.parentId = id;
                 clusters.push(createCluster(wx / numPoints, wy / numPoints, id, numPoints, clusterProperties));
+
+            } else { // left points as unclustered
+                clusters.push(p);
+
+                if (numPoints > 1) {
+                    for (const neighborId of neighborIds) {
+                        const b = tree.points[neighborId];
+                        if (b.zoom <= zoom) continue;
+                        b.zoom = zoom;
+                        clusters.push(b);
+                    }
+                }
             }
         }
 
