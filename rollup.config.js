@@ -1,6 +1,6 @@
 import {terser} from 'rollup-plugin-terser';
-import resolve from "rollup-plugin-node-resolve";
-import buble from 'rollup-plugin-buble';
+import resolve from "@rollup/plugin-node-resolve";
+import buble from '@rollup/plugin-buble';
 
 const config = (file, plugins) => ({
     input: 'index.js',
