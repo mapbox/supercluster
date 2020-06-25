@@ -400,12 +400,13 @@ function multiToSingles(multiPointFeature) {
     };
     const newFeatures = [];
     for (let i = 0;  i < multiPointFeature.geometry.coordinates.length; i++) {
-        const newCoordinates = multiPointFeature.geometry.coordinates[i];
-        const newProperties = multiPointFeature.properties[i];
-        featureTemplate.geometry.properties = newProperties;
-        featureTemplate.geometry.coordinates = newCoordinates;
-        featureTemplate.geometry.type = 'Point';
-        newFeatures.push(featureTemplate);
+        let newFeature = JSON.parse(JSON.stringify(featureTemplate));
+        let newCoordinates = multiPointFeature.geometry.coordinates[i];
+        let newProperties = multiPointFeature.properties;
+        newFeature.geometry.properties = newProperties;
+        newFeature.geometry.coordinates = newCoordinates;
+        newFeature.geometry.type = 'Point';
+        newFeatures.push(newFeature);
     }
-    return newFeatures;
+return newFeatures
 }
