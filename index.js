@@ -277,7 +277,10 @@ export default class Supercluster {
 
                     if (reduce) {
                         if (!clusterProperties) clusterProperties = this._map(p, true);
-                        reduce(clusterProperties, this._map(b));
+                        const deepClusterProperties = JSON.parse(JSON.stringify(clusterProperties));
+                        const deepNeighbourProperties = JSON.parse(JSON.stringify(this._map(b)));
+                        reduce(deepClusterProperties, deepNeighbourProperties);
+                        clusterProperties = deepClusterProperties;
                     }
                 }
 
