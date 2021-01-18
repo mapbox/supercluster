@@ -20,6 +20,8 @@ const defaultOptions = {
     map: props => props // props => ({sum: props.my_value})
 };
 
+const fround = Math.fround || (tmp => (x => (tmp[0] = +x)))(new Float32Array(1));
+
 export default class Supercluster {
     constructor(options) {
         this.options = extend(Object.create(defaultOptions), options);
@@ -323,8 +325,8 @@ export default class Supercluster {
 
 function createCluster(x, y, id, numPoints, properties) {
     return {
-        x, // weighted cluster center
-        y,
+        x: fround(x), // weighted cluster center; round for consistency with Float32Array index
+        y: fround(y),
         zoom: Infinity, // the last zoom the cluster was processed at
         id, // encodes index of the first child of the cluster and its zoom level
         parentId: -1, // parent cluster id
@@ -336,8 +338,8 @@ function createCluster(x, y, id, numPoints, properties) {
 function createPointCluster(p, id) {
     const [x, y] = p.geometry.coordinates;
     return {
-        x: lngX(x), // projected point coordinates
-        y: latY(y),
+        x: fround(lngX(x)), // projected point coordinates
+        y: fround(latY(y)),
         zoom: Infinity, // the last zoom the point was processed at
         index: id, // index of the source feature in the original input array,
         parentId: -1 // parent cluster id

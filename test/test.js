@@ -157,3 +157,18 @@ test('does not crash on weird bbox values', (t) => {
     t.end();
 });
 
+test('makes sure same-location points are clustered', (t) => {
+    const index = new Supercluster({
+        maxZoom: 20,
+        extent: 8192,
+        radius: 16,
+        log: true
+    }).load([
+        {type: 'Feature', geometry: {type: 'Point', coordinates: [-1.426798, 53.943034]}},
+        {type: 'Feature', geometry: {type: 'Point', coordinates: [-1.426798, 53.943034]}}
+    ]);
+
+    t.equal(index.trees[20].ids.length, 1);
+
+    t.end();
+});
