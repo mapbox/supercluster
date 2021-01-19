@@ -20,7 +20,7 @@ const defaultOptions = {
     map: props => props // props => ({sum: props.my_value})
 };
 
-const fround = Math.fround || (tmp => (x => (tmp[0] = +x)))(new Float32Array(1));
+const fround = Math.fround || (tmp => ((x) => { tmp[0] = +x; return tmp[0]; }))(new Float32Array(1));
 
 export default class Supercluster {
     constructor(options) {
