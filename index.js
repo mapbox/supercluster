@@ -199,13 +199,26 @@ export default class Supercluster {
         for (const i of ids) {
             const c = points[i];
             const isCluster = c.numPoints;
+
+            let tags, px, py;
+            if (isCluster) {
+                tags = getClusterProperties(c);
+                px = c.x;
+                py = c.y;
+            } else {
+                const p = this.points[c.index];
+                tags = p.properties;
+                px = lngX(p.geometry.coordinates[0]);
+                py = latY(p.geometry.coordinates[1]);
+            }
+
             const f = {
                 type: 1,
                 geometry: [[
-                    Math.round(this.options.extent * (c.x * z2 - x)),
-                    Math.round(this.options.extent * (c.y * z2 - y))
+                    Math.round(this.options.extent * (px * z2 - x)),
+                    Math.round(this.options.extent * (py * z2 - y))
                 ]],
-                tags: isCluster ? getClusterProperties(c) : this.points[c.index].properties
+                tags
             };
 
             // assign id
