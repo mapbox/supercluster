@@ -161,8 +161,7 @@ test('makes sure same-location points are clustered', (t) => {
     const index = new Supercluster({
         maxZoom: 20,
         extent: 8192,
-        radius: 16,
-        log: true
+        radius: 16
     }).load([
         {type: 'Feature', geometry: {type: 'Point', coordinates: [-1.426798, 53.943034]}},
         {type: 'Feature', geometry: {type: 'Point', coordinates: [-1.426798, 53.943034]}}
