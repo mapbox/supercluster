@@ -1,6 +1,6 @@
 {
   "name": "supercluster",
-  "version": "7.1.2",
+  "version": "7.1.3",
   "description": "A very fast geospatial point clustering library.",
   "main": "dist/supercluster.js",
   "module": "index.js",
