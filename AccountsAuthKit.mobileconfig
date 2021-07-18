@@ -1,0 +1,378 @@
+0Ç2d	*ÜHÜ˜†Ç2U0Ç2Q10	`ÜHe0Ç'Å	*ÜHÜ˜†Ç'rÇ'n<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>ConsentText</key>
+	<dict>
+		<key>default</key>
+		<string>The Accounts and Authentication Logging profile generates files that allow Apple to troubleshoot issues with your accounts, including your configured accounts such as iCloud, Facebook, Twitter and Gmail, on your iOS device. The generated log files include information about your accounts and device and may contain information that could be considered your personal information, including account information of your configured accounts, such as the username and email address associated with the account; your device information, such as the serial number, phone number, other unique identifiers associated with the device, and user device metadata; Apple ID authentication information, such as when you are asked to authenticate, whether the authentication succeeded or failed, and your authentication activity on other devices; Apple ID URL traffic information, such as the URLs of requests going to iCloud, Game Center and other Apple ID-based services; timestamps; app identifiers; and iCloud record identifiers. This profile will expire after 3 days.
+                    
+You will be able to turn on and off logging at any time while the Profile is installed, and will be able to review the log files on your computer prior to sending them to Apple. To turn off logging on your iOS device, open Settings, tap "General," tap "Profiles," tap "Accounts and Authentication Logging," and tap "Delete Profile."
+                    
+By enabling this diagnostic tool and sending a copy of the generated files to Apple, you are consenting to Apple's use of your information in accordance with its privacy policy (http://www.apple.com/legal/privacy).
+</string>
+	</dict>
+	<key>DurationUntilRemoval</key>
+	<real>259200</real>
+	<key>PayloadContent</key>
+	<array>
+		<dict>
+			<key>PayloadDescription</key>
+			<string>Enables Accounts and Authentication debug logging</string>
+			<key>PayloadDisplayName</key>
+			<string>Accounts and Authentication Logging</string>
+			<key>PayloadEnabled</key>
+			<true/>
+			<key>PayloadIdentifier</key>
+			<string>com.apple.accounts.debuglogging</string>
+			<key>PayloadOrganization</key>
+			<string>Apple Inc.</string>
+			<key>PayloadType</key>
+			<string>com.apple.system.logging</string>
+			<key>PayloadUUID</key>
+			<string>3FD779E1-FACF-42A6-A4B2-1A94A85D57E9</string>
+			<key>PayloadVersion</key>
+			<integer>1</integer>
+			<key>Subsystems</key>
+			<dict>
+				<key>com.apple.accounts</key>
+				<dict>
+					<key>DEFAULT-OPTIONS</key>
+					<dict>
+						<key>Enable-Oversize-Messages</key>
+						<true/>
+						<key>Enable-Private-Data</key>
+						<true/>
+						<key>Level</key>
+						<dict>
+							<key>Enable</key>
+							<string>Debug</string>
+							<key>Persist</key>
+							<string>Debug</string>
+						</dict>
+						<key>TTL</key>
+						<dict>
+							<key>Debug</key>
+							<integer>3</integer>
+							<key>Default</key>
+							<integer>3</integer>
+							<key>Info</key>
+							<integer>3</integer>
+						</dict>
+					</dict>
+				</dict>
+				<key>com.apple.appleaccount</key>
+				<dict>
+					<key>DEFAULT-OPTIONS</key>
+					<dict>
+						<key>Enable-Oversize-Messages</key>
+						<true/>
+						<key>Enable-Private-Data</key>
+						<true/>
+						<key>Level</key>
+						<dict>
+							<key>Enable</key>
+							<string>Debug</string>
+							<key>Persist</key>
+							<string>Debug</string>
+						</dict>
+						<key>TTL</key>
+						<dict>
+							<key>Debug</key>
+							<integer>3</integer>
+							<key>Default</key>
+							<integer>3</integer>
+							<key>Info</key>
+							<integer>3</integer>
+						</dict>
+					</dict>
+				</dict>
+				<key>com.apple.authkit</key>
+				<dict>
+					<key>DEFAULT-OPTIONS</key>
+					<dict>
+						<key>Enable-Oversize-Messages</key>
+						<true/>
+						<key>Enable-Private-Data</key>
+						<true/>
+						<key>Level</key>
+						<dict>
+							<key>Enable</key>
+							<string>Debug</string>
+							<key>Persist</key>
+							<string>Debug</string>
+						</dict>
+						<key>TTL</key>
+						<dict>
+							<key>Debug</key>
+							<integer>3</integer>
+							<key>Default</key>
+							<integer>3</integer>
+							<key>Info</key>
+							<integer>3</integer>
+						</dict>
+					</dict>
+				</dict>
+				<key>com.apple.cdp</key>
+				<dict>
+					<key>DEFAULT-OPTIONS</key>
+					<dict>
+						<key>Enable-Private-Data</key>
+						<true/>
+						<key>Level</key>
+						<dict>
+							<key>Enable</key>
+							<string>Debug</string>
+							<key>Persist</key>
+							<string>Debug</string>
+						</dict>
+						<key>TTL</key>
+						<dict>
+							<key>Debug</key>
+							<integer>3</integer>
+							<key>Default</key>
+							<integer>3</integer>
+							<key>Info</key>
+							<integer>3</integer>
+						</dict>
+					</dict>
+				</dict>
+				<key>com.apple.dataaccess</key>
+				<dict>
+					<key>DEFAULT-OPTIONS</key>
+					<dict>
+						<key>Enable-Oversize-Messages</key>
+						<true/>
+						<key>Enable-Private-Data</key>
+						<true/>
+						<key>Level</key>
+						<dict>
+							<key>Enable</key>
+							<string>Debug</string>
+							<key>Persist</key>
+							<string>Info</string>
+						</dict>
+						<key>TTL</key>
+						<dict>
+							<key>Debug</key>
+							<integer>3</integer>
+							<key>Default</key>
+							<integer>3</integer>
+							<key>Info</key>
+							<integer>3</integer>
+						</dict>
+					</dict>
+				</dict>
+				<key>com.apple.family</key>
+				<dict>
+					<key>DEFAULT-OPTIONS</key>
+					<dict>
+						<key>Enable-Private-Data</key>
+						<true/>
+						<key>Level</key>
+						<dict>
+							<key>Enable</key>
+							<string>Debug</string>
+							<key>Persist</key>
+							<string>Debug</string>
+						</dict>
+						<key>TTL</key>
+						<dict>
+							<key>Debug</key>
+							<integer>3</integer>
+							<key>Default</key>
+							<integer>3</integer>
+							<key>Info</key>
+							<integer>3</integer>
+						</dict>
+					</dict>
+				</dict>
+				<key>com.apple.followup</key>
+				<dict>
+					<key>DEFAULT-OPTIONS</key>
+					<dict>
+						<key>Enable-Private-Data</key>
+						<true/>
+						<key>Level</key>
+						<dict>
+							<key>Enable</key>
+							<string>Debug</string>
+							<key>Persist</key>
+							<string>Debug</string>
+						</dict>
+						<key>TTL</key>
+						<dict>
+							<key>Debug</key>
+							<integer>3</integer>
+							<key>Default</key>
+							<integer>3</integer>
+							<key>Info</key>
+							<integer>3</integer>
+						</dict>
+					</dict>
+				</dict>
+				<key>com.apple.iCloudQuota</key>
+				<dict>
+					<key>DEFAULT-OPTIONS</key>
+					<dict>
+						<key>Enable-Private-Data</key>
+						<true/>
+						<key>Level</key>
+						<dict>
+							<key>Enable</key>
+							<string>Debug</string>
+							<key>Persist</key>
+							<string>Debug</string>
+						</dict>
+						<key>TTL</key>
+						<dict>
+							<key>Debug</key>
+							<integer>3</integer>
+							<key>Default</key>
+							<integer>3</integer>
+							<key>Info</key>
+							<integer>3</integer>
+						</dict>
+					</dict>
+				</dict>
+				<key>com.apple.icloudnotification</key>
+				<dict>
+					<key>DEFAULT-OPTIONS</key>
+					<dict>
+						<key>Enable-Oversize-Messages</key>
+						<true/>
+						<key>Enable-Private-Data</key>
+						<true/>
+						<key>Level</key>
+						<dict>
+							<key>Enable</key>
+							<string>Debug</string>
+							<key>Persist</key>
+							<string>Debug</string>
+						</dict>
+						<key>TTL</key>
+						<dict>
+							<key>Debug</key>
+							<integer>3</integer>
+							<key>Default</key>
+							<integer>3</integer>
+							<key>Info</key>
+							<integer>3</integer>
+						</dict>
+					</dict>
+				</dict>
+				<key>com.apple.persona</key>
+				<dict>
+					<key>DEFAULT-OPTIONS</key>
+					<dict>
+						<key>Enable-Private-Data</key>
+						<true/>
+						<key>Level</key>
+						<dict>
+							<key>Enable</key>
+							<string>Debug</string>
+							<key>Persist</key>
+							<string>Debug</string>
+						</dict>
+						<key>TTL</key>
+						<dict>
+							<key>Debug</key>
+							<integer>3</integer>
+							<key>Default</key>
+							<integer>3</integer>
+							<key>Info</key>
+							<integer>3</integer>
+						</dict>
+					</dict>
+				</dict>
+				<key>com.apple.remoteui</key>
+				<dict>
+					<key>DEFAULT-OPTIONS</key>
+					<dict>
+						<key>Enable-Oversize-Messages</key>
+						<true/>
+						<key>Enable-Private-Data</key>
+						<true/>
+						<key>Level</key>
+						<dict>
+							<key>Enable</key>
+							<string>Debug</string>
+							<key>Persist</key>
+							<string>Debug</string>
+						</dict>
+						<key>TTL</key>
+						<dict>
+							<key>Debug</key>
+							<integer>3</integer>
+							<key>Default</key>
+							<integer>3</integer>
+							<key>Info</key>
+							<integer>3</integer>
+						</dict>
+					</dict>
+				</dict>
+				<key>com.apple.social</key>
+				<dict>
+					<key>DEFAULT-OPTIONS</key>
+					<dict>
+						<key>Enable-Private-Data</key>
+						<true/>
+						<key>Level</key>
+						<dict>
+							<key>Enable</key>
+							<string>Debug</string>
+							<key>Persist</key>
+							<string>Debug</string>
+						</dict>
+						<key>TTL</key>
+						<dict>
+							<key>Debug</key>
+							<integer>3</integer>
+							<key>Default</key>
+							<integer>3</integer>
+							<key>Info</key>
+							<integer>3</integer>
+						</dict>
+					</dict>
+				</dict>
+			</dict>
+		</dict>
+	</array>
+	<key>PayloadDescription</key>
+	<string>Enables Accounts and Authentication debug logging</string>
+	<key>PayloadDisplayName</key>
+	<string>Accounts and Authentication Logging</string>
+	<key>PayloadIdentifier</key>
+	<string>com.apple.accounts.debuglogging</string>
+	<key>PayloadOrganization</key>
+	<string>Apple Inc.</string>
+	<key>PayloadRebootSuggested</key>
+	<true/>
+	<key>PayloadRemovalDisallowed</key>
+	<false/>
+	<key>PayloadScope</key>
+	<string>system</string>
+	<key>PayloadType</key>
+	<string>Configuration</string>
+	<key>PayloadUUID</key>
+	<string>FB33C6F9-7855-47D7-95C3-58115C6B3C06</string>
+	<key>PayloadVersion</key>
+	<integer>1</integer>
+	<key>RemovalDate</key>
+	<date>2022-08-01T07:00:00Z</date>
+</dict>
+</plist>
+†Ç	s0Ç0Ç †π˚eëJòi0	*ÜHÜ˜ 0b10	UUS10U
+
+Apple Inc.1&0$UApple Certification Authority10UApple Root CA0130524174337Z280524174337Z0Åå1@0>U7Apple Application Integration 2 Certification Authority1&0$UApple Certification Authority10U
+
+Apple Inc.10	UUS0Ç"0	*ÜHÜ˜ Ç 0Ç
+Ç ∏H°glVùÂp≈FÙØÖ„Ω:ﬁ°ÁŸ®6<b•|†G≥kÅ¨˛ÿtÊ5∞XOtÿ£˛Ì-Ó§s%Y‘ñ‹&œù'ãTú‹í±‡3bô»πØ6§jÅëßm››-ÃÅ}Ã)â£…ô™¢ÏŸgi<øD($±ƒ,5÷± %ÔPß€%∆√Oo[áæ*Òìß‘l^≤9.©·m;Æ9q?ÛπÙWù# OôÉ^üXæµ—Ï◊≤~¬e‚ÒÏ<¶¸n€V≥Ó
+≤K…¢Ò1ˆÆﬁ5l√Ä^Pcê∂∫m\¿„ü&ÉJﬁõ©∞Zo˚õkÅÏ›ﬂ2ﬁ¸.B¢ xZ◊ £Å¶0Å£0U˜æ|!`ë€={ÿ:2Åiﬂûlõ0Uˇ0ˇ0U#0Ä+–iGîv	˛Ùkç.@¶˜GM^0.U'0%0#†!†Ühttp://crl.apple.com/root.crl0Uˇ0
+*ÜHÜ˜cd 0	*ÜHÜ˜ Ç ïÕç˝§]ıÒ¿áIá›≥3ì≠Ñ–!ì„Ÿ÷⁄Ø	"Ç`<YBÒ-ì∂?ˇÙ*ÙÓjx¡.˚;LÆeCÀœ®Î=7êE/Jç®àk‚ö€Ôg∏Ò‰ÿÜqw”Ûâ‡Ø§Í(§?4ye6ÉTAq◊!‹PUEŒéº˜‹U–≥ (Q¨sQ¨yãní†7	a1/°—∫Î·\7¿ÿ—Á‡RB§îãˆ`"`|†¿?¡ïÖ’¬'c∞bVôÌ%ÙÃàôô‹T∑yËÅÖ8@¬πÌMb‘+ˆ)Òg°·çrwˆ†î+QàÑSÚÛí	ÑÛËø°&œ¸í7ª@0ÇS0Ç;†¿6üôk
+0	*ÜHÜ˜ 0Åå1@0>U7Apple Application Integration 2 Certification Authority1&0$UApple Certification Authority10U
+
+Apple Inc.10	UUS0201214200231Z231214200231Z0s1.0,U%AppleCare Profile Signing Certificate10UConfiguration Profiles10U
+
+Apple Inc.10	UUS0Ç"0	*ÜHÜ˜ Ç 0Ç
+Ç ⁄˚ÒîE0H(Ï∂A§[˚B†JVﬂ˙LWÊ˝¯÷fˆ◊Ô√WW¿[khíü≥oÌRãtÈAjò≥ªQ¨wüÈñ˜;$ﬁ#¿Â∞ª§˝gB™b}œÒAÛ,≥!Çƒ˚—hsœ˚Íö“dÀt©P+ÒèÜ¸˚SÔõõfƒÇeÔ2›V`^"˛Ô—8â{HéáÙFØ…UôÜw.î◊N_á‹ñHûà$&uwY``ÈL5ıòÓ⁄z¯O›óø”ôr°ÎD;H“âéyõÂ»H'>¯ ìÿÚ÷Qn‹∞+˘l∑T⁄Á2ÑS•ˇQÜæ*i'•\?W∞ﬂ∫"zoS5S˚¢‘—"X‹/ £Çœ0ÇÀ0Uˇ0 0U#0Ä˜æ|!`ë€={ÿ:2Åiﬂûlõ0@+40200+0Ü$http://ocsp.apple.com/ocsp04-aaica020ÇU Ç0Ç0Å˛	*ÜHÜ˜cd0Å0(+http://www.apple.com/appleca0Å√+0Å∂Å≥Reliance on this certificate by any party assumes acceptance of the then applicable standard terms and conditions of use, certificate policy and certification practice statements.0U%ˇ0	*ÜHÜ˜cd0U9Sˆ«G`‘∆?£l%áÍ$%∫∑0UˇÄ0	*ÜHÜ˜ Ç Sﬂ3Áh¬-3=%‡¨qëdŸERñ˜ﬂ˘æ)?nCÿŒÚ,õ]∂OLE.Ü|g#ÊQg%á«ºì™ÎKú∑ ÁS•OÔp4É⁄æô≤’Î(˜∏ÃÊsæ¶Ê@ƒÁ0AF Ôt,ThœEißì|‡‡ﬁé⁄:Kéq˜€¯∑…Ñıy¨[$G…ç¯≠§Hﬁ÷‹Üw+˜p ò•A•]z ]ùÔÜÚÈ/˚ˆìtÓP¯Soø≠ƒ|√Il”VæÈë*Ü‰<»ÁÃ»óÔ¯Øf∞3∆5ús∏x¶cPbbã…UÇ¥V◊&Ò¶üËvπ†|:Ø"–Åâh≈≤1Ç?0Ç;†9Sˆ«G`‘∆?£l%áÍ$%∫∑0	`ÜHe0	*ÜHÜ˜ Ç 1Èáä˝œ¶»ì¢óÃ¬˛wıNj©Íg—¿¥-+∂xÌp‹!úE1[È≈sÖJÒÑì÷Ω»≠mwæ>Bﬂê"o‰ˇ9ì<Õ#ìì§ëôËÚ-w"ºÃàcEπQ54¿◊DÍîjÈ˙ˆ˝"7`t'‹Kj•Ú‘Óüw˚ Â@∂N?˚;á1Æo]DøÕ®X9Y›S(/1~µ)Xi°SÂ#iÎÙ.<în5˚å;ﬁÊ-¥m¥éã/zL.ß§å˛ŒÁsﬂÔŒà3Q±(`øÜ29Î‘ux$^ûìò\‹⁄Ésx7fﬂéªÏ´∫S?ó
