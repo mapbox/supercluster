@@ -96,6 +96,35 @@ const index = new Supercluster({
 
 Note that `reduce` must not mutate the second argument (`props`).
 
+If `reduce` accumulates a nested property, the property of `accumulator` must cloned before being mutated and assigned back to `accumulator`. This avoids unexpected results of passing the object by reference.
+
+Or, avoid nesting data to be accumulated.
+
+Example collecting categorical information about a cluster:
+
+```js
+const index = new Supercluster({
+    map: (props) => ({ categories: { [props.myCategory]: 1} }), // ex. { categories: { tall: 1 } }
+    reduce: (accumulated, props) => {
+        const categories = {};
+        // clone the categories object from the accumulator
+        for (const key in accumulated.categories) {
+            categories[key] = accumulated.categories[key];
+        }
+        // add props' category data to the clone
+        for (const key in props.categories) {
+            if (key in accumulated.categories) {
+                categories[key] = accumulated.categories[key] + props.categories[key];
+            } else {
+                categories[key] = props.categories[key];
+            }
+        }
+        // assign the clone to the accumulator
+        accumulated.categories = categories; // ex. { categories: { tall: 1, medium: 1 } }
+    }
+})
+```
+
 ## Developing Supercluster
 
 ```
