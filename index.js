@@ -269,7 +269,8 @@ export default class Supercluster {
                 if (b.zoom > zoom) numPoints += b.numPoints || 1;
             }
 
-            if (numPoints >= minPoints) { // enough points to form a cluster
+            // if there were neighbors to merge, and there are enough points to form a cluster
+            if (numPoints > numPointsOrigin && numPoints >= minPoints) {
                 let wx = p.x * numPointsOrigin;
                 let wy = p.y * numPointsOrigin;
 

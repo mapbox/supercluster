@@ -70,9 +70,9 @@ test('returns cluster expansion zoom', (t) => {
     const index = new Supercluster().load(places.features);
     t.same(index.getClusterExpansionZoom(164), 1);
     t.same(index.getClusterExpansionZoom(196), 1);
-    t.same(index.getClusterExpansionZoom(516), 2);
-    t.same(index.getClusterExpansionZoom(996), 2);
-    t.same(index.getClusterExpansionZoom(2020), 3);
+    t.same(index.getClusterExpansionZoom(581), 2);
+    t.same(index.getClusterExpansionZoom(1157), 2);
+    t.same(index.getClusterExpansionZoom(4134), 3);
     t.end();
 });
 
@@ -83,7 +83,7 @@ test('returns cluster expansion zoom for maxZoom', (t) => {
         maxZoom: 4,
     }).load(places.features);
 
-    t.same(index.getClusterExpansionZoom(2599), 5);
+    t.same(index.getClusterExpansionZoom(2504), 5);
     t.end();
 });
 
