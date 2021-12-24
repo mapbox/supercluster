@@ -387,7 +387,7 @@ function getClusterProperties(cluster) {
 
 // longitude/latitude to spherical mercator in [0..1] range
 function lngX(lng) {
-    return lng / 360 + 0.5;
+    return lng / 360 + 0.5 + (lng > 180 || lng < -180 ? -Math.sign(lng) : 0);
 }
 function latY(lat) {
     const sin = Math.sin(lat * Math.PI / 180);
