@@ -181,3 +181,26 @@ test('makes sure unclustered point coords are not rounded', (t) => {
 
     t.end();
 });
+
+test('returns clusters when points are outside of -180 and 180 longitude range', (t) => {
+    const index = new Supercluster().load([
+        {
+            type: 'Feature',
+            properties: null,
+            geometry: {
+                type: 'Point',
+                coordinates: [-190, 0]
+            }
+        }, {
+            type: 'Feature',
+            properties: null,
+            geometry: {
+                type: 'Point',
+                coordinates: [190, 0]
+            }
+        }
+    ]);
+
+    t.equal(index.getClusters([-180, -90, 180, 90], 1).length, 2);
+    t.end();
+});
