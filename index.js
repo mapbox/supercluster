@@ -39,10 +39,19 @@ export default class Supercluster {
         this.points = points;
 
         // generate a cluster object for each point and index input points into a KD-tree
+        // dissemble multipoint features
         let clusters = [];
         for (let i = 0; i < points.length; i++) {
-            if (!points[i].geometry) continue;
-            clusters.push(createPointCluster(points[i], i));
+            if (!points[i].geometry) {
+                continue;
+            } else if (points[i].geometry.type === 'MultiPoint') {
+                const newPointFeatures = multiToSingles(points[i]);
+                for (let j = 0; j < newPointFeatures.length; j++) {
+                    clusters.push(createPointCluster(newPointFeatures[j], i));
+                }
+            } else {
+                clusters.push(createPointCluster(points[i], i));
+            }
         }
         this.trees[maxZoom + 1] = new KDBush(clusters, getX, getY, nodeSize, Float32Array);
 
@@ -414,4 +423,25 @@ function getX(p) {
 }
 function getY(p) {
     return p.y;
+}
+
+function multiToSingles(multiPointFeature) {
+    const featureTemplate = {
+        'type': 'Feature',
+        'properties': {
+        },
+        'geometry': {
+        }
+    };
+    const newFeatures = [];
+    for (let i = 0;  i < multiPointFeature.geometry.coordinates.length; i++) {
+        const newFeature = JSON.parse(JSON.stringify(featureTemplate));
+        const newCoordinates = multiPointFeature.geometry.coordinates[i];
+        const newProperties = multiPointFeature.properties;
+        newFeature.geometry.properties = newProperties;
+        newFeature.geometry.coordinates = newCoordinates;
+        newFeature.geometry.type = 'Point';
+        newFeatures.push(newFeature);
+    }
+    return newFeatures;
 }
