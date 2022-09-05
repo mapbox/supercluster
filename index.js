@@ -172,14 +172,15 @@ export default class Supercluster {
         const pointX = fround(lngX(lng));
         const pointY = fround(latY(lat));
 
-        let expansionZoom = 0;
+        let expansionZoom = this.options.minZoom;
         while (expansionZoom <= this.options.maxZoom) {
             const tree = this.trees[expansionZoom];
 
-            const unclustered = tree.points.some(
-                treePoint => !treePoint.id && treePoint.x === pointX && treePoint.y === pointY
-            );
+            const pointIdxs = tree.within(pointX, pointY, 0);
 
+            const unclustered = pointIdxs.some(
+                idx => tree.points[idx].parentId !== -1
+            );
             if (unclustered) return expansionZoom;
 
             expansionZoom++;
