@@ -80,7 +80,7 @@ Returns the zoom on which the cluster expands into several children (useful for 
 
 ### Property map/reduce options
 
-In addition to the options above, supercluster supports property aggregation with the following two options:
+In addition to the options above, Supercluster supports property aggregation with the following two options:
 
 - `map`: a function that returns cluster properties corresponding to a single point.
 - `reduce`: a reduce function that merges properties of two clusters into one.
@@ -94,7 +94,10 @@ const index = new Supercluster({
 });
 ```
 
-Note that `reduce` must not mutate the second argument (`props`).
+The `map`/`reduce` options must satisfy these conditions to work correctly:
+
+- `map` must return a new object, not existing `properties` of a point, otherwise it will get overwritten.
+- `reduce` must not mutate the second argument (`props`).
 
 ## Developing Supercluster
 

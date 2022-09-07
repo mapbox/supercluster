@@ -157,6 +157,12 @@ test('does not crash on weird bbox values', (t) => {
     t.end();
 });
 
+test('does not crash on non-integer zoom values', (t) => {
+    const index = new Supercluster().load(places.features);
+    t.ok(index.getClusters([179, -10, -177, 10], 1.25));
+    t.end();
+});
+
 test('makes sure same-location points are clustered', (t) => {
     const index = new Supercluster({
         maxZoom: 20,
