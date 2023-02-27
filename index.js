@@ -329,11 +329,11 @@ export default class Supercluster {
 
     _map(point, clone) {
         if (point.numPoints) {
-            return clone ? extend({}, point.properties) : point.properties;
+            return clone ? _clone(point.properties, [], [], true) : point.properties;
         }
         const original = this.points[point.index].properties;
         const result = this.options.map(original);
-        return clone && result === original ? extend({}, result) : result;
+        return clone && result === original ? _clone(result, [], [], true) : result;
     }
 }
 
@@ -414,4 +414,72 @@ function getX(p) {
 }
 function getY(p) {
     return p.y;
+}
+
+// clone reg exp
+function _cloneRegExp(pattern) {
+    return new RegExp(
+        pattern.source,
+        (pattern.global ? 'g' : '') +
+          (pattern.ignoreCase ? 'i' : '') +
+          (pattern.multiline ? 'm' : '') +
+          (pattern.sticky ? 'y' : '') +
+          (pattern.unicode ? 'u' : '')
+    );
+}
+// Find object type
+function type(val) {
+    return val === null ?
+        'Null' :
+        val === undefined ?
+            'Undefined' :
+            Object.prototype.toString.call(val).slice(8, -1);
+}
+
+// deep clone
+function _clone(value, refFrom, refTo, deep) {
+    const copy = function copy(copiedValue) {
+        const len = refFrom.length;
+        let idx = 0;
+        while (idx < len) {
+            if (value === refFrom[idx]) {
+                return refTo[idx];
+            }
+            idx += 1;
+        }
+        refFrom[idx] = value;
+        refTo[idx] = copiedValue;
+        for (const key in value) {
+            if (Object.prototype.hasOwnProperty.call(value, key)) {
+                copiedValue[key] = deep ?
+                    _clone(value[key], refFrom, refTo, true) :
+                    value[key];
+            }
+        }
+        return copiedValue;
+    };
+    switch (type(value)) {
+    case 'Object':
+        return copy(Object.create(Object.getPrototypeOf(value)));
+    case 'Array':
+        return copy([]);
+    case 'Date':
+        return new Date(value.valueOf());
+    case 'RegExp':
+        return _cloneRegExp(value);
+    case 'Int8Array':
+    case 'Uint8Array':
+    case 'Uint8ClampedArray':
+    case 'Int16Array':
+    case 'Uint16Array':
+    case 'Int32Array':
+    case 'Uint32Array':
+    case 'Float32Array':
+    case 'Float64Array':
+    case 'BigInt64Array':
+    case 'BigUint64Array':
+        return value.slice();
+    default:
+        return value;
+    }
 }
