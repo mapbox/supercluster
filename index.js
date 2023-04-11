@@ -4,7 +4,7 @@ import KDBush from 'kdbush';
 const defaultOptions = {
     minZoom: 0.0,   // min zoom to generate clusters on
     maxZoom: 16.0,  // max zoom level to cluster the points on
-    zoomStep: 1, // Indicate whether to compute clusters for each 0.1 zoom level. It may impact on the performance.
+    zoomStep: 1, // Indicate the distance in zoom points between cluster computations. E.g. 0.1 = 10 cluster indexes by zoom level. 1 = one cluster index by zoom level. 0.5 = 2 cluster index by zoom level
     minPoints: 2, // minimum points to form a cluster
     radius: 40,   // cluster radius in pixels
     extent: 512,  // tile extent (radius is calculated relative to it)
@@ -26,7 +26,7 @@ const fround = Math.fround || (tmp => ((x) => { tmp[0] = +x; return tmp[0]; }))(
 export default class Supercluster {
     constructor(options) {
         this.options = extend(Object.create(defaultOptions), options);
-        this.zoomStep = +(this.options.zoomStep).toFixed(1);
+        this.zoomStep = +(this.options.zoomStep);
         this.numTreesByZoomLevel = Math.ceil(1 / this.zoomStep);
         this.zoomRange = this.options.maxZoom - this.options.minZoom;
         this.numtrees = (this.zoomRange * this.numTreesByZoomLevel) + 2;
@@ -63,7 +63,7 @@ export default class Supercluster {
             // create a new set of clusters for the zoom and index them with a KD-tree
             clusters = this._cluster(clusters, z);
             this.trees[this._zoomToIndex(z)] = new KDBush(clusters, getX, getY, nodeSize, Float32Array);
-            if (log) console.log('z%d: %d clusters in %dms', +z.toFixed(1), clusters.length, +Date.now() - now);
+            if (log) console.log('z%d: %d clusters in %dms', z, clusters.length, +Date.now() - now);
         }
 
         if (log) console.timeEnd('total time');
@@ -320,7 +320,7 @@ export default class Supercluster {
     }
 
     _zoomToIndex(zoom) {
-        const clampedZoom = Math.max(this.options.minZoom, Math.min(zoom.toFixed(1), this.options.maxZoom + this.zoomStep));
+        const clampedZoom = Math.max(this.options.minZoom, Math.min(zoom, this.options.maxZoom + this.zoomStep));
         // Get the index of the tree that better suits the zoom level
         const adjustedZoom = clampedZoom - this.options.minZoom;
         const stepIndex = Math.round(adjustedZoom * this.numTreesByZoomLevel);
