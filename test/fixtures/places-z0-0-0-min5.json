@@ -2,7 +2,12 @@
   "features": [
     {
       "type": 1,
-      "geometry": [[151, 203]],
+      "geometry": [
+        [
+          151,
+          203
+        ]
+      ],
       "tags": {
         "cluster": true,
         "cluster_id": 164,
@@ -13,51 +18,76 @@
     },
     {
       "type": 1,
-      "geometry": [[165, 241]],
+      "geometry": [
+        [
+          165,
+          241
+        ]
+      ],
       "tags": {
         "cluster": true,
-        "cluster_id": 196,
+        "cluster_id": 420,
         "point_count": 20,
         "point_count_abbreviated": 20
       },
-      "id": 196
+      "id": 420
     },
     {
       "type": 1,
-      "geometry": [[178, 305]],
+      "geometry": [
+        [
+          178,
+          305
+        ]
+      ],
       "tags": {
         "cluster": true,
-        "cluster_id": 228,
+        "cluster_id": 676,
         "point_count": 14,
         "point_count_abbreviated": 14
       },
-      "id": 228
+      "id": 676
     },
     {
       "type": 1,
-      "geometry": [[329, 244]],
+      "geometry": [
+        [
+          329,
+          244
+        ]
+      ],
       "tags": {
         "cluster": true,
-        "cluster_id": 260,
+        "cluster_id": 932,
         "point_count": 10,
         "point_count_abbreviated": 10
       },
-      "id": 260
+      "id": 932
     },
     {
       "type": 1,
-      "geometry": [[296, 291]],
+      "geometry": [
+        [
+          296,
+          291
+        ]
+      ],
       "tags": {
         "cluster": true,
-        "cluster_id": 356,
+        "cluster_id": 1700,
         "point_count": 11,
         "point_count_abbreviated": 11
       },
-      "id": 356
+      "id": 1700
     },
     {
       "type": 1,
-      "geometry": [[90, 416]],
+      "geometry": [
+        [
+          90,
+          416
+        ]
+      ],
       "tags": {
         "scalerank": 3,
         "name": "Wright I.",
@@ -72,7 +102,12 @@
     },
     {
       "type": 1,
-      "geometry": [[74, 419]],
+      "geometry": [
+        [
+          74,
+          419
+        ]
+      ],
       "tags": {
         "scalerank": 3,
         "name": "Dean I.",
@@ -87,7 +122,12 @@
     },
     {
       "type": 1,
-      "geometry": [[69, 418]],
+      "geometry": [
+        [
+          69,
+          418
+        ]
+      ],
       "tags": {
         "scalerank": 3,
         "name": "Grant I.",
@@ -102,7 +142,12 @@
     },
     {
       "type": 1,
-      "geometry": [[49, 425]],
+      "geometry": [
+        [
+          49,
+          425
+        ]
+      ],
       "tags": {
         "scalerank": 3,
         "name": "Newman I.",
@@ -117,18 +162,28 @@
     },
     {
       "type": 1,
-      "geometry": [[89, 209]],
+      "geometry": [
+        [
+          89,
+          209
+        ]
+      ],
       "tags": {
         "cluster": true,
-        "cluster_id": 548,
+        "cluster_id": 3236,
         "point_count": 5,
         "point_count_abbreviated": 5
       },
-      "id": 548
+      "id": 3236
     },
     {
       "type": 1,
-      "geometry": [[106, 226]],
+      "geometry": [
+        [
+          106,
+          226
+        ]
+      ],
       "tags": {
         "scalerank": 4,
         "name": "Cabo Corrientes",
@@ -143,7 +198,12 @@
     },
     {
       "type": 1,
-      "geometry": [[123, 152]],
+      "geometry": [
+        [
+          123,
+          152
+        ]
+      ],
       "tags": {
         "scalerank": 3,
         "name": "Cape Churchill",
@@ -158,7 +218,12 @@
     },
     {
       "type": 1,
-      "geometry": [[160, 352]],
+      "geometry": [
+        [
+          160,
+          352
+        ]
+      ],
       "tags": {
         "scalerank": 3,
         "name": "Cabo de Hornos",
@@ -173,7 +238,12 @@
     },
     {
       "type": 1,
-      "geometry": [[163, 349]],
+      "geometry": [
+        [
+          163,
+          349
+        ]
+      ],
       "tags": {
         "scalerank": 5,
         "name": "Cabo San Diego",
@@ -188,29 +258,44 @@
     },
     {
       "type": 1,
-      "geometry": [[242, 237]],
+      "geometry": [
+        [
+          242,
+          237
+        ]
+      ],
       "tags": {
         "cluster": true,
-        "cluster_id": 964,
+        "cluster_id": 6564,
         "point_count": 5,
         "point_count_abbreviated": 5
       },
-      "id": 964
+      "id": 6564
     },
     {
       "type": 1,
-      "geometry": [[259, 193]],
+      "geometry": [
+        [
+          259,
+          193
+        ]
+      ],
       "tags": {
         "cluster": true,
-        "cluster_id": 1092,
+        "cluster_id": 7588,
         "point_count": 6,
         "point_count_abbreviated": 6
       },
-      "id": 1092
+      "id": 7588
     },
     {
       "type": 1,
-      "geometry": [[80, 336]],
+      "geometry": [
+        [
+          80,
+          336
+        ]
+      ],
       "tags": {
         "scalerank": 3,
         "name": "Oceanic pole of inaccessibility",
@@ -225,7 +310,12 @@
     },
     {
       "type": 1,
-      "geometry": [[452, 377]],
+      "geometry": [
+        [
+          452,
+          377
+        ]
+      ],
       "tags": {
         "scalerank": 3,
         "name": "South Magnetic Pole 2005 (est)",
@@ -240,7 +330,12 @@
     },
     {
       "type": 1,
-      "geometry": [[93, 32]],
+      "geometry": [
+        [
+          93,
+          32
+        ]
+      ],
       "tags": {
         "scalerank": 3,
         "name": "North Magnetic Pole 2005 (est)",
@@ -255,7 +350,12 @@
     },
     {
       "type": 1,
-      "geometry": [[159, 84]],
+      "geometry": [
+        [
+          159,
+          84
+        ]
+      ],
       "tags": {
         "scalerank": 4,
         "name": "Cape York",
@@ -270,7 +370,12 @@
     },
     {
       "type": 1,
-      "geometry": [[194, 149]],
+      "geometry": [
+        [
+          194,
+          149
+        ]
+      ],
       "tags": {
         "scalerank": 4,
         "name": "Nunap Isua",
@@ -285,7 +390,12 @@
     },
     {
       "type": 1,
-      "geometry": [[227, 139]],
+      "geometry": [
+        [
+          227,
+          139
+        ]
+      ],
       "tags": {
         "scalerank": 5,
         "name": "Surtsey",
@@ -300,18 +410,28 @@
     },
     {
       "type": 1,
-      "geometry": [[27, 270]],
+      "geometry": [
+        [
+          27,
+          270
+        ]
+      ],
       "tags": {
         "cluster": true,
-        "cluster_id": 1444,
+        "cluster_id": 10404,
         "point_count": 6,
         "point_count_abbreviated": 6
       },
-      "id": 1444
+      "id": 10404
     },
     {
       "type": 1,
-      "geometry": [[100, 296]],
+      "geometry": [
+        [
+          100,
+          296
+        ]
+      ],
       "tags": {
         "scalerank": 4,
         "name": "I. de Pascua",
@@ -326,7 +446,12 @@
     },
     {
       "type": 1,
-      "geometry": [[401, 226]],
+      "geometry": [
+        [
+          401,
+          226
+        ]
+      ],
       "tags": {
         "scalerank": 4,
         "name": "Plain of Jars",
@@ -341,7 +466,12 @@
     },
     {
       "type": 1,
-      "geometry": [[371, 248]],
+      "geometry": [
+        [
+          371,
+          248
+        ]
+      ],
       "tags": {
         "scalerank": 5,
         "name": "Dondra Head",
@@ -356,7 +486,12 @@
     },
     {
       "type": 1,
-      "geometry": [[19, 121]],
+      "geometry": [
+        [
+          19,
+          121
+        ]
+      ],
       "tags": {
         "scalerank": 4,
         "name": "Cape Hope",
@@ -371,7 +506,12 @@
     },
     {
       "type": 1,
-      "geometry": [[33, 109]],
+      "geometry": [
+        [
+          33,
+          109
+        ]
+      ],
       "tags": {
         "scalerank": 4,
         "name": "Point Barrow",
@@ -386,40 +526,60 @@
     },
     {
       "type": 1,
-      "geometry": [[459, 309]],
+      "geometry": [
+        [
+          459,
+          309
+        ]
+      ],
       "tags": {
         "cluster": true,
-        "cluster_id": 1924,
+        "cluster_id": 14244,
         "point_count": 8,
         "point_count_abbreviated": 8
       },
-      "id": 1924
+      "id": 14244
     },
     {
       "type": 1,
-      "geometry": [[483, 272]],
+      "geometry": [
+        [
+          483,
+          272
+        ]
+      ],
       "tags": {
         "cluster": true,
-        "cluster_id": 2180,
+        "cluster_id": 16292,
         "point_count": 10,
         "point_count_abbreviated": 10
       },
-      "id": 2180
+      "id": 16292
     },
     {
       "type": 1,
-      "geometry": [[423, 295]],
+      "geometry": [
+        [
+          423,
+          295
+        ]
+      ],
       "tags": {
         "cluster": true,
-        "cluster_id": 2340,
+        "cluster_id": 17572,
         "point_count": 5,
         "point_count_abbreviated": 5
       },
-      "id": 2340
+      "id": 17572
     },
     {
       "type": 1,
-      "geometry": [[225, 114]],
+      "geometry": [
+        [
+          225,
+          114
+        ]
+      ],
       "tags": {
         "scalerank": 5,
         "name": "Cape Brewster",
@@ -434,7 +594,12 @@
     },
     {
       "type": 1,
-      "geometry": [[230, 127]],
+      "geometry": [
+        [
+          230,
+          127
+        ]
+      ],
       "tags": {
         "scalerank": 5,
         "name": "Grmsey",
@@ -449,7 +614,12 @@
     },
     {
       "type": 1,
-      "geometry": [[210, 21]],
+      "geometry": [
+        [
+          210,
+          21
+        ]
+      ],
       "tags": {
         "scalerank": 5,
         "name": "Cape Morris Jesup",
@@ -464,7 +634,12 @@
     },
     {
       "type": 1,
-      "geometry": [[238, 154]],
+      "geometry": [
+        [
+          238,
+          154
+        ]
+      ],
       "tags": {
         "scalerank": 5,
         "name": "Rockall",
@@ -479,29 +654,44 @@
     },
     {
       "type": 1,
-      "geometry": [[484, 235]],
+      "geometry": [
+        [
+          484,
+          235
+        ]
+      ],
       "tags": {
         "cluster": true,
-        "cluster_id": 2692,
+        "cluster_id": 20388,
         "point_count": 13,
         "point_count_abbreviated": 13
       },
-      "id": 2692
+      "id": 20388
     },
     {
       "type": 1,
-      "geometry": [[471, 167]],
+      "geometry": [
+        [
+          471,
+          167
+        ]
+      ],
       "tags": {
         "cluster": true,
-        "cluster_id": 3236,
+        "cluster_id": 24740,
         "point_count": 6,
         "point_count_abbreviated": 6
       },
-      "id": 3236
+      "id": 24740
     },
     {
       "type": 1,
-      "geometry": [[498, 149]],
+      "geometry": [
+        [
+          498,
+          149
+        ]
+      ],
       "tags": {
         "scalerank": 5,
         "name": "Cape Olyutorskiy",
@@ -516,7 +706,12 @@
     },
     {
       "type": 1,
-      "geometry": [[511, 142]],
+      "geometry": [
+        [
+          511,
+          142
+        ]
+      ],
       "tags": {
         "scalerank": 5,
         "name": "Cape Navarin",
@@ -531,7 +726,12 @@
     },
     {
       "type": 1,
-      "geometry": [[469, 106]],
+      "geometry": [
+        [
+          469,
+          106
+        ]
+      ],
       "tags": {
         "scalerank": 5,
         "name": "Cape Lopatka",
@@ -546,7 +746,12 @@
     },
     {
       "type": 1,
-      "geometry": [[292, 110]],
+      "geometry": [
+        [
+          292,
+          110
+        ]
+      ],
       "tags": {
         "scalerank": 5,
         "name": "Nordkapp",
@@ -561,7 +766,12 @@
     },
     {
       "type": 1,
-      "geometry": [[205, 263]],
+      "geometry": [
+        [
+          205,
+          263
+        ]
+      ],
       "tags": {
         "scalerank": 5,
         "name": "Cabo de São Roque",
@@ -576,29 +786,44 @@
     },
     {
       "type": 1,
-      "geometry": [[-29, 272]],
+      "geometry": [
+        [
+          -29,
+          272
+        ]
+      ],
       "tags": {
         "cluster": true,
-        "cluster_id": 2180,
+        "cluster_id": 16292,
         "point_count": 10,
         "point_count_abbreviated": 10
       },
-      "id": 2180
+      "id": 16292
     },
     {
       "type": 1,
-      "geometry": [[-28, 235]],
+      "geometry": [
+        [
+          -28,
+          235
+        ]
+      ],
       "tags": {
         "cluster": true,
-        "cluster_id": 2692,
+        "cluster_id": 20388,
         "point_count": 13,
         "point_count_abbreviated": 13
       },
-      "id": 2692
+      "id": 20388
     },
     {
       "type": 1,
-      "geometry": [[-14, 149]],
+      "geometry": [
+        [
+          -14,
+          149
+        ]
+      ],
       "tags": {
         "scalerank": 5,
         "name": "Cape Olyutorskiy",
@@ -613,7 +838,12 @@
     },
     {
       "type": 1,
-      "geometry": [[-1, 142]],
+      "geometry": [
+        [
+          -1,
+          142
+        ]
+      ],
       "tags": {
         "scalerank": 5,
         "name": "Cape Navarin",
@@ -628,18 +858,28 @@
     },
     {
       "type": 1,
-      "geometry": [[539, 270]],
+      "geometry": [
+        [
+          539,
+          270
+        ]
+      ],
       "tags": {
         "cluster": true,
-        "cluster_id": 1444,
+        "cluster_id": 10404,
         "point_count": 6,
         "point_count_abbreviated": 6
       },
-      "id": 1444
+      "id": 10404
     },
     {
       "type": 1,
-      "geometry": [[531, 121]],
+      "geometry": [
+        [
+          531,
+          121
+        ]
+      ],
       "tags": {
         "scalerank": 4,
         "name": "Cape Hope",
@@ -654,7 +894,12 @@
     },
     {
       "type": 1,
-      "geometry": [[545, 109]],
+      "geometry": [
+        [
+          545,
+          109
+        ]
+      ],
       "tags": {
         "scalerank": 4,
         "name": "Point Barrow",

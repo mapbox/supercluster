@@ -6,6 +6,41 @@ const places = require('./fixtures/places.json');
 const placesTile = require('./fixtures/places-z0-0-0.json');
 const placesTileMin5 = require('./fixtures/places-z0-0-0-min5.json');
 
+test('Test indexing with minZoom, maxZoom and zoomStep', (t) => {
+    const minzoom = 10;
+    const zoomStep = 0.1;
+    const index = new Supercluster({minZoom: minzoom, maxZoom: 15, zoomStep});
+
+    t.same(index._zoomToIndex(minzoom), 0);
+    t.same(index._zoomToIndex(minzoom + 5 * zoomStep), 5);
+    t.same(index._zoomToIndex(minzoom + (10 * zoomStep)), 10);
+    t.end();
+});
+
+test('Test indexing with minZoom, maxZoom and zoomStep', (t) => {
+    const minzoom = 10;
+    const zoomStep = 1;
+    const index = new Supercluster({minZoom: minzoom, maxZoom: 20, zoomStep});
+
+
+    t.same(index._zoomToIndex(minzoom), 0);
+    t.same(index._zoomToIndex(minzoom + 5 * zoomStep), 5);
+    t.same(index._zoomToIndex(minzoom + 10 * zoomStep), 10);
+    t.end();
+});
+
+test('Test indexing with minZoom, maxZoom and zoomStep', (t) => {
+    const minzoom = 10;
+    const zoomStep = 0.2;
+    const index = new Supercluster({minZoom: minzoom, maxZoom: 20, zoomStep});
+
+
+    t.same(index._zoomToIndex(minzoom), 0);
+    t.same(index._zoomToIndex(minzoom + 5 * zoomStep), 5);
+    t.same(index._zoomToIndex(minzoom + 10 * zoomStep), 10);
+    t.end();
+});
+
 test('generates clusters properly', (t) => {
     const index = new Supercluster().load(places.features);
     const tile = index.getTile(0, 0, 0);
@@ -69,10 +104,10 @@ test('getLeaves handles null-property features', (t) => {
 test('returns cluster expansion zoom', (t) => {
     const index = new Supercluster().load(places.features);
     t.same(index.getClusterExpansionZoom(164), 1);
-    t.same(index.getClusterExpansionZoom(196), 1);
-    t.same(index.getClusterExpansionZoom(581), 2);
-    t.same(index.getClusterExpansionZoom(1157), 2);
-    t.same(index.getClusterExpansionZoom(4134), 3);
+    t.same(index.getClusterExpansionZoom(420), 1);
+    t.same(index.getClusterExpansionZoom(3493), 2);
+    t.same(index.getClusterExpansionZoom(8101), 2);
+    t.same(index.getClusterExpansionZoom(31910), 3);
     t.end();
 });
 
@@ -83,7 +118,7 @@ test('returns cluster expansion zoom for maxZoom', (t) => {
         maxZoom: 4,
     }).load(places.features);
 
-    t.same(index.getClusterExpansionZoom(2504), 5);
+    t.same(index.getClusterExpansionZoom(18856), 5);
     t.end();
 });
 

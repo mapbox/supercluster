@@ -2,8 +2,9 @@
 import KDBush from 'kdbush';
 
 const defaultOptions = {
-    minZoom: 0,   // min zoom to generate clusters on
-    maxZoom: 16,  // max zoom level to cluster the points on
+    minZoom: 0.0,   // min zoom to generate clusters on
+    maxZoom: 16.0,  // max zoom level to cluster the points on
+    zoomStep: 1, // Indicate whether to compute clusters for each 0.1 zoom level. It may impact on the performance.
     minPoints: 2, // minimum points to form a cluster
     radius: 40,   // cluster radius in pixels
     extent: 512,  // tile extent (radius is calculated relative to it)
@@ -25,13 +26,19 @@ const fround = Math.fround || (tmp => ((x) => { tmp[0] = +x; return tmp[0]; }))(
 export default class Supercluster {
     constructor(options) {
         this.options = extend(Object.create(defaultOptions), options);
-        this.trees = new Array(this.options.maxZoom + 1);
+        this.zoomStep = +(this.options.zoomStep).toFixed(1);
+        this.numTreesByZoomLevel = Math.ceil(1 / this.zoomStep);
+        this.zoomRange = this.options.maxZoom - this.options.minZoom;
+        this.numtrees = (this.zoomRange * this.numTreesByZoomLevel) + 2;
+        //Trees needed are, the number of trees on each zoom level times
+        // the range in zoom levels
+        this.trees = new Array(this.numtrees);
     }
 
     load(points) {
-        const {log, minZoom, maxZoom, nodeSize} = this.options;
+        const {log, minZoom, maxZoom, nodeSize, zoomStep} = this.options;
 
-        if (log) console.time('total time');
+        if (log) console.time('total time', zoomStep);
 
         const timerId = `prepare ${  points.length  } points`;
         if (log) console.time(timerId);
@@ -44,20 +51,19 @@ export default class Supercluster {
             if (!points[i].geometry) continue;
             clusters.push(createPointCluster(points[i], i));
         }
-        this.trees[maxZoom + 1] = new KDBush(clusters, getX, getY, nodeSize, Float32Array);
+        this.trees[this._zoomToIndex(this.options.maxZoom) + 1] = new KDBush(clusters, getX, getY, nodeSize, Float32Array);
 
         if (log) console.timeEnd(timerId);
 
         // cluster points on max zoom, then cluster the results on previous zoom, etc.;
         // results in a cluster hierarchy across zoom levels
-        for (let z = maxZoom; z >= minZoom; z--) {
+        for (let z = maxZoom; z >= minZoom; z -= this.zoomStep) {
             const now = +Date.now();
 
             // create a new set of clusters for the zoom and index them with a KD-tree
             clusters = this._cluster(clusters, z);
-            this.trees[z] = new KDBush(clusters, getX, getY, nodeSize, Float32Array);
-
-            if (log) console.log('z%d: %d clusters in %dms', z, clusters.length, +Date.now() - now);
+            this.trees[this._zoomToIndex(z)] = new KDBush(clusters, getX, getY, nodeSize, Float32Array);
+            if (log) console.log('z%d: %d clusters in %dms', +z.toFixed(1), clusters.length, +Date.now() - now);
         }
 
         if (log) console.timeEnd('total time');
@@ -80,7 +86,7 @@ export default class Supercluster {
             return easternHem.concat(westernHem);
         }
 
-        const tree = this.trees[this._limitZoom(zoom)];
+        const tree = this.trees[this._zoomToIndex(zoom)];
         const ids = tree.range(lngX(minLng), latY(maxLat), lngX(maxLng), latY(minLat));
         const clusters = [];
         for (const id of ids) {
@@ -94,12 +100,12 @@ export default class Supercluster {
         const originId = this._getOriginId(clusterId);
         const originZoom = this._getOriginZoom(clusterId);
         const errorMsg = 'No cluster with the specified id.';
-
-        const index = this.trees[originZoom];
+        const errorMsg2 = 'No point with the specified id.';
+        const index = this.trees[this._zoomToIndex(originZoom)];
         if (!index) throw new Error(errorMsg);
 
         const origin = index.points[originId];
-        if (!origin) throw new Error(errorMsg);
+        if (!origin) throw new Error(errorMsg2);
 
         const r = this.options.radius / (this.options.extent * Math.pow(2, originZoom - 1));
         const ids = index.within(origin.x, origin.y, r);
@@ -127,7 +133,7 @@ export default class Supercluster {
     }
 
     getTile(z, x, y) {
-        const tree = this.trees[this._limitZoom(z)];
+        const tree = this.trees[this._zoomToIndex(z)];
         const z2 = Math.pow(2, z);
         const {extent, radius} = this.options;
         const p = radius / extent;
@@ -160,7 +166,7 @@ export default class Supercluster {
         let expansionZoom = this._getOriginZoom(clusterId) - 1;
         while (expansionZoom <= this.options.maxZoom) {
             const children = this.getChildren(clusterId);
-            expansionZoom++;
+            expansionZoom += this.options.zoomStep;
             if (children.length !== 1) break;
             clusterId = children[0].properties.cluster_id;
         }
@@ -239,14 +245,11 @@ export default class Supercluster {
         }
     }
 
-    _limitZoom(z) {
-        return Math.max(this.options.minZoom, Math.min(Math.floor(+z), this.options.maxZoom + 1));
-    }
-
     _cluster(points, zoom) {
         const clusters = [];
         const {radius, extent, reduce, minPoints} = this.options;
         const r = radius / (extent * Math.pow(2, zoom));
+        const tree = this.trees[this._zoomToIndex(zoom) + 1];
 
         // loop through each point
         for (let i = 0; i < points.length; i++) {
@@ -256,7 +259,6 @@ export default class Supercluster {
             p.zoom = zoom;
 
             // find all nearby points
-            const tree = this.trees[zoom + 1];
             const neighborIds = tree.within(p.x, p.y, r);
 
             const numPointsOrigin = p.numPoints || 1;
@@ -277,7 +279,7 @@ export default class Supercluster {
                 let clusterProperties = reduce && numPointsOrigin > 1 ? this._map(p, true) : null;
 
                 // encode both zoom and point index on which the cluster originated -- offset by total length of features
-                const id = (i << 5) + (zoom + 1) + this.points.length;
+                const id = (i << 8) + (this._zoomToIndex(zoom) + 1) + this.points.length;
 
                 for (const neighborId of neighborIds) {
                     const b = tree.points[neighborId];
@@ -317,15 +319,30 @@ export default class Supercluster {
         return clusters;
     }
 
+    _zoomToIndex(zoom) {
+        const clampedZoom = Math.max(this.options.minZoom, Math.min(zoom.toFixed(1), this.options.maxZoom + this.zoomStep));
+        // Get the index of the tree that better suits the zoom level
+        const adjustedZoom = clampedZoom - this.options.minZoom;
+        const stepIndex = Math.round(adjustedZoom * this.numTreesByZoomLevel);
+        return stepIndex;
+    }
+
     // get index of the point from which the cluster originated
     _getOriginId(clusterId) {
-        return (clusterId - this.points.length) >> 5;
+        return (clusterId - this.points.length) >> 8;
     }
 
     // get zoom of the point from which the cluster originated
-    _getOriginZoom(clusterId) {
-        return (clusterId - this.points.length) % 32;
+    _getOriginIndex(clusterId) {
+        return (clusterId - this.points.length) % 256;
     }
+
+    _getOriginZoom(clusterId) {
+        const originIndex = this._getOriginIndex(clusterId);
+        const originZoom = (originIndex / this.numTreesByZoomLevel) + this.options.minZoom;
+        return originZoom;
+    }
+
 
     _map(point, clone) {
         if (point.numPoints) {
