@@ -12,6 +12,7 @@
     "cov": "c8 npm run test",
     "bench": "node --expose-gc -r esm bench.js",
     "build": "mkdirp dist && rollup -c",
+    "fix": "eslint --fix index.js bench.js test/test.js demo/index.js demo/worker.js",
     "prepublishOnly": "npm run test && npm run build"
   },
   "files": [

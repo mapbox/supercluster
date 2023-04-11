@@ -22,7 +22,7 @@ for (let i = 0; i < 1000000; i++) {
 global.gc();
 const size = v8.getHeapStatistics().used_heap_size;
 
-const index = new Supercluster({log: true, maxZoom: 6}).load(points);
+const index = new Supercluster({log: true, maxZoom: 6, zoomStep: 0.5}).load(points);
 
 global.gc();
 console.log(`memory used: ${  Math.round((v8.getHeapStatistics().used_heap_size - size) / 1024)  } KB`);
