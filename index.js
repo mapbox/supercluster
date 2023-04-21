@@ -22,6 +22,14 @@ const defaultOptions = {
 
 const fround = Math.fround || (tmp => ((x) => { tmp[0] = +x; return tmp[0]; }))(new Float32Array(1));
 
+function createIndex(points, nodeSize) {
+    const tree = new KDBush(points.length, nodeSize, Float32Array);
+    for (const {x, y} of points) tree.add(x, y);
+    tree.finish();
+    tree.points = points;
+    return tree;
+}
+
 export default class Supercluster {
     constructor(options) {
         this.options = extend(Object.create(defaultOptions), options);
@@ -44,7 +52,7 @@ export default class Supercluster {
             if (!points[i].geometry) continue;
             clusters.push(createPointCluster(points[i], i));
         }
-        this.trees[maxZoom + 1] = new KDBush(clusters, getX, getY, nodeSize, Float32Array);
+        this.trees[maxZoom + 1] = createIndex(clusters, nodeSize);
 
         if (log) console.timeEnd(timerId);
 
@@ -55,7 +63,7 @@ export default class Supercluster {
 
             // create a new set of clusters for the zoom and index them with a KD-tree
             clusters = this._cluster(clusters, z);
-            this.trees[z] = new KDBush(clusters, getX, getY, nodeSize, Float32Array);
+            this.trees[z] = createIndex(clusters, nodeSize);
 
             if (log) console.log('z%d: %d clusters in %dms', z, clusters.length, +Date.now() - now);
         }
@@ -407,11 +415,4 @@ function yLat(y) {
 function extend(dest, src) {
     for (const id in src) dest[id] = src[id];
     return dest;
-}
-
-function getX(p) {
-    return p.x;
-}
-function getY(p) {
-    return p.y;
 }
