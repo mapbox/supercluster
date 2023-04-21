@@ -1,6 +1,5 @@
-import {terser} from 'rollup-plugin-terser';
+import terser from '@rollup/plugin-terser';
 import resolve from "@rollup/plugin-node-resolve";
-import buble from '@rollup/plugin-buble';
 
 const config = (file, plugins) => ({
     input: 'index.js',
@@ -13,9 +12,7 @@ const config = (file, plugins) => ({
     plugins
 });
 
-const bubleConfig = {transforms: {dangerousForOf: true}};
-
 export default [
-    config('dist/supercluster.js', [resolve(), buble(bubleConfig)]),
-    config('dist/supercluster.min.js', [resolve(), terser(), buble(bubleConfig)])
+    config('dist/supercluster.js', [resolve()]),
+    config('dist/supercluster.min.js', [resolve(), terser()])
 ];

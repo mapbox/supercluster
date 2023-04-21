@@ -1,10 +1,11 @@
 
 import {test} from 'tape';
+import {readFileSync} from 'fs';
 import Supercluster from '../index.js';
 
-const places = require('./fixtures/places.json');
-const placesTile = require('./fixtures/places-z0-0-0.json');
-const placesTileMin5 = require('./fixtures/places-z0-0-0-min5.json');
+const places = JSON.parse(readFileSync(new URL('./fixtures/places.json', import.meta.url)));
+const placesTile = JSON.parse(readFileSync(new URL('./fixtures/places-z0-0-0.json', import.meta.url)));
+const placesTileMin5 = JSON.parse(readFileSync(new URL('./fixtures/places-z0-0-0-min5.json', import.meta.url)));
 
 test('generates clusters properly', (t) => {
     const index = new Supercluster().load(places.features);
