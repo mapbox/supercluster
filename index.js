@@ -32,7 +32,7 @@ function createIndex(points, nodeSize) {
 
 export default class Supercluster {
     constructor(options) {
-        this.options = extend(Object.create(defaultOptions), options);
+        this.options = Object.assign(Object.create(defaultOptions), options);
         this.trees = new Array(this.options.maxZoom + 1);
     }
 
@@ -337,11 +337,11 @@ export default class Supercluster {
 
     _map(point, clone) {
         if (point.numPoints) {
-            return clone ? extend({}, point.properties) : point.properties;
+            return clone ? Object.assign({}, point.properties) : point.properties;
         }
         const original = this.points[point.index].properties;
         const result = this.options.map(original);
-        return clone && result === original ? extend({}, result) : result;
+        return clone && result === original ? Object.assign({}, result) : result;
     }
 }
 
@@ -385,7 +385,7 @@ function getClusterProperties(cluster) {
     const abbrev =
         count >= 10000 ? `${Math.round(count / 1000)  }k` :
         count >= 1000 ? `${Math.round(count / 100) / 10  }k` : count;
-    return extend(extend({}, cluster.properties), {
+    return Object.assign({}, cluster.properties, {
         cluster: true,
         cluster_id: cluster.id,
         point_count: count,
@@ -410,9 +410,4 @@ function xLng(x) {
 function yLat(y) {
     const y2 = (180 - y * 360) * Math.PI / 180;
     return 360 * Math.atan(Math.exp(y2)) / Math.PI - 90;
-}
-
-function extend(dest, src) {
-    for (const id in src) dest[id] = src[id];
-    return dest;
 }
