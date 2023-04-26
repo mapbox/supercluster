@@ -37,7 +37,7 @@ export default class Supercluster {
     }
 
     load(points) {
-        const {log, minZoom, maxZoom, nodeSize} = this.options;
+        const {log, minZoom, maxZoom} = this.options;
 
         if (log) console.time('total time');
 
@@ -66,11 +66,7 @@ export default class Supercluster {
             );
             if (this.options.reduce) data.push(0); // noop
         }
-        let tree = new KDBush(data.length / this.stride | 0, nodeSize, Float32Array);
-        for (let i = 0; i < data.length; i += this.stride) tree.add(data[i], data[i + 1]);
-        tree.finish();
-        tree.data = data;
-        this.trees[maxZoom + 1] = tree;
+        let tree = this.trees[maxZoom + 1] = this._createTree(data);
 
         if (log) console.timeEnd(timerId);
 
@@ -80,7 +76,7 @@ export default class Supercluster {
             const now = +Date.now();
 
             // create a new set of clusters for the zoom and index them with a KD-tree
-            tree = this.trees[z] = this._cluster(tree, z);
+            tree = this.trees[z] = this._createTree(this._cluster(tree, z));
 
             if (log) console.log('z%d: %d clusters in %dms', z, tree.numItems, +Date.now() - now);
         }
@@ -223,6 +219,14 @@ export default class Supercluster {
         return skipped;
     }
 
+    _createTree(data) {
+        const tree = new KDBush(data.length / this.stride | 0, this.options.nodeSize, Float32Array);
+        for (let i = 0; i < data.length; i += this.stride) tree.add(data[i], data[i + 1]);
+        tree.finish();
+        tree.data = data;
+        return tree;
+    }
+
     _addTileFeatures(ids, data, x, y, z2, tile) {
         for (const i of ids) {
             const k = i * this.stride;
@@ -349,14 +353,7 @@ export default class Supercluster {
             }
         }
 
-        const nextTree = new KDBush(nextData.length / stride | 0, this.options.nodeSize, Float32Array);
-        nextTree.data = nextData;
-        for (let i = 0; i < nextData.length; i += stride) {
-            nextTree.add(nextData[i], nextData[i + 1]);
-        }
-        nextTree.finish();
-
-        return nextTree;
+        return nextData;
     }
 
     // get index of the point from which the cluster originated
