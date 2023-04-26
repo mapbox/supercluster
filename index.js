@@ -22,8 +22,6 @@ const defaultOptions = {
 
 const fround = Math.fround || (tmp => ((x) => { tmp[0] = +x; return tmp[0]; }))(new Float32Array(1));
 
-const STRIDE = 7;
-
 const OFFSET_ZOOM = 2;
 const OFFSET_ID = 3;
 const OFFSET_PARENT = 4;
@@ -34,6 +32,7 @@ export default class Supercluster {
     constructor(options) {
         this.options = Object.assign(Object.create(defaultOptions), options);
         this.trees = new Array(this.options.maxZoom + 1);
+        this.stride = this.options.reduce ? 7 : 6;
         this.clusterProps = [];
     }
 
@@ -63,12 +62,12 @@ export default class Supercluster {
                 Infinity, // the last zoom the point was processed at
                 i, // index of the source feature in the original input array
                 -1, // parent cluster id
-                1, // number of points in a cluster
-                0 // properties index
+                1 // number of points in a cluster
             );
+            if (this.options.reduce) data.push(0); // noop
         }
-        let tree = new KDBush(data.length / STRIDE | 0, nodeSize, Float32Array);
-        for (let i = 0; i < data.length; i += STRIDE) tree.add(data[i], data[i + 1]);
+        let tree = new KDBush(data.length / this.stride | 0, nodeSize, Float32Array);
+        for (let i = 0; i < data.length; i += this.stride) tree.add(data[i], data[i + 1]);
         tree.finish();
         tree.data = data;
         this.trees[maxZoom + 1] = tree;
@@ -111,7 +110,7 @@ export default class Supercluster {
         const data = tree.data;
         const clusters = [];
         for (const id of ids) {
-            const k = STRIDE * id;
+            const k = this.stride * id;
             clusters.push(data[k + OFFSET_NUM] > 1 ? getClusterJSON(data, k, this.clusterProps) : this.points[data[k + OFFSET_ID]]);
         }
         return clusters;
@@ -126,15 +125,15 @@ export default class Supercluster {
         if (!tree) throw new Error(errorMsg);
 
         const data = tree.data;
-        if (originId * STRIDE >= data.length) throw new Error(errorMsg);
+        if (originId * this.stride >= data.length) throw new Error(errorMsg);
 
         const r = this.options.radius / (this.options.extent * Math.pow(2, originZoom - 1));
-        const x = data[originId * STRIDE];
-        const y = data[originId * STRIDE + 1];
+        const x = data[originId * this.stride];
+        const y = data[originId * this.stride + 1];
         const ids = tree.within(x, y, r);
         const children = [];
         for (const id of ids) {
-            const k = id * STRIDE;
+            const k = id * this.stride;
             if (data[k + OFFSET_PARENT] === clusterId) {
                 children.push(data[k + OFFSET_NUM] > 1 ? getClusterJSON(data, k, this.clusterProps) : this.points[data[k + OFFSET_ID]]);
             }
@@ -226,7 +225,7 @@ export default class Supercluster {
 
     _addTileFeatures(ids, data, x, y, z2, tile) {
         for (const i of ids) {
-            const k = i * STRIDE;
+            const k = i * this.stride;
             const isCluster = data[k + OFFSET_NUM] > 1;
 
             let tags, px, py;
@@ -276,9 +275,10 @@ export default class Supercluster {
         const r = radius / (extent * Math.pow(2, zoom));
         const data = tree.data;
         const nextData = [];
+        const stride = this.stride;
 
         // loop through each point
-        for (let i = 0; i < data.length; i += STRIDE) {
+        for (let i = 0; i < data.length; i += stride) {
             // if we've already visited the point at this zoom level, skip it
             if (data[i + OFFSET_ZOOM] <= zoom) continue;
             data[i + OFFSET_ZOOM] = zoom;
@@ -293,7 +293,7 @@ export default class Supercluster {
 
             // count the number of points in a potential cluster
             for (const neighborId of neighborIds) {
-                const k = neighborId * STRIDE;
+                const k = neighborId * stride;
                 // filter out neighbors that are already processed
                 if (data[k + OFFSET_ZOOM] > zoom) numPoints += data[k + OFFSET_NUM];
             }
@@ -307,10 +307,10 @@ export default class Supercluster {
                 let clusterPropIndex = -1;
 
                 // encode both zoom and point index on which the cluster originated -- offset by total length of features
-                const id = ((i / STRIDE | 0) << 5) + (zoom + 1) + this.points.length;
+                const id = ((i / stride | 0) << 5) + (zoom + 1) + this.points.length;
 
                 for (const neighborId of neighborIds) {
-                    const k = neighborId * STRIDE;
+                    const k = neighborId * stride;
 
                     if (data[k + OFFSET_ZOOM] <= zoom) continue;
                     data[k + OFFSET_ZOOM] = zoom; // save the zoom (so it doesn't get processed twice)
@@ -332,25 +332,26 @@ export default class Supercluster {
                 }
 
                 data[i + OFFSET_PARENT] = id;
-                nextData.push(wx / numPoints, wy / numPoints, Infinity, id, -1, numPoints, clusterPropIndex);
+                nextData.push(wx / numPoints, wy / numPoints, Infinity, id, -1, numPoints);
+                if (reduce) nextData.push(clusterPropIndex);
 
             } else { // left points as unclustered
-                for (let j = 0; j < STRIDE; j++) nextData.push(data[i + j]);
+                for (let j = 0; j < stride; j++) nextData.push(data[i + j]);
 
                 if (numPoints > 1) {
                     for (const neighborId of neighborIds) {
-                        const k = neighborId * STRIDE;
+                        const k = neighborId * stride;
                         if (data[k + OFFSET_ZOOM] <= zoom) continue;
                         data[k + OFFSET_ZOOM] = zoom;
-                        for (let j = 0; j < STRIDE; j++) nextData.push(data[k + j]);
+                        for (let j = 0; j < stride; j++) nextData.push(data[k + j]);
                     }
                 }
             }
         }
 
-        const nextTree = new KDBush(nextData.length / STRIDE | 0, this.options.nodeSize, Float32Array);
+        const nextTree = new KDBush(nextData.length / stride | 0, this.options.nodeSize, Float32Array);
         nextTree.data = nextData;
-        for (let i = 0; i < nextData.length; i += STRIDE) {
+        for (let i = 0; i < nextData.length; i += stride) {
             nextTree.add(nextData[i], nextData[i + 1]);
         }
         nextTree.finish();
