@@ -25,7 +25,7 @@ const size = v8.getHeapStatistics().used_heap_size;
 const index = new Supercluster({
     log: true,
     maxZoom: 6,
-    // map: (props) => ({sum: props.index}),
+    // map: props => ({sum: props.index}),
     // reduce: (accumulated, props) => { accumulated.sum += props.sum; }
 }).load(points);
 
