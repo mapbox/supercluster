@@ -11,7 +11,7 @@
   "sideEffects": false,
   "scripts": {
     "pretest": "eslint index.js bench.js test/test.js demo/index.js demo/worker.js",
-    "test": "tape test/test.js",
+    "test": "node test/test.js",
     "cov": "c8 npm run test",
     "bench": "node --expose-gc bench.js",
     "build": "mkdirp dist && rollup -c",
@@ -43,8 +43,7 @@
     "eslint": "^8.39.0",
     "eslint-config-mourner": "^3.0.0",
     "mkdirp": "^3.0.1",
-    "rollup": "^3.21.0",
-    "tape": "^5.6.3"
+    "rollup": "^3.21.0"
   },
   "eslintConfig": {
     "extends": "mourner",
