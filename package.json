@@ -1,16 +1,19 @@
 {
   "name": "supercluster",
-  "version": "7.1.5",
+  "version": "8.0.0",
   "description": "A very fast geospatial point clustering library.",
   "main": "dist/supercluster.js",
+  "type": "module",
+  "exports": "./index.js",
   "module": "index.js",
   "jsdelivr": "dist/supercluster.min.js",
   "unpkg": "dist/supercluster.min.js",
+  "sideEffects": false,
   "scripts": {
     "pretest": "eslint index.js bench.js test/test.js demo/index.js demo/worker.js",
-    "test": "tape -r esm test/test.js",
+    "test": "node test/test.js",
     "cov": "c8 npm run test",
-    "bench": "node --expose-gc -r esm bench.js",
+    "bench": "node --expose-gc bench.js",
     "build": "mkdirp dist && rollup -c",
     "prepublishOnly": "npm run test && npm run build"
   },
@@ -31,22 +34,22 @@
   "author": "Vladimir Agafonkin",
   "license": "ISC",
   "dependencies": {
-    "kdbush": "^3.0.0"
+    "kdbush": "^4.0.1"
   },
   "devDependencies": {
-    "@rollup/plugin-buble": "^0.21.3",
-    "@rollup/plugin-node-resolve": "^13.3.0",
-    "c8": "^7.12.0",
-    "eslint": "^8.22.0",
+    "@rollup/plugin-node-resolve": "^15.0.2",
+    "@rollup/plugin-terser": "^0.4.1",
+    "c8": "^7.13.0",
+    "eslint": "^8.39.0",
     "eslint-config-mourner": "^3.0.0",
-    "esm": "^3.2.25",
-    "mkdirp": "^1.0.4",
-    "rollup": "^2.78.1",
-    "rollup-plugin-terser": "^7.0.2",
-    "tape": "^5.6.0"
+    "mkdirp": "^3.0.1",
+    "rollup": "^3.21.0"
   },
   "eslintConfig": {
     "extends": "mourner",
+    "parserOptions": {
+      "ecmaVersion": 2020
+    },
     "rules": {
       "camelcase": 0
     }

@@ -1,4 +1,4 @@
-# supercluster [![Simply Awesome](https://img.shields.io/badge/simply-awesome-brightgreen.svg)](https://github.com/mourner/projects) [![Build Status](https://travis-ci.org/mapbox/supercluster.svg?branch=main)](https://travis-ci.org/mapbox/supercluster)
+# supercluster [![Simply Awesome](https://img.shields.io/badge/simply-awesome-brightgreen.svg)](https://github.com/mourner/projects) [![Build Status](https://travis-ci.com/mapbox/supercluster.svg?branch=main)](https://travis-ci.com/mapbox/supercluster)
 
 A very fast JavaScript library for geospatial point clustering for browsers and Node.
 
