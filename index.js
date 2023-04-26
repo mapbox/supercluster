@@ -203,7 +203,7 @@ export default class Supercluster {
             const pointIdxs = tree.within(pointX, pointY, 0);
 
             const unclustered = pointIdxs.some(
-                idx => tree.points[idx].parentId !== -1
+                idx => tree.data[idx].parentId !== -1
             );
             if (unclustered) return expansionZoom;
 
