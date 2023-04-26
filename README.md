@@ -2,10 +2,6 @@
 
 A very fast JavaScript library for geospatial point clustering for browsers and Node.
 
-```html
-<script src="https://unpkg.com/supercluster@7.1.2/dist/supercluster.min.js"></script>
-```
-
 ```js
 const index = new Supercluster({
     radius: 40,
@@ -24,17 +20,17 @@ Clustering 6 million points in Leaflet:
 Install using NPM (`npm install supercluster`) or Yarn (`yarn add supercluster`), then:
 
 ```js
-// import as a ES module
+// import as a ES module in Node
 import Supercluster from 'supercluster';
 
-// or require in Node / Browserify
-const Supercluster = require('supercluster');
+// import from a CDN in the browser:
+import Supercluster from 'https://esm.run/supercluster';
 ```
 
-Or use a browser build directly:
+Or use it with an ordinary script tag in the browser:
 
 ```html
-<script src="https://unpkg.com/supercluster@7.1.2/dist/supercluster.min.js"></script>
+<script src="https://unpkg.com/supercluster@8.0.0/dist/supercluster.min.js"></script>
 ```
 
 ## Methods
