@@ -61,6 +61,10 @@ and `offset` is the amount of points to skip (for pagination).
 
 Returns the zoom on which the cluster expands into several children (useful for "click to zoom" feature) given the cluster's `cluster_id`.
 
+#### `getPointUnclusterZoom(point)`
+
+Returns the zoom on which a point appears unclustered. The point must be provided as array with `[Lng, Lat]`.
+
 ## Options
 
 | Option     | Default | Description                                                       |

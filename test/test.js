@@ -172,3 +172,17 @@ test('makes sure unclustered point coords are not rounded', () => {
 
     assert.deepEqual(index.getTile(20, 1028744, 656754).features[0].geometry[0], [421, 281]);
 });
+
+test('returns point uncluster zoom level', () => {
+    const points = [
+        {type: 'Feature', geometry: {type: 'Point', coordinates: [173, 53]}},
+        {type: 'Feature', geometry: {type: 'Point', coordinates: [174, 54]}}
+    ];
+    const index = new Supercluster({maxZoom: 19}).load(points);
+    const cluster = index.getClusters([172, 52, 175, 55], 1)[0];
+
+    const clusterExpansionZoom = index.getClusterExpansionZoom(cluster.id);
+    const pointUnclusterZoom = index.getPointUnclusterZoom(points[0].geometry.coordinates);
+
+    assert.deepEqual(clusterExpansionZoom, pointUnclusterZoom);
+});

@@ -191,6 +191,28 @@ export default class Supercluster {
         return expansionZoom;
     }
 
+    getPointUnclusterZoom(point) {
+        const [lng, lat] = point;
+        const pointX = fround(lngX(lng));
+        const pointY = fround(latY(lat));
+
+        let expansionZoom = this.options.minZoom;
+        while (expansionZoom < this.options.maxZoom) {
+            const tree = this.trees[expansionZoom];
+
+            const pointIdxs = tree.within(pointX, pointY, 0);
+
+            const unclustered = pointIdxs.some(
+                idx => tree.data[idx].parentId !== -1
+            );
+            if (unclustered) return expansionZoom;
+
+            expansionZoom++;
+        }
+
+        return expansionZoom;
+    }
+
     _appendLeaves(result, clusterId, limit, offset, skipped) {
         const children = this.getChildren(clusterId);
 
