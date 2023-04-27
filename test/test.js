@@ -172,3 +172,10 @@ test('makes sure unclustered point coords are not rounded', () => {
 
     assert.deepEqual(index.getTile(20, 1028744, 656754).features[0].geometry[0], [421, 281]);
 });
+
+test('does not throw on zero items', () => {
+    assert.doesNotThrow(() => {
+        const index = new Supercluster().load([]);
+        assert.deepEqual(index.getClusters([-180, -85, 180, 85], 0), []);
+    });
+});
