@@ -95,6 +95,14 @@ The `map`/`reduce` options must satisfy these conditions to work correctly:
 - `map` must return a new object, not existing `properties` of a point, otherwise it will get overwritten.
 - `reduce` must not mutate the second argument (`props`).
 
+## TypeScript
+
+Install the `@types/supercluster` package to add the TypeScript's types definition:
+
+```
+npm install @types/supercluster --save-dev 
+```
+
 ## Developing Supercluster
 
 ```
