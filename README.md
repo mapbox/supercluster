@@ -97,7 +97,7 @@ The `map`/`reduce` options must satisfy these conditions to work correctly:
 
 ## TypeScript
 
-Install the `@types/supercluster` package to add the TypeScript's types definition:
+Install `@types/supercluster` for the TypeScript type definitions:
 
 ```
 npm install @types/supercluster --save-dev 
