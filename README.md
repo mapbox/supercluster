@@ -1,40 +1,36 @@
-# supercluster [![Simply Awesome](https://img.shields.io/badge/simply-awesome-brightgreen.svg)](https://github.com/mourner/projects) [![Build Status](https://travis-ci.org/mapbox/supercluster.svg?branch=main)](https://travis-ci.org/mapbox/supercluster)
+# supercluster [![Simply Awesome](https://img.shields.io/badge/simply-awesome-brightgreen.svg)](https://github.com/mourner/projects) [![Build Status](https://travis-ci.com/mapbox/supercluster.svg?branch=main)](https://travis-ci.com/mapbox/supercluster)
 
 A very fast JavaScript library for geospatial point clustering for browsers and Node.
 
-```html
-<script src="https://unpkg.com/supercluster@7.1.2/dist/supercluster.min.js"></script>
-```
-
 ```js
-const index = new Supercluster({
-    radius: 40,
-    maxZoom: 16
-});
+const index = new Supercluster({radius: 40, maxZoom: 16});
 index.load(points);
-index.getClusters([-180, -85, 180, 85], 2);
+
+const clusters = index.getClusters([-180, -85, 180, 85], 2);
 ```
 
 Clustering 6 million points in Leaflet:
 
-![clusters2](https://cloud.githubusercontent.com/assets/25395/11857351/43407b46-a40c-11e5-8662-e99ab1cd2cb7.gif)
+![clustering demo on an interactive Leaflet map](https://cloud.githubusercontent.com/assets/25395/11857351/43407b46-a40c-11e5-8662-e99ab1cd2cb7.gif)
+
+Supercluster was built to power clustering in [Mapbox GL JS](https://www.mapbox.com/mapbox-gljs). Read about how it works [on the Mapbox blog](https://blog.mapbox.com/clustering-millions-of-points-on-a-map-with-supercluster-272046ec5c97).
 
 ## Install
 
 Install using NPM (`npm install supercluster`) or Yarn (`yarn add supercluster`), then:
 
 ```js
-// import as a ES module
+// import as a ES module in Node
 import Supercluster from 'supercluster';
 
-// or require in Node / Browserify
-const Supercluster = require('supercluster');
+// import from a CDN in the browser:
+import Supercluster from 'https://esm.run/supercluster';
 ```
 
-Or use a browser build directly:
+Or use it with an ordinary script tag in the browser:
 
 ```html
-<script src="https://unpkg.com/supercluster@7.1.2/dist/supercluster.min.js"></script>
+<script src="https://unpkg.com/supercluster@8.0.0/dist/supercluster.min.js"></script>
 ```
 
 ## Methods
@@ -98,6 +94,14 @@ The `map`/`reduce` options must satisfy these conditions to work correctly:
 
 - `map` must return a new object, not existing `properties` of a point, otherwise it will get overwritten.
 - `reduce` must not mutate the second argument (`props`).
+
+## TypeScript
+
+Install `@types/supercluster` for the TypeScript type definitions:
+
+```
+npm install @types/supercluster --save-dev 
+```
 
 ## Developing Supercluster
 
