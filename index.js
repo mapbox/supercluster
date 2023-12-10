@@ -26,13 +26,14 @@ const OFFSET_ZOOM = 2;
 const OFFSET_ID = 3;
 const OFFSET_PARENT = 4;
 const OFFSET_NUM = 5;
-const OFFSET_PROP = 6;
+const OFFSET_WEIGHT = 6;
+const OFFSET_PROP = 7;
 
 export default class Supercluster {
     constructor(options) {
         this.options = Object.assign(Object.create(defaultOptions), options);
         this.trees = new Array(this.options.maxZoom + 1);
-        this.stride = this.options.reduce ? 7 : 6;
+        this.stride = OFFSET_PROP + (this.options.reduce ? 1 : 0);
         this.clusterProps = [];
     }
 
@@ -62,7 +63,8 @@ export default class Supercluster {
                 Infinity, // the last zoom the point was processed at
                 i, // index of the source feature in the original input array
                 -1, // parent cluster id
-                1 // number of points in a cluster
+                1, // number of points in a cluster
+                p.properties?.weight ?? 1 // cluster weight
             );
             if (this.options.reduce) data.push(0); // noop
         }
@@ -295,17 +297,23 @@ export default class Supercluster {
             const numPointsOrigin = data[i + OFFSET_NUM];
             let numPoints = numPointsOrigin;
 
+            const pointsWeightOrigin = data[i + OFFSET_WEIGHT];
+            let pointsWeight = pointsWeightOrigin;
+
             // count the number of points in a potential cluster
             for (const neighborId of neighborIds) {
                 const k = neighborId * stride;
                 // filter out neighbors that are already processed
-                if (data[k + OFFSET_ZOOM] > zoom) numPoints += data[k + OFFSET_NUM];
+                if (data[k + OFFSET_ZOOM] > zoom) {
+                    numPoints += data[k + OFFSET_NUM];
+                    pointsWeight += data[k + OFFSET_WEIGHT];
+                }
             }
 
             // if there were neighbors to merge, and there are enough points to form a cluster
             if (numPoints > numPointsOrigin && numPoints >= minPoints) {
-                let wx = x * numPointsOrigin;
-                let wy = y * numPointsOrigin;
+                let wx = x * pointsWeightOrigin;
+                let wy = y * pointsWeightOrigin;
 
                 let clusterProperties;
                 let clusterPropIndex = -1;
@@ -319,9 +327,9 @@ export default class Supercluster {
                     if (data[k + OFFSET_ZOOM] <= zoom) continue;
                     data[k + OFFSET_ZOOM] = zoom; // save the zoom (so it doesn't get processed twice)
 
-                    const numPoints2 = data[k + OFFSET_NUM];
-                    wx += data[k] * numPoints2; // accumulate coordinates for calculating weighted center
-                    wy += data[k + 1] * numPoints2;
+                    const pointsWeight2 = data[k + OFFSET_WEIGHT];
+                    wx += data[k] * pointsWeight2; // accumulate coordinates for calculating weighted position
+                    wy += data[k + 1] * pointsWeight2;
 
                     data[k + OFFSET_PARENT] = id;
 
@@ -336,7 +344,7 @@ export default class Supercluster {
                 }
 
                 data[i + OFFSET_PARENT] = id;
-                nextData.push(wx / numPoints, wy / numPoints, Infinity, id, -1, numPoints);
+                nextData.push(wx / pointsWeight, wy / pointsWeight, Infinity, id, -1, numPoints, pointsWeight);
                 if (reduce) nextData.push(clusterPropIndex);
 
             } else { // left points as unclustered
