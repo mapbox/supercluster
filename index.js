@@ -369,11 +369,11 @@ export default class Supercluster {
     _map(data, i, clone) {
         if (data[i + OFFSET_NUM] > 1) {
             const props = this.clusterProps[data[i + OFFSET_PROP]];
-            return clone ? Object.assign({}, props) : props;
+            return clone ? structuredClone(props) : props;
         }
         const original = this.points[data[i + OFFSET_ID]].properties;
         const result = this.options.map(original);
-        return clone && result === original ? Object.assign({}, result) : result;
+        return clone && result === original ? structuredClone(result) : result;
     }
 }
 
@@ -422,3 +422,4 @@ function yLat(y) {
     const y2 = (180 - y * 360) * Math.PI / 180;
     return 360 * Math.atan(Math.exp(y2)) / Math.PI - 90;
 }
+
