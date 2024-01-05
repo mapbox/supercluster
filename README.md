@@ -63,16 +63,17 @@ Returns the zoom on which the cluster expands into several children (useful for 
 
 ## Options
 
-| Option     | Default | Description                                                       |
-|------------|---------|-------------------------------------------------------------------|
-| minZoom    | 0       | Minimum zoom level at which clusters are generated.               |
-| maxZoom    | 16      | Maximum zoom level at which clusters are generated.               |
-| minPoints  | 2       | Minimum number of points to form a cluster.                       |
-| radius     | 40      | Cluster radius, in pixels.                                        |
-| extent     | 512     | (Tiles) Tile extent. Radius is calculated relative to this value. |
-| nodeSize   | 64      | Size of the KD-tree leaf node. Affects performance.               |
-| log        | false   | Whether timing info should be logged.                             |
-| generateId | false   | Whether to generate ids for input features in vector tiles.       |
+| Option     | Default      | Description                                                                        |
+|------------|--------------|------------------------------------------------------------------------------------|
+| minZoom    | 0            | Minimum zoom level at which clusters are generated.                                |
+| maxZoom    | 16           | Maximum zoom level at which clusters are generated.                                |
+| minPoints  | 2            | Minimum number of points to form a cluster.                                        |
+| radius     | 40           | Cluster radius, in pixels.                                                         |
+| extent     | 512          | (Tiles) Tile extent. Radius is calculated relative to this value.                  |
+| nodeSize   | 64           | Size of the KD-tree leaf node. Affects performance.                                |
+| arrayType  | Float32Array | Array type to use for storing coordinate values. Affects accuracy for small radius |
+| log        | false        | Whether timing info should be logged.                                              |
+| generateId | false        | Whether to generate ids for input features in vector tiles.                        |
 
 ### Property map/reduce options
 
