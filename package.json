@@ -2,6 +2,9 @@
   "name": "supercluster",
   "version": "8.0.1",
   "description": "A very fast geospatial point clustering library.",
+  "engines": {
+    "node": ">=17.0.0"
+  },
   "main": "dist/supercluster.js",
   "type": "module",
   "exports": "./index.js",
