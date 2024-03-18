@@ -369,11 +369,11 @@ export default class Supercluster {
     _map(data, i, clone) {
         if (data[i + OFFSET_NUM] > 1) {
             const props = this.clusterProps[data[i + OFFSET_PROP]];
-            return clone ? Object.assign({}, props) : props;
+            return clone ? structuredClone(props) : props;
         }
         const original = this.points[data[i + OFFSET_ID]].properties;
         const result = this.options.map(original);
-        return clone && result === original ? Object.assign({}, result) : result;
+        return clone && result === original ? structuredClone(result) : result;
     }
 }
 
@@ -395,8 +395,8 @@ function getClusterProperties(data, i, clusterProps) {
         count >= 10000 ? `${Math.round(count / 1000)  }k` :
         count >= 1000 ? `${Math.round(count / 100) / 10  }k` : count;
     const propIndex = data[i + OFFSET_PROP];
-    const properties = propIndex === -1 ? {} : Object.assign({}, clusterProps[propIndex]);
-    return Object.assign(properties, {
+    const properties = propIndex === -1 ? {} : structuredClone(clusterProps[propIndex]);
+    return Object.assign(properties ?? {}, {
         cluster: true,
         cluster_id: data[i + OFFSET_ID],
         point_count: count,
