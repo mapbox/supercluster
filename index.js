@@ -396,11 +396,12 @@ function getClusterProperties(data, i, clusterProps) {
         count >= 1000 ? `${Math.round(count / 100) / 10  }k` : count;
     const propIndex = data[i + OFFSET_PROP];
     const properties = propIndex === -1 ? {} : Object.assign({}, clusterProps[propIndex]);
+
     return Object.assign(properties, {
         cluster: true,
-        cluster_id: data[i + OFFSET_ID],
-        point_count: count,
-        point_count_abbreviated: abbrev
+        'cluster_id': data[i + OFFSET_ID],
+        'point_count': count,
+        'point_count_abbreviated': abbrev
     });
 }
 
