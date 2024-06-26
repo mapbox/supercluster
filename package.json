@@ -11,8 +11,8 @@
   "sideEffects": false,
   "scripts": {
     "pretest": "eslint index.js bench.js test/test.js demo/index.js demo/worker.js",
-    "test": "node test/test.js",
-    "cov": "c8 npm run test",
+    "test": "node --test",
+    "cov": "node --test --experimental-test-coverage",
     "bench": "node --expose-gc bench.js",
     "build": "mkdirp dist && rollup -c",
     "prepublishOnly": "npm run test && npm run build"
@@ -39,10 +39,9 @@
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^15.2.3",
     "@rollup/plugin-terser": "^0.4.4",
-    "c8": "^10.1.2",
     "eslint": "^9.5.0",
     "eslint-config-mourner": "^4.0.0",
     "mkdirp": "^3.0.1",
-    "rollup": "^3.29.3"
+    "rollup": "^4.18.0"
   }
 }
