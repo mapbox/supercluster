@@ -8,6 +8,7 @@ const defaultOptions = {
     radius: 40,   // cluster radius in pixels
     extent: 512,  // tile extent (radius is calculated relative to it)
     nodeSize: 64, // size of the KD-tree leaf node, affects performance
+    arrayType: Float32Array, // Array type to use for storing coordinate values. Affects accuracy for small radius
     log: false,   // whether to log timing info
 
     // whether to generate numeric ids for input features (in vector tiles)
@@ -34,6 +35,7 @@ export default class Supercluster {
         this.trees = new Array(this.options.maxZoom + 1);
         this.stride = this.options.reduce ? 7 : 6;
         this.clusterProps = [];
+        this.coordinateRoundFn = this.options.arrayType === Float32Array ? fround : (x => x);
     }
 
     load(points) {
@@ -54,8 +56,8 @@ export default class Supercluster {
             if (!p.geometry) continue;
 
             const [lng, lat] = p.geometry.coordinates;
-            const x = fround(lngX(lng));
-            const y = fround(latY(lat));
+            const x = this.coordinateRoundFn(lngX(lng));
+            const y = this.coordinateRoundFn(latY(lat));
             // store internal point/cluster data in flat numeric arrays for performance
             data.push(
                 x, y, // projected point coordinates
@@ -220,7 +222,7 @@ export default class Supercluster {
     }
 
     _createTree(data) {
-        const tree = new KDBush(data.length / this.stride | 0, this.options.nodeSize, Float32Array);
+        const tree = new KDBush(data.length / this.stride | 0, this.options.nodeSize, this.options.arrayType);
         for (let i = 0; i < data.length; i += this.stride) tree.add(data[i], data[i + 1]);
         tree.finish();
         tree.data = data;
