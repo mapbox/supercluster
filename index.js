@@ -8,7 +8,7 @@ const defaultOptions = {
     radius: 40,   // cluster radius in pixels
     extent: 512,  // tile extent (radius is calculated relative to it)
     nodeSize: 64, // size of the KD-tree leaf node, affects performance
-    arrayType: Float32Array, // Array type to use for storing coordinate values. Affects accuracy for small radius
+    arrayType: Float32Array, // TypedArray to use for storing coordinate values, affects accuracy for small radius
     log: false,   // whether to log timing info
 
     // whether to generate numeric ids for input features (in vector tiles)
