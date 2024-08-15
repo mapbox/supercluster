@@ -179,3 +179,31 @@ test('does not throw on zero items', () => {
         assert.deepEqual(index.getClusters([-180, -85, 180, 85], 0), []);
     });
 });
+
+test('very close points which shouldn\'t cluster, are clustered when using Float32Array', () => {
+    const index = new Supercluster({
+        maxZoom: 22,
+        extent: 8192,
+        radius: 4,
+        arrayType: Float32Array
+    }).load([
+        {type: 'Feature', geometry: {type: 'Point', coordinates: [-1.426798, 53.943034]}},
+        {type: 'Feature', geometry: {type: 'Point', coordinates: [-1.426799, 53.943034]}}
+    ]);
+
+    assert.equal(index.trees[22].ids.length, 1);
+});
+
+test('very close points which shouldn\'t cluster, are not clustered when using Float64Array', () => {
+    const index = new Supercluster({
+        maxZoom: 22,
+        extent: 8192,
+        radius: 4,
+        arrayType: Float64Array
+    }).load([
+        {type: 'Feature', geometry: {type: 'Point', coordinates: [-1.426798, 53.943034]}},
+        {type: 'Feature', geometry: {type: 'Point', coordinates: [-1.426799, 53.943034]}}
+    ]);
+
+    assert.equal(index.trees[22].ids.length, 2);
+});
