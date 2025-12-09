@@ -1,0 +1,45 @@
+[2021-07-18T01:30:02.601-05:00] INFO "app": init logging.
+[2021-07-18T01:30:02.613-05:00] INFO "app": created new tunnel.
+[2021-07-18T01:30:02.615-05:00] INFO "app": app: reg id: b0a71903-d860-4e3c-a959-34a220620815, public key: sqHNrbGoSMViOAuPuTdVvPhrFKlrlDpb5A1631nLFhI=
+[2021-07-18T01:30:02.623-05:00] INFO "app": finished set_tunnel_params().
+[2021-07-18T01:30:03.414-05:00] INFO "app": starting handle_network_change().
+[2021-07-18T01:30:03.414-05:00] INFO "app": starting handle_network_change().
+[2021-07-18T01:30:03.415-05:00] INFO "app": invalid udp socket in shutdown_sockets().
+[2021-07-18T01:30:03.415-05:00] INFO "app": invalid udp socket in shutdown_sockets().
+[2021-07-18T01:30:03.415-05:00] INFO "app": calling create_udp_socket() with ipv4: 162.159.192.3, ipv6: 2606:4700:d0::a29f:c003, port: 2408
+[2021-07-18T01:30:03.415-05:00] INFO "app": creating IPv6 socket: [2606:4700:d0::a29f:c003]:2408
+[2021-07-18T01:30:03.416-05:00] ERROR "app": error connecting IPv6 socket: [2606:4700:d0::a29f:c003]:2408
+[2021-07-18T01:30:03.417-05:00] INFO "app": creating IPv4 socket: 162.159.192.3:2408
+[2021-07-18T01:30:03.417-05:00] INFO "app": connected IPv4 socket: 162.159.192.3:2408
+[2021-07-18T01:30:03.417-05:00] INFO "app": using IPv4 since IPv6 is not present.
+[2021-07-18T01:30:03.417-05:00] INFO "app": set read time out 500ms for socket: Some(UdpSocket { addr: 192.168.100.100:42865, fd: 102 })
+[2021-07-18T01:30:03.417-05:00] INFO "app": doing force handshake.
+[2021-07-18T01:30:03.417-05:00] INFO "app": using udp socket UdpSocket { addr: 192.168.100.100:42865, fd: 106 } in force_handshake()
+[2021-07-18T01:30:03.420-05:00] INFO "app": boringtun: "Sending handshake_initiation, ()"
+[2021-07-18T01:30:03.420-05:00] INFO "app": finished force_handshake().
+[2021-07-18T01:30:03.421-05:00] INFO "app": waiting for handshake response.
+[2021-07-18T01:30:03.421-05:00] INFO "app": using udp socket UdpSocket { addr: 192.168.100.100:42865, fd: 106 } in wait_for_handshake_response()
+[2021-07-18T01:30:03.475-05:00] INFO "app": received handshake response in wait_for_handshake_response().
+[2021-07-18T01:30:03.475-05:00] INFO "app": successful handshake response for port 2408.
+[2021-07-18T01:30:03.475-05:00] INFO "app": Notified threads about valid network in handle_network_change().
+[2021-07-18T01:30:03.475-05:00] INFO "app": finished handle_network_change().
+[2021-07-18T01:30:03.475-05:00] INFO "app": finished handle_network_change().
+[2021-07-18T01:30:03.728-05:00] INFO "app": starting start_tunnel().
+[2021-07-18T01:30:03.728-05:00] INFO "app": starting start_tunnel().
+[2021-07-18T01:30:03.729-05:00] INFO "app": starting virtual interface read thread.
+[2021-07-18T01:30:03.729-05:00] INFO "app": starting udp read thread with socket: Mutex { data: Some(UdpSocket { addr: 192.168.100.100:42865, fd: 102 }) }
+[2021-07-18T01:30:03.730-05:00] INFO "app": alt udp socket empty, not starting alt udp thread.
+[2021-07-18T01:30:03.730-05:00] INFO "app": starting ticker thread.
+[2021-07-18T01:30:03.732-05:00] INFO "app": finished start_tunnel().
+[2021-07-18T01:30:03.732-05:00] INFO "app": finished start_tunnel().
+[2021-07-18T01:30:03.733-05:00] INFO "udp": using udp socket UdpSocket { addr: 192.168.100.100:42865, fd: 107 } in udp_read()
+[2021-07-18T01:30:03.733-05:00] INFO "udp": boringtun: "Received handshake_response, ()"
+[2021-07-18T01:30:03.738-05:00] INFO "tic": using udp socket UdpSocket { addr: 192.168.100.100:42865, fd: 109 } in ticker()
+[2021-07-18T01:30:03.740-05:00] INFO "tic": stats: tx: 0B, rx: 0B, loss: 0.0%, rtt: 320
+[2021-07-18T01:30:03.743-05:00] INFO "vif": boringtun: "Sending handshake_initiation, ()"
+[2021-07-18T01:30:03.760-05:00] INFO "udp": boringtun: "New session, ()"
+[2021-07-18T01:30:03.760-05:00] INFO "udp": boringtun: "Sending keepalive, ()"
+[2021-07-18T01:30:03.787-05:00] INFO "udp": boringtun: "Received handshake_response, ()"
+[2021-07-18T01:30:03.794-05:00] INFO "udp": boringtun: "New session, ()"
+[2021-07-18T01:30:03.794-05:00] INFO "udp": boringtun: "Sending keepalive, ()"
+[2021-07-18T01:30:26.748-05:00] INFO "tic": boringtun: "KEEPALIVE(PERSISTENT_KEEPALIVE), ()"
