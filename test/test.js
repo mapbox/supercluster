@@ -95,6 +95,31 @@ test('aggregates cluster properties with reduce', () => {
         [298, 122, 12, 36, 98, 7, 24, 8, 125, 98, 125, 12, 36, 8]);
 });
 
+test('passes zoom level to reduce function', () => {
+    const zoomsReceived = new Set();
+    const index = new Supercluster({
+        map: props => ({sum: props.scalerank}),
+        reduce: (a, b, zoom) => {
+            a.sum += b.sum;
+            zoomsReceived.add(zoom);
+        },
+        radius: 100,
+        minZoom: 0,
+        maxZoom: 5
+    }).load(places.features);
+
+    // Trigger clustering by getting clusters
+    index.getClusters([-180, -85, 180, 85], 0);
+
+    // Verify zoom values were passed (should be integers from minZoom to maxZoom)
+    assert.ok(zoomsReceived.size > 0, 'reduce should have been called with zoom values');
+    for (const zoom of zoomsReceived) {
+        assert.equal(typeof zoom, 'number', 'zoom should be a number');
+        assert.ok(Number.isInteger(zoom), 'zoom should be an integer');
+        assert.ok(zoom >= 0 && zoom <= 5, 'zoom should be within minZoom/maxZoom range');
+    }
+});
+
 test('returns clusters when query crosses international dateline', () => {
     const index = new Supercluster().load([
         {

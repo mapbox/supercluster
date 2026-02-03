@@ -14,7 +14,7 @@ const defaultOptions = {
     generateId: false,
 
     // a reduce function for calculating custom cluster properties
-    reduce: null, // (accumulated, props) => { accumulated.sum += props.sum; }
+    reduce: null, // (accumulated, props, zoom) => { accumulated.sum += props.sum; }
 
     // properties to use for individual points when running the reducer
     map: props => props // props => ({sum: props.my_value})
@@ -331,7 +331,7 @@ export default class Supercluster {
                             clusterPropIndex = this.clusterProps.length;
                             this.clusterProps.push(clusterProperties);
                         }
-                        reduce(clusterProperties, this._map(data, k));
+                        reduce(clusterProperties, this._map(data, k), zoom);
                     }
                 }
 
