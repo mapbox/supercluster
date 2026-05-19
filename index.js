@@ -20,7 +20,12 @@ const defaultOptions = {
     map: props => props // props => ({sum: props.my_value})
 };
 
-const fround = Math.fround || (tmp => ((x) => { tmp[0] = +x; return tmp[0]; }))(new Float32Array(1));
+// Int32 encoding of source coords in [0, 1]: (coord - 0.5) * SCALE in [-2^30, 2^30].
+// Keeps every stored value inside V8's 31-bit SMI fast path.
+const SCALE = 0x80000000; // 2^31
+const INV_SCALE = 1 / SCALE;
+const encode = c => (c - 0.5) * SCALE;
+const decode = v => v * INV_SCALE + 0.5;
 
 const OFFSET_ZOOM = 2;
 const OFFSET_ID = 3;
@@ -45,28 +50,26 @@ export default class Supercluster {
         if (log) console.time(timerId);
 
         this.points = points;
+        const stride = this.stride;
+        const notProcessed = maxZoom + 1; // sentinel for "not yet processed at any zoom"
 
         // generate a cluster object for each point and index input points into a KD-tree
-        const data = [];
-
+        const data = new Int32Array(points.length * stride);
+        let w = 0;
         for (let i = 0; i < points.length; i++) {
             const p = points[i];
             if (!p.geometry) continue;
 
             const [lng, lat] = p.geometry.coordinates;
-            const x = fround(lngX(lng));
-            const y = fround(latY(lat));
-            // store internal point/cluster data in flat numeric arrays for performance
-            data.push(
-                x, y, // projected point coordinates
-                Infinity, // the last zoom the point was processed at
-                i, // index of the source feature in the original input array
-                -1, // parent cluster id
-                1 // number of points in a cluster
-            );
-            if (this.options.reduce) data.push(0); // noop
+            // store internal point/cluster data in flat typed arrays for performance
+            writeSlot(data, w, encode(lngX(lng)), encode(latY(lat)), notProcessed, i, 1);
+            w += stride;
         }
-        let tree = this.trees[maxZoom + 1] = this._createTree(data);
+        const numInput = w / stride;
+        const inputSlab = w === data.length ? data : data.subarray(0, w);
+        let prev = inputSlab;
+        let prevNum = numInput;
+        let tree = this.trees[maxZoom + 1] = this._createTree(prev, prevNum);
 
         if (log) console.timeEnd(timerId);
 
@@ -75,8 +78,12 @@ export default class Supercluster {
         for (let z = maxZoom; z >= minZoom; z--) {
             const now = +Date.now();
 
-            // create a new set of clusters for the zoom and index them with a KD-tree
-            tree = this.trees[z] = this._createTree(this._cluster(tree, z));
+            // allocate a tight Int32 slab for this zoom; output is strictly <= input length
+            const out = new Int32Array(prev.length);
+            const written = this._cluster(prev, prevNum, z, out);
+            tree = this.trees[z] = this._createTree(out, written);
+            prev = out;
+            prevNum = written;
 
             if (log) console.log('z%d: %d clusters in %dms', z, tree.numItems, +Date.now() - now);
         }
@@ -102,7 +109,7 @@ export default class Supercluster {
         }
 
         const tree = this.trees[this._limitZoom(zoom)];
-        const ids = tree.range(lngX(minLng), latY(maxLat), lngX(maxLng), latY(minLat));
+        const ids = tree.range(encode(lngX(minLng)), encode(latY(maxLat)), encode(lngX(maxLng)), encode(latY(minLat)));
         const data = tree.data;
         const clusters = [];
         for (const id of ids) {
@@ -121,12 +128,12 @@ export default class Supercluster {
         if (!tree) throw new Error(errorMsg);
 
         const data = tree.data;
-        if (originId * this.stride >= data.length) throw new Error(errorMsg);
+        if (originId >= tree.numItems) throw new Error(errorMsg);
 
         const r = this.options.radius / (this.options.extent * Math.pow(2, originZoom - 1));
         const x = data[originId * this.stride];
         const y = data[originId * this.stride + 1];
-        const ids = tree.within(x, y, r);
+        const ids = tree.within(x, y, r * SCALE);
         const children = [];
         for (const id of ids) {
             const k = id * this.stride;
@@ -155,25 +162,23 @@ export default class Supercluster {
         const z2 = Math.pow(2, z);
         const {extent, radius} = this.options;
         const p = radius / extent;
-        const top = (y - p) / z2;
-        const bottom = (y + 1 + p) / z2;
+        const top = encode((y - p) / z2);
+        const bottom = encode((y + 1 + p) / z2);
 
-        const tile = {
-            features: []
-        };
+        const tile = {features: []};
 
         this._addTileFeatures(
-            tree.range((x - p) / z2, top, (x + 1 + p) / z2, bottom),
+            tree.range(encode((x - p) / z2), top, encode((x + 1 + p) / z2), bottom),
             tree.data, x, y, z2, tile);
 
         if (x === 0) {
             this._addTileFeatures(
-                tree.range(1 - p / z2, top, 1, bottom),
+                tree.range(encode(1 - p / z2), top, encode(1), bottom),
                 tree.data, z2, y, z2, tile);
         }
         if (x === z2 - 1) {
             this._addTileFeatures(
-                tree.range(0, top, p / z2, bottom),
+                tree.range(encode(0), top, encode(p / z2), bottom),
                 tree.data, -1, y, z2, tile);
         }
 
@@ -219,9 +224,10 @@ export default class Supercluster {
         return skipped;
     }
 
-    _createTree(data) {
-        const tree = new KDBush(data.length / this.stride | 0, this.options.nodeSize, Float32Array);
-        for (let i = 0; i < data.length; i += this.stride) tree.add(data[i], data[i + 1]);
+    _createTree(data, numItems) {
+        const tree = new KDBush(numItems, this.options.nodeSize, Int32Array);
+        const stride = this.stride;
+        for (let i = 0; i < numItems; i++) tree.add(data[i * stride], data[i * stride + 1]);
         tree.finish();
         tree.data = data;
         return tree;
@@ -235,8 +241,8 @@ export default class Supercluster {
             let tags, px, py;
             if (isCluster) {
                 tags = getClusterProperties(data, k, this.clusterProps);
-                px = data[k];
-                py = data[k + 1];
+                px = decode(data[k]);
+                py = decode(data[k + 1]);
             } else {
                 const p = this.points[data[k + OFFSET_ID]];
                 tags = p.properties;
@@ -274,15 +280,17 @@ export default class Supercluster {
         return Math.max(this.options.minZoom, Math.min(Math.floor(+z), this.options.maxZoom + 1));
     }
 
-    _cluster(tree, zoom) {
-        const {radius, extent, reduce, minPoints} = this.options;
-        const r = radius / (extent * Math.pow(2, zoom));
-        const data = tree.data;
-        const nextData = [];
+    _cluster(data, numItems, zoom, out) {
+        const {radius, extent, reduce, minPoints, maxZoom} = this.options;
+        const r = radius / (extent * Math.pow(2, zoom)) * SCALE;
+        const notProcessed = maxZoom + 1;
+        const tree = this.trees[zoom + 1];
         const stride = this.stride;
+        const limit = numItems * stride;
+        let cursor = 0;
 
         // loop through each point
-        for (let i = 0; i < data.length; i += stride) {
+        for (let i = 0; i < limit; i += stride) {
             // if we've already visited the point at this zoom level, skip it
             if (data[i + OFFSET_ZOOM] <= zoom) continue;
             data[i + OFFSET_ZOOM] = zoom;
@@ -290,7 +298,7 @@ export default class Supercluster {
             // find all nearby points
             const x = data[i];
             const y = data[i + 1];
-            const neighborIds = tree.within(data[i], data[i + 1], r);
+            const neighborIds = tree.within(x, y, r);
 
             const numPointsOrigin = data[i + OFFSET_NUM];
             let numPoints = numPointsOrigin;
@@ -336,24 +344,26 @@ export default class Supercluster {
                 }
 
                 data[i + OFFSET_PARENT] = id;
-                nextData.push(wx / numPoints, wy / numPoints, Infinity, id, -1, numPoints);
-                if (reduce) nextData.push(clusterPropIndex);
+                writeSlot(out, cursor, wx / numPoints, wy / numPoints, notProcessed, id, numPoints, reduce ? clusterPropIndex : undefined);
+                cursor += stride;
 
             } else { // left points as unclustered
-                for (let j = 0; j < stride; j++) nextData.push(data[i + j]);
+                for (let j = 0; j < stride; j++) out[cursor + j] = data[i + j];
+                cursor += stride;
 
                 if (numPoints > 1) {
                     for (const neighborId of neighborIds) {
                         const k = neighborId * stride;
                         if (data[k + OFFSET_ZOOM] <= zoom) continue;
                         data[k + OFFSET_ZOOM] = zoom;
-                        for (let j = 0; j < stride; j++) nextData.push(data[k + j]);
+                        for (let j = 0; j < stride; j++) out[cursor + j] = data[k + j];
+                        cursor += stride;
                     }
                 }
             }
         }
 
-        return nextData;
+        return cursor / stride;
     }
 
     // get index of the point from which the cluster originated
@@ -377,6 +387,17 @@ export default class Supercluster {
     }
 }
 
+// write one stride-tuple (cluster or input point) into a typed slab
+function writeSlot(data, k, x, y, zoom, id, num, propIndex) {
+    data[k]     = x;
+    data[k + 1] = y;
+    data[k + 2] = zoom;
+    data[k + 3] = id;
+    data[k + 4] = -1; // parent cluster id
+    data[k + 5] = num;
+    if (propIndex !== undefined) data[k + 6] = propIndex;
+}
+
 function getClusterJSON(data, i, clusterProps) {
     return {
         type: 'Feature',
@@ -384,7 +405,7 @@ function getClusterJSON(data, i, clusterProps) {
         properties: getClusterProperties(data, i, clusterProps),
         geometry: {
             type: 'Point',
-            coordinates: [xLng(data[i]), yLat(data[i + 1])]
+            coordinates: [xLng(decode(data[i])), yLat(decode(data[i + 1]))]
         }
     };
 }
