@@ -46,12 +46,18 @@ export default class Supercluster {
 
         if (log) console.time('total time');
 
-        const timerId = `prepare ${  points.length  } points`;
+        const notProcessed = maxZoom + 1; // sentinel for "not yet processed at any zoom"
+        const timerId = `z${notProcessed}: ${points.length} points`;
         if (log) console.time(timerId);
 
-        this.points = points;
+        this.numPoints = points.length;
         const stride = this.stride;
-        const notProcessed = maxZoom + 1; // sentinel for "not yet processed at any zoom"
+
+        // retain only per-point fields used by output paths; drop the GeoJSON wrappers
+        const props = this.props = new Array(points.length);
+        // original Float64 mercator coords for drift-free single-point output
+        const coords = this.coords = new Float64Array(points.length * 2);
+        let ids = null;
 
         // generate a cluster object for each point and index input points into a KD-tree
         const data = new Int32Array(points.length * stride);
@@ -61,10 +67,20 @@ export default class Supercluster {
             if (!p.geometry) continue;
 
             const [lng, lat] = p.geometry.coordinates;
+            const px = lngX(lng);
+            const py = latY(lat);
+            coords[2 * i] = px;
+            coords[2 * i + 1] = py;
             // store internal point/cluster data in flat typed arrays for performance
-            writeSlot(data, w, encode(lngX(lng)), encode(latY(lat)), notProcessed, i, 1);
+            writeSlot(data, w, encode(px), encode(py), notProcessed, i, 1);
+            props[i] = p.properties;
+            if (p.id !== undefined) {
+                if (!ids) ids = new Array(points.length);
+                ids[i] = p.id;
+            }
             w += stride;
         }
+        this.ids = ids;
         const numInput = w / stride;
         const inputSlab = w === data.length ? data : data.subarray(0, w);
         let prev = inputSlab;
@@ -76,7 +92,7 @@ export default class Supercluster {
         // cluster points on max zoom, then cluster the results on previous zoom, etc.;
         // results in a cluster hierarchy across zoom levels
         for (let z = maxZoom; z >= minZoom; z--) {
-            const now = +Date.now();
+            const now = performance.now();
 
             // allocate a tight Int32 slab for this zoom; output is strictly <= input length
             const out = new Int32Array(prevNum * stride);
@@ -85,7 +101,7 @@ export default class Supercluster {
             prev = out;
             prevNum = written;
 
-            if (log) console.log('z%d: %d clusters in %dms', z, tree.numItems, +Date.now() - now);
+            if (log) console.log(`z${z}: ${tree.numItems} clusters in ${(performance.now() - now).toFixed(2)}ms`);
         }
 
         if (log) console.timeEnd('total time');
@@ -114,7 +130,7 @@ export default class Supercluster {
         const clusters = [];
         for (const id of ids) {
             const k = this.stride * id;
-            clusters.push(data[k + OFFSET_NUM] > 1 ? getClusterJSON(data, k, this.clusterProps) : this.points[data[k + OFFSET_ID]]);
+            clusters.push(data[k + OFFSET_NUM] > 1 ? getClusterJSON(data, k, this.clusterProps) : this._pointJSON(data, k));
         }
         return clusters;
     }
@@ -138,7 +154,7 @@ export default class Supercluster {
         for (const id of ids) {
             const k = id * this.stride;
             if (data[k + OFFSET_PARENT] === clusterId) {
-                children.push(data[k + OFFSET_NUM] > 1 ? getClusterJSON(data, k, this.clusterProps) : this.points[data[k + OFFSET_ID]]);
+                children.push(data[k + OFFSET_NUM] > 1 ? getClusterJSON(data, k, this.clusterProps) : this._pointJSON(data, k));
             }
         }
 
@@ -244,11 +260,10 @@ export default class Supercluster {
                 px = decode(data[k]);
                 py = decode(data[k + 1]);
             } else {
-                const p = this.points[data[k + OFFSET_ID]];
-                tags = p.properties;
-                const [lng, lat] = p.geometry.coordinates;
-                px = lngX(lng);
-                py = latY(lat);
+                const origIndex = data[k + OFFSET_ID];
+                tags = this.props[origIndex];
+                px = this.coords[2 * origIndex];
+                py = this.coords[2 * origIndex + 1];
             }
 
             const f = {
@@ -265,9 +280,9 @@ export default class Supercluster {
             if (isCluster || this.options.generateId) {
                 // optionally generate id for points
                 id = data[k + OFFSET_ID];
-            } else {
+            } else if (this.ids) {
                 // keep id if already assigned
-                id = this.points[data[k + OFFSET_ID]].id;
+                id = this.ids[data[k + OFFSET_ID]];
             }
 
             if (id !== undefined) f.id = id;
@@ -320,7 +335,7 @@ export default class Supercluster {
                 let clusterPropIndex = -1;
 
                 // encode both zoom and point index on which the cluster originated -- offset by total length of features
-                const id = ((i / stride | 0) << 5) + (zoom + 1) + this.points.length;
+                const id = ((i / stride | 0) << 5) + (zoom + 1) + this.numPoints;
 
                 for (let n = 0; n < neighborCount; n++) {
                     const k = neighborIds[n] * stride;
@@ -369,12 +384,26 @@ export default class Supercluster {
 
     // get index of the point from which the cluster originated
     _getOriginId(clusterId) {
-        return (clusterId - this.points.length) >> 5;
+        return (clusterId - this.numPoints) >> 5;
     }
 
     // get zoom of the point from which the cluster originated
     _getOriginZoom(clusterId) {
-        return (clusterId - this.points.length) % 32;
+        return (clusterId - this.numPoints) % 32;
+    }
+
+    _pointJSON(data, k) {
+        const origIndex = data[k + OFFSET_ID];
+        const f = {
+            type: 'Feature',
+            properties: this.props[origIndex],
+            geometry: {
+                type: 'Point',
+                coordinates: [xLng(this.coords[2 * origIndex]), yLat(this.coords[2 * origIndex + 1])]
+            }
+        };
+        if (this.ids && this.ids[origIndex] !== undefined) f.id = this.ids[origIndex];
+        return f;
     }
 
     _map(data, i, clone) {
@@ -382,7 +411,7 @@ export default class Supercluster {
             const props = this.clusterProps[data[i + OFFSET_PROP]];
             return clone ? Object.assign({}, props) : props;
         }
-        const original = this.points[data[i + OFFSET_ID]].properties;
+        const original = this.props[data[i + OFFSET_ID]];
         const result = this.options.map(original);
         return clone && result === original ? Object.assign({}, result) : result;
     }

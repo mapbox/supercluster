@@ -173,6 +173,32 @@ test('makes sure unclustered point coords are not rounded', () => {
     assert.deepEqual(index.getTile(20, 1028744, 656754).features[0].geometry[0], [421, 281]);
 });
 
+test('preserves single-point tile coords at GL JS params (extent 8192, z18)', () => {
+    const index = new Supercluster({extent: 8192, maxZoom: 17}).load(places.features);
+    const z2 = 1 << 18;
+    function lngX(lng) { return lng / 360 + 0.5; }
+    function latY(lat) {
+        const sin = Math.sin(lat * Math.PI / 180);
+        const y = 0.5 - 0.25 * Math.log((1 + sin) / (1 - sin)) / Math.PI;
+        return y < 0 ? 0 : y > 1 ? 1 : y;
+    }
+    let checked = 0;
+    for (const f of places.features) {
+        if (!f.geometry) continue;
+        const [lng, lat] = f.geometry.coordinates;
+        const px = lngX(lng), py = latY(lat);
+        const tx = Math.floor(px * z2), ty = Math.floor(py * z2);
+        const tile = index.getTile(18, tx, ty);
+        if (!tile) continue;
+        const expX = Math.round(8192 * (px * z2 - tx));
+        const expY = Math.round(8192 * (py * z2 - ty));
+        const match = tile.features.find(tf => !tf.tags.cluster && tf.geometry[0][0] === expX && tf.geometry[0][1] === expY);
+        assert.ok(match, `no exact-coord match for [${lng},${lat}] at z18 tile ${tx}/${ty}`);
+        checked++;
+    }
+    assert.ok(checked > 50, `expected to check >50 points, got ${checked}`);
+});
+
 test('does not throw on zero items', () => {
     assert.doesNotThrow(() => {
         const index = new Supercluster().load([]);
