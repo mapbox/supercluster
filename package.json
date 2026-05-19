@@ -34,7 +34,7 @@
   "author": "Vladimir Agafonkin",
   "license": "ISC",
   "dependencies": {
-    "kdbush": "^4.0.2"
+    "kdbush": "^4.1.0"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^16.0.3",
