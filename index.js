@@ -72,7 +72,12 @@ export default class Supercluster {
             coords[2 * i] = px;
             coords[2 * i + 1] = py;
             // store internal point/cluster data in flat typed arrays for performance
-            writeSlot(data, w, encode(px), encode(py), notProcessed, i, 1);
+            data[w] = encode(px);
+            data[w + 1] = encode(py);
+            data[w + OFFSET_ZOOM] = notProcessed;
+            data[w + OFFSET_ID] = i;
+            data[w + OFFSET_PARENT] = -1;
+            data[w + OFFSET_NUM] = 1;
             props[i] = p.properties;
             if (p.id !== undefined) {
                 if (!ids) ids = new Array(points.length);
@@ -81,11 +86,9 @@ export default class Supercluster {
             w += stride;
         }
         this.ids = ids;
-        const numInput = w / stride;
-        const inputSlab = w === data.length ? data : data.subarray(0, w);
-        let prev = inputSlab;
-        let prevNum = numInput;
-        let tree = this.trees[maxZoom + 1] = this._createTree(prev, prevNum);
+        let prev = w === data.length ? data : data.subarray(0, w);
+        let prevNum = w / stride;
+        this.trees[maxZoom + 1] = this._createTree(prev, prevNum);
 
         if (log) console.timeEnd(timerId);
 
@@ -97,7 +100,7 @@ export default class Supercluster {
             // allocate a tight Int32 slab for this zoom; output is strictly <= input length
             const out = new Int32Array(prevNum * stride);
             const written = this._cluster(prev, prevNum, z, out);
-            tree = this.trees[z] = this._createTree(out, written);
+            const tree = this.trees[z] = this._createTree(out, written);
             prev = out;
             prevNum = written;
 
@@ -128,10 +131,7 @@ export default class Supercluster {
         const ids = tree.range(encode(lngX(minLng)), encode(latY(maxLat)), encode(lngX(maxLng)), encode(latY(minLat)));
         const data = tree.data;
         const clusters = [];
-        for (const id of ids) {
-            const k = this.stride * id;
-            clusters.push(data[k + OFFSET_NUM] > 1 ? getClusterJSON(data, k, this.clusterProps) : this._pointJSON(data, k));
-        }
+        for (const id of ids) clusters.push(this._featureJSON(data, this.stride * id));
         return clusters;
     }
 
@@ -153,9 +153,7 @@ export default class Supercluster {
         const children = [];
         for (const id of ids) {
             const k = id * this.stride;
-            if (data[k + OFFSET_PARENT] === clusterId) {
-                children.push(data[k + OFFSET_NUM] > 1 ? getClusterJSON(data, k, this.clusterProps) : this._pointJSON(data, k));
-            }
+            if (data[k + OFFSET_PARENT] === clusterId) children.push(this._featureJSON(data, k));
         }
 
         if (children.length === 0) throw new Error(errorMsg);
@@ -275,16 +273,10 @@ export default class Supercluster {
                 tags
             };
 
-            // assign id
-            let id;
-            if (isCluster || this.options.generateId) {
-                // optionally generate id for points
-                id = data[k + OFFSET_ID];
-            } else if (this.ids) {
-                // keep id if already assigned
-                id = this.ids[data[k + OFFSET_ID]];
-            }
-
+            // assign id: cluster id, generated point id, or original input id
+            const origIndex = data[k + OFFSET_ID];
+            const id = isCluster || this.options.generateId ? origIndex :
+                this.ids ? this.ids[origIndex] : undefined;
             if (id !== undefined) f.id = id;
 
             tile.features.push(f);
@@ -360,7 +352,13 @@ export default class Supercluster {
                 }
 
                 data[i + OFFSET_PARENT] = id;
-                writeSlot(out, cursor, wx / numPoints, wy / numPoints, notProcessed, id, numPoints, reduce ? clusterPropIndex : undefined);
+                out[cursor] = wx / numPoints;
+                out[cursor + 1] = wy / numPoints;
+                out[cursor + OFFSET_ZOOM] = notProcessed;
+                out[cursor + OFFSET_ID] = id;
+                out[cursor + OFFSET_PARENT] = -1;
+                out[cursor + OFFSET_NUM] = numPoints;
+                if (reduce) out[cursor + OFFSET_PROP] = clusterPropIndex;
                 cursor += stride;
 
             } else { // left points as unclustered
@@ -392,17 +390,16 @@ export default class Supercluster {
         return (clusterId - this.numPoints) % 32;
     }
 
-    _pointJSON(data, k) {
-        const origIndex = data[k + OFFSET_ID];
-        const f = {
-            type: 'Feature',
-            properties: this.props[origIndex],
-            geometry: {
-                type: 'Point',
-                coordinates: [xLng(this.coords[2 * origIndex]), yLat(this.coords[2 * origIndex + 1])]
-            }
-        };
-        if (this.ids && this.ids[origIndex] !== undefined) f.id = this.ids[origIndex];
+    _featureJSON(data, k) {
+        const i = data[k + OFFSET_ID];
+        const isCluster = data[k + OFFSET_NUM] > 1;
+        const id = isCluster ? i : this.ids ? this.ids[i] : undefined;
+        const properties = isCluster ? getClusterProperties(data, k, this.clusterProps) : this.props[i];
+        const coordinates = isCluster ?
+            [xLng(decode(data[k])), yLat(decode(data[k + 1]))] :
+            [xLng(this.coords[2 * i]), yLat(this.coords[2 * i + 1])];
+        const f = {type: 'Feature', properties, geometry: {type: 'Point', coordinates}};
+        if (id !== undefined) f.id = id;
         return f;
     }
 
@@ -415,29 +412,6 @@ export default class Supercluster {
         const result = this.options.map(original);
         return clone && result === original ? Object.assign({}, result) : result;
     }
-}
-
-// write one stride-tuple (cluster or input point) into a typed slab
-function writeSlot(data, k, x, y, zoom, id, num, propIndex) {
-    data[k]     = x;
-    data[k + 1] = y;
-    data[k + 2] = zoom;
-    data[k + 3] = id;
-    data[k + 4] = -1; // parent cluster id
-    data[k + 5] = num;
-    if (propIndex !== undefined) data[k + 6] = propIndex;
-}
-
-function getClusterJSON(data, i, clusterProps) {
-    return {
-        type: 'Feature',
-        id: data[i + OFFSET_ID],
-        properties: getClusterProperties(data, i, clusterProps),
-        geometry: {
-            type: 'Point',
-            coordinates: [xLng(decode(data[i])), yLat(decode(data[i + 1]))]
-        }
-    };
 }
 
 function getClusterProperties(data, i, clusterProps) {
