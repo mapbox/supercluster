@@ -94,17 +94,31 @@ export default class Supercluster {
 
         // cluster points on max zoom, then cluster the results on previous zoom, etc.;
         // results in a cluster hierarchy across zoom levels
+        let recycled = null;
         for (let z = maxZoom; z >= minZoom; z--) {
             const now = performance.now();
 
-            // allocate a tight Int32 slab for this zoom; output is strictly <= input length
-            const out = new Int32Array(prevNum * stride);
+            // allocate a tight Int32 slab for this zoom; output is strictly <= input length.
+            // on a plateau zoom prev/prevNum don't advance, so the slab is the right size
+            // for the next iteration too — carry it forward instead of re-allocating.
+            const out = recycled || new Int32Array(prevNum * stride);
+            recycled = null;
             const written = this._cluster(prev, prevNum, z, out);
-            const tree = this.trees[z] = this._createTree(out, written);
-            prev = out;
-            prevNum = written;
 
-            if (log) console.log(`z${z}: ${tree.numItems} clusters in ${(performance.now() - now).toFixed(2)}ms`);
+            if (written === prevNum) {
+                // No clusters formed: output coords are bit-identical to input. Reuse the
+                // parent tree (same coords, same order) and recycle the out slab — its
+                // only differences vs prev are OFFSET_ZOOM mutations that query paths
+                // don't read, and _cluster overwrites every slot it uses on next call.
+                this.trees[z] = this.trees[z + 1];
+                recycled = out;
+            } else {
+                this.trees[z] = this._createTree(out, written);
+                prev = out;
+                prevNum = written;
+            }
+
+            if (log) console.log(`z${z}: ${this.trees[z].numItems} clusters in ${(performance.now() - now).toFixed(2)}ms`);
         }
 
         if (log) console.timeEnd('total time');
