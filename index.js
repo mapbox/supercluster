@@ -282,11 +282,12 @@ export default class Supercluster {
 
     _cluster(data, numItems, zoom, out) {
         const {radius, extent, reduce, minPoints, maxZoom} = this.options;
-        const r = radius / (extent * Math.pow(2, zoom)) * SCALE;
+        const r = radius / (extent * (1 << zoom)) * SCALE;
         const notProcessed = maxZoom + 1;
         const tree = this.trees[zoom + 1];
         const stride = this.stride;
         const limit = numItems * stride;
+        const neighborIds = new Uint32Array(numItems);
         let cursor = 0;
 
         // loop through each point
@@ -298,14 +299,14 @@ export default class Supercluster {
             // find all nearby points
             const x = data[i];
             const y = data[i + 1];
-            const neighborIds = tree.within(x, y, r);
+            const neighborCount = tree.withinInto(x, y, r, neighborIds);
 
             const numPointsOrigin = data[i + OFFSET_NUM];
             let numPoints = numPointsOrigin;
 
             // count the number of points in a potential cluster
-            for (const neighborId of neighborIds) {
-                const k = neighborId * stride;
+            for (let n = 0; n < neighborCount; n++) {
+                const k = neighborIds[n] * stride;
                 // filter out neighbors that are already processed
                 if (data[k + OFFSET_ZOOM] > zoom) numPoints += data[k + OFFSET_NUM];
             }
@@ -321,8 +322,8 @@ export default class Supercluster {
                 // encode both zoom and point index on which the cluster originated -- offset by total length of features
                 const id = ((i / stride | 0) << 5) + (zoom + 1) + this.points.length;
 
-                for (const neighborId of neighborIds) {
-                    const k = neighborId * stride;
+                for (let n = 0; n < neighborCount; n++) {
+                    const k = neighborIds[n] * stride;
 
                     if (data[k + OFFSET_ZOOM] <= zoom) continue;
                     data[k + OFFSET_ZOOM] = zoom; // save the zoom (so it doesn't get processed twice)
@@ -352,8 +353,8 @@ export default class Supercluster {
                 cursor += stride;
 
                 if (numPoints > 1) {
-                    for (const neighborId of neighborIds) {
-                        const k = neighborId * stride;
+                    for (let n = 0; n < neighborCount; n++) {
+                        const k = neighborIds[n] * stride;
                         if (data[k + OFFSET_ZOOM] <= zoom) continue;
                         data[k + OFFSET_ZOOM] = zoom;
                         for (let j = 0; j < stride; j++) out[cursor + j] = data[k + j];
