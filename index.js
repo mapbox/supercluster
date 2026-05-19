@@ -20,9 +20,9 @@ const defaultOptions = {
     map: props => props // props => ({sum: props.my_value})
 };
 
-// Int32 encoding of source coords in [0, 1]: (coord - 0.5) * SCALE in [-2^30, 2^30].
-// Keeps every stored value inside V8's 31-bit SMI fast path.
-const SCALE = 0x80000000; // 2^31
+// Int32 encoding of source coords in [0, 1]: (coord - 0.5) * SCALE in [-2^29, 2^29].
+// Keeps every stored value AND sqDist subtractions inside V8's 31-bit SMI fast path.
+const SCALE = 0x40000000; // 2^30
 const INV_SCALE = 1 / SCALE;
 const encode = c => (c - 0.5) * SCALE;
 const decode = v => v * INV_SCALE + 0.5;
@@ -79,7 +79,7 @@ export default class Supercluster {
             const now = +Date.now();
 
             // allocate a tight Int32 slab for this zoom; output is strictly <= input length
-            const out = new Int32Array(prev.length);
+            const out = new Int32Array(prevNum * stride);
             const written = this._cluster(prev, prevNum, z, out);
             tree = this.trees[z] = this._createTree(out, written);
             prev = out;
