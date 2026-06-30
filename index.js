@@ -20,7 +20,12 @@ const defaultOptions = {
     map: props => props // props => ({sum: props.my_value})
 };
 
-const fround = Math.fround || (tmp => ((x) => { tmp[0] = +x; return tmp[0]; }))(new Float32Array(1));
+// Int32 encoding of source coords in [0, 1]: (coord - 0.5) * SCALE in [-2^29, 2^29].
+// Keeps every stored value AND sqDist subtractions inside V8's 31-bit SMI fast path.
+const SCALE = 0x40000000; // 2^30
+const INV_SCALE = 1 / SCALE;
+const encode = c => (c - 0.5) * SCALE;
+const decode = v => v * INV_SCALE + 0.5;
 
 const OFFSET_ZOOM = 2;
 const OFFSET_ID = 3;
@@ -41,44 +46,79 @@ export default class Supercluster {
 
         if (log) console.time('total time');
 
-        const timerId = `prepare ${  points.length  } points`;
+        const notProcessed = maxZoom + 1; // sentinel for "not yet processed at any zoom"
+        const timerId = `z${notProcessed}: ${points.length} points`;
         if (log) console.time(timerId);
 
-        this.points = points;
+        this.numPoints = points.length;
+        const stride = this.stride;
+
+        // retain only per-point fields used by output paths; drop the GeoJSON wrappers
+        const props = this.props = new Array(points.length);
+        // original Float64 mercator coords for drift-free single-point output
+        const coords = this.coords = new Float64Array(points.length * 2);
+        let ids = null;
 
         // generate a cluster object for each point and index input points into a KD-tree
-        const data = [];
-
+        const data = new Int32Array(points.length * stride);
+        let w = 0;
         for (let i = 0; i < points.length; i++) {
             const p = points[i];
             if (!p.geometry) continue;
 
             const [lng, lat] = p.geometry.coordinates;
-            const x = fround(lngX(lng));
-            const y = fround(latY(lat));
-            // store internal point/cluster data in flat numeric arrays for performance
-            data.push(
-                x, y, // projected point coordinates
-                Infinity, // the last zoom the point was processed at
-                i, // index of the source feature in the original input array
-                -1, // parent cluster id
-                1 // number of points in a cluster
-            );
-            if (this.options.reduce) data.push(0); // noop
+            const px = lngX(lng);
+            const py = latY(lat);
+            coords[2 * i] = px;
+            coords[2 * i + 1] = py;
+            // store internal point/cluster data in flat typed arrays for performance
+            data[w] = encode(px);
+            data[w + 1] = encode(py);
+            data[w + OFFSET_ZOOM] = notProcessed;
+            data[w + OFFSET_ID] = i;
+            data[w + OFFSET_PARENT] = -1;
+            data[w + OFFSET_NUM] = 1;
+            props[i] = p.properties;
+            if (p.id !== undefined) {
+                if (!ids) ids = new Array(points.length);
+                ids[i] = p.id;
+            }
+            w += stride;
         }
-        let tree = this.trees[maxZoom + 1] = this._createTree(data);
+        this.ids = ids;
+        let prev = w === data.length ? data : data.subarray(0, w);
+        let prevNum = w / stride;
+        this.trees[maxZoom + 1] = this._createTree(prev, prevNum);
 
         if (log) console.timeEnd(timerId);
 
         // cluster points on max zoom, then cluster the results on previous zoom, etc.;
         // results in a cluster hierarchy across zoom levels
+        let recycled = null;
         for (let z = maxZoom; z >= minZoom; z--) {
-            const now = +Date.now();
+            const now = performance.now();
 
-            // create a new set of clusters for the zoom and index them with a KD-tree
-            tree = this.trees[z] = this._createTree(this._cluster(tree, z));
+            // allocate a tight Int32 slab for this zoom; output is strictly <= input length.
+            // on a plateau zoom prev/prevNum don't advance, so the slab is the right size
+            // for the next iteration too — carry it forward instead of re-allocating.
+            const out = recycled || new Int32Array(prevNum * stride);
+            recycled = null;
+            const written = this._cluster(prev, prevNum, z, out);
 
-            if (log) console.log('z%d: %d clusters in %dms', z, tree.numItems, +Date.now() - now);
+            if (written === prevNum) {
+                // No clusters formed: output coords are bit-identical to input. Reuse the
+                // parent tree (same coords, same order) and recycle the out slab — its
+                // only differences vs prev are OFFSET_ZOOM mutations that query paths
+                // don't read, and _cluster overwrites every slot it uses on next call.
+                this.trees[z] = this.trees[z + 1];
+                recycled = out;
+            } else {
+                this.trees[z] = this._createTree(out, written);
+                prev = out;
+                prevNum = written;
+            }
+
+            if (log) console.log(`z${z}: ${this.trees[z].numItems} clusters in ${(performance.now() - now).toFixed(2)}ms`);
         }
 
         if (log) console.timeEnd('total time');
@@ -102,13 +142,10 @@ export default class Supercluster {
         }
 
         const tree = this.trees[this._limitZoom(zoom)];
-        const ids = tree.range(lngX(minLng), latY(maxLat), lngX(maxLng), latY(minLat));
+        const ids = tree.range(encode(lngX(minLng)), encode(latY(maxLat)), encode(lngX(maxLng)), encode(latY(minLat)));
         const data = tree.data;
         const clusters = [];
-        for (const id of ids) {
-            const k = this.stride * id;
-            clusters.push(data[k + OFFSET_NUM] > 1 ? getClusterJSON(data, k, this.clusterProps) : this.points[data[k + OFFSET_ID]]);
-        }
+        for (const id of ids) clusters.push(this._featureJSON(data, this.stride * id));
         return clusters;
     }
 
@@ -121,18 +158,16 @@ export default class Supercluster {
         if (!tree) throw new Error(errorMsg);
 
         const data = tree.data;
-        if (originId * this.stride >= data.length) throw new Error(errorMsg);
+        if (originId >= tree.numItems) throw new Error(errorMsg);
 
         const r = this.options.radius / (this.options.extent * Math.pow(2, originZoom - 1));
         const x = data[originId * this.stride];
         const y = data[originId * this.stride + 1];
-        const ids = tree.within(x, y, r);
+        const ids = tree.within(x, y, r * SCALE);
         const children = [];
         for (const id of ids) {
             const k = id * this.stride;
-            if (data[k + OFFSET_PARENT] === clusterId) {
-                children.push(data[k + OFFSET_NUM] > 1 ? getClusterJSON(data, k, this.clusterProps) : this.points[data[k + OFFSET_ID]]);
-            }
+            if (data[k + OFFSET_PARENT] === clusterId) children.push(this._featureJSON(data, k));
         }
 
         if (children.length === 0) throw new Error(errorMsg);
@@ -155,25 +190,23 @@ export default class Supercluster {
         const z2 = Math.pow(2, z);
         const {extent, radius} = this.options;
         const p = radius / extent;
-        const top = (y - p) / z2;
-        const bottom = (y + 1 + p) / z2;
+        const top = encode((y - p) / z2);
+        const bottom = encode((y + 1 + p) / z2);
 
-        const tile = {
-            features: []
-        };
+        const tile = {features: []};
 
         this._addTileFeatures(
-            tree.range((x - p) / z2, top, (x + 1 + p) / z2, bottom),
+            tree.range(encode((x - p) / z2), top, encode((x + 1 + p) / z2), bottom),
             tree.data, x, y, z2, tile);
 
         if (x === 0) {
             this._addTileFeatures(
-                tree.range(1 - p / z2, top, 1, bottom),
+                tree.range(encode(1 - p / z2), top, encode(1), bottom),
                 tree.data, z2, y, z2, tile);
         }
         if (x === z2 - 1) {
             this._addTileFeatures(
-                tree.range(0, top, p / z2, bottom),
+                tree.range(encode(0), top, encode(p / z2), bottom),
                 tree.data, -1, y, z2, tile);
         }
 
@@ -219,9 +252,10 @@ export default class Supercluster {
         return skipped;
     }
 
-    _createTree(data) {
-        const tree = new KDBush(data.length / this.stride | 0, this.options.nodeSize, Float32Array);
-        for (let i = 0; i < data.length; i += this.stride) tree.add(data[i], data[i + 1]);
+    _createTree(data, numItems) {
+        const tree = new KDBush(numItems, this.options.nodeSize, Int32Array);
+        const stride = this.stride;
+        for (let i = 0; i < numItems; i++) tree.add(data[i * stride], data[i * stride + 1]);
         tree.finish();
         tree.data = data;
         return tree;
@@ -235,14 +269,13 @@ export default class Supercluster {
             let tags, px, py;
             if (isCluster) {
                 tags = getClusterProperties(data, k, this.clusterProps);
-                px = data[k];
-                py = data[k + 1];
+                px = decode(data[k]);
+                py = decode(data[k + 1]);
             } else {
-                const p = this.points[data[k + OFFSET_ID]];
-                tags = p.properties;
-                const [lng, lat] = p.geometry.coordinates;
-                px = lngX(lng);
-                py = latY(lat);
+                const origIndex = data[k + OFFSET_ID];
+                tags = this.props[origIndex];
+                px = this.coords[2 * origIndex];
+                py = this.coords[2 * origIndex + 1];
             }
 
             const f = {
@@ -254,16 +287,10 @@ export default class Supercluster {
                 tags
             };
 
-            // assign id
-            let id;
-            if (isCluster || this.options.generateId) {
-                // optionally generate id for points
-                id = data[k + OFFSET_ID];
-            } else {
-                // keep id if already assigned
-                id = this.points[data[k + OFFSET_ID]].id;
-            }
-
+            // assign id: cluster id, generated point id, or original input id
+            const origIndex = data[k + OFFSET_ID];
+            const id = isCluster || this.options.generateId ? origIndex :
+                this.ids ? this.ids[origIndex] : undefined;
             if (id !== undefined) f.id = id;
 
             tile.features.push(f);
@@ -274,15 +301,18 @@ export default class Supercluster {
         return Math.max(this.options.minZoom, Math.min(Math.floor(+z), this.options.maxZoom + 1));
     }
 
-    _cluster(tree, zoom) {
-        const {radius, extent, reduce, minPoints} = this.options;
-        const r = radius / (extent * Math.pow(2, zoom));
-        const data = tree.data;
-        const nextData = [];
+    _cluster(data, numItems, zoom, out) {
+        const {radius, extent, reduce, minPoints, maxZoom} = this.options;
+        const r = radius / (extent * (1 << zoom)) * SCALE;
+        const notProcessed = maxZoom + 1;
+        const tree = this.trees[zoom + 1];
         const stride = this.stride;
+        const limit = numItems * stride;
+        const neighborIds = new Uint32Array(numItems);
+        let cursor = 0;
 
         // loop through each point
-        for (let i = 0; i < data.length; i += stride) {
+        for (let i = 0; i < limit; i += stride) {
             // if we've already visited the point at this zoom level, skip it
             if (data[i + OFFSET_ZOOM] <= zoom) continue;
             data[i + OFFSET_ZOOM] = zoom;
@@ -290,14 +320,14 @@ export default class Supercluster {
             // find all nearby points
             const x = data[i];
             const y = data[i + 1];
-            const neighborIds = tree.within(data[i], data[i + 1], r);
+            const neighborCount = tree.withinInto(x, y, r, neighborIds);
 
             const numPointsOrigin = data[i + OFFSET_NUM];
             let numPoints = numPointsOrigin;
 
             // count the number of points in a potential cluster
-            for (const neighborId of neighborIds) {
-                const k = neighborId * stride;
+            for (let n = 0; n < neighborCount; n++) {
+                const k = neighborIds[n] * stride;
                 // filter out neighbors that are already processed
                 if (data[k + OFFSET_ZOOM] > zoom) numPoints += data[k + OFFSET_NUM];
             }
@@ -311,10 +341,10 @@ export default class Supercluster {
                 let clusterPropIndex = -1;
 
                 // encode both zoom and point index on which the cluster originated -- offset by total length of features
-                const id = ((i / stride | 0) << 5) + (zoom + 1) + this.points.length;
+                const id = ((i / stride | 0) << 5) + (zoom + 1) + this.numPoints;
 
-                for (const neighborId of neighborIds) {
-                    const k = neighborId * stride;
+                for (let n = 0; n < neighborCount; n++) {
+                    const k = neighborIds[n] * stride;
 
                     if (data[k + OFFSET_ZOOM] <= zoom) continue;
                     data[k + OFFSET_ZOOM] = zoom; // save the zoom (so it doesn't get processed twice)
@@ -336,34 +366,55 @@ export default class Supercluster {
                 }
 
                 data[i + OFFSET_PARENT] = id;
-                nextData.push(wx / numPoints, wy / numPoints, Infinity, id, -1, numPoints);
-                if (reduce) nextData.push(clusterPropIndex);
+                out[cursor] = wx / numPoints;
+                out[cursor + 1] = wy / numPoints;
+                out[cursor + OFFSET_ZOOM] = notProcessed;
+                out[cursor + OFFSET_ID] = id;
+                out[cursor + OFFSET_PARENT] = -1;
+                out[cursor + OFFSET_NUM] = numPoints;
+                if (reduce) out[cursor + OFFSET_PROP] = clusterPropIndex;
+                cursor += stride;
 
             } else { // left points as unclustered
-                for (let j = 0; j < stride; j++) nextData.push(data[i + j]);
+                for (let j = 0; j < stride; j++) out[cursor + j] = data[i + j];
+                cursor += stride;
 
                 if (numPoints > 1) {
-                    for (const neighborId of neighborIds) {
-                        const k = neighborId * stride;
+                    for (let n = 0; n < neighborCount; n++) {
+                        const k = neighborIds[n] * stride;
                         if (data[k + OFFSET_ZOOM] <= zoom) continue;
                         data[k + OFFSET_ZOOM] = zoom;
-                        for (let j = 0; j < stride; j++) nextData.push(data[k + j]);
+                        for (let j = 0; j < stride; j++) out[cursor + j] = data[k + j];
+                        cursor += stride;
                     }
                 }
             }
         }
 
-        return nextData;
+        return cursor / stride;
     }
 
     // get index of the point from which the cluster originated
     _getOriginId(clusterId) {
-        return (clusterId - this.points.length) >> 5;
+        return (clusterId - this.numPoints) >> 5;
     }
 
     // get zoom of the point from which the cluster originated
     _getOriginZoom(clusterId) {
-        return (clusterId - this.points.length) % 32;
+        return (clusterId - this.numPoints) % 32;
+    }
+
+    _featureJSON(data, k) {
+        const i = data[k + OFFSET_ID];
+        const isCluster = data[k + OFFSET_NUM] > 1;
+        const id = isCluster ? i : this.ids ? this.ids[i] : undefined;
+        const properties = isCluster ? getClusterProperties(data, k, this.clusterProps) : this.props[i];
+        const coordinates = isCluster ?
+            [xLng(decode(data[k])), yLat(decode(data[k + 1]))] :
+            [xLng(this.coords[2 * i]), yLat(this.coords[2 * i + 1])];
+        const f = {type: 'Feature', properties, geometry: {type: 'Point', coordinates}};
+        if (id !== undefined) f.id = id;
+        return f;
     }
 
     _map(data, i, clone) {
@@ -371,22 +422,10 @@ export default class Supercluster {
             const props = this.clusterProps[data[i + OFFSET_PROP]];
             return clone ? Object.assign({}, props) : props;
         }
-        const original = this.points[data[i + OFFSET_ID]].properties;
+        const original = this.props[data[i + OFFSET_ID]];
         const result = this.options.map(original);
         return clone && result === original ? Object.assign({}, result) : result;
     }
-}
-
-function getClusterJSON(data, i, clusterProps) {
-    return {
-        type: 'Feature',
-        id: data[i + OFFSET_ID],
-        properties: getClusterProperties(data, i, clusterProps),
-        geometry: {
-            type: 'Point',
-            coordinates: [xLng(data[i]), yLat(data[i + 1])]
-        }
-    };
 }
 
 function getClusterProperties(data, i, clusterProps) {
