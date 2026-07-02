@@ -179,3 +179,15 @@ test('does not throw on zero items', () => {
         assert.deepEqual(index.getClusters([-180, -85, 180, 85], 0), []);
     });
 });
+
+test('returns points that lie exactly on the query bbox edge', () => {
+    const index = new Supercluster().load([
+        {type: 'Feature', properties: {name: 'a'}, geometry: {type: 'Point', coordinates: [-123.211605, 43.972615]}},
+        {type: 'Feature', properties: {name: 'b'}, geometry: {type: 'Point', coordinates: [-123.245515, 43.9150233333333]}},
+        {type: 'Feature', properties: {name: 'c'}, geometry: {type: 'Point', coordinates: [-123.192528333333, 44.0307166666667]}},
+        {type: 'Feature', properties: {name: 'd'}, geometry: {type: 'Point', coordinates: [-123.194573333333, 44.0107]}}
+    ]);
+    const bbox = [-123.245515, 43.9150233333333, -123.192528333333, 44.0307166666667];
+    const names = index.getClusters(bbox, 16).map(p => p.properties.name).sort();
+    assert.deepEqual(names, ['a', 'b', 'c', 'd']);
+});

@@ -102,7 +102,7 @@ export default class Supercluster {
         }
 
         const tree = this.trees[this._limitZoom(zoom)];
-        const ids = tree.range(lngX(minLng), latY(maxLat), lngX(maxLng), latY(minLat));
+        const ids = tree.range(fround(lngX(minLng)), fround(latY(maxLat)), fround(lngX(maxLng)), fround(latY(minLat)));
         const data = tree.data;
         const clusters = [];
         for (const id of ids) {
