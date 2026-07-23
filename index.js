@@ -34,6 +34,9 @@ export default class Supercluster {
         this.trees = new Array(this.options.maxZoom + 1);
         this.stride = this.options.reduce ? 7 : 6;
         this.clusterProps = [];
+        // Reserve enough bits of the cluster id for the origin zoom so that a
+        // maxZoom of 31 or more does not overflow into the origin-index bits.
+        this.zoomBase = 2 ** Math.max(5, Math.ceil(Math.log2(this.options.maxZoom + 2)));
     }
 
     load(points) {
@@ -311,7 +314,7 @@ export default class Supercluster {
                 let clusterPropIndex = -1;
 
                 // encode both zoom and point index on which the cluster originated -- offset by total length of features
-                const id = ((i / stride | 0) << 5) + (zoom + 1) + this.points.length;
+                const id = (i / stride | 0) * this.zoomBase + (zoom + 1) + this.points.length;
 
                 for (const neighborId of neighborIds) {
                     const k = neighborId * stride;
@@ -358,12 +361,12 @@ export default class Supercluster {
 
     // get index of the point from which the cluster originated
     _getOriginId(clusterId) {
-        return (clusterId - this.points.length) >> 5;
+        return Math.floor((clusterId - this.points.length) / this.zoomBase);
     }
 
     // get zoom of the point from which the cluster originated
     _getOriginZoom(clusterId) {
-        return (clusterId - this.points.length) % 32;
+        return (clusterId - this.points.length) % this.zoomBase;
     }
 
     _map(data, i, clone) {

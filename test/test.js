@@ -82,6 +82,24 @@ test('returns cluster expansion zoom for maxZoom', () => {
     assert.deepEqual(index.getClusterExpansionZoom(2504), 5);
 });
 
+test('handles a maxZoom of 31 or more without corrupting cluster ids', () => {
+    const point = (lng, lat, name) => ({
+        type: 'Feature',
+        properties: {name},
+        geometry: {type: 'Point', coordinates: [lng, lat]},
+    });
+
+    for (const maxZoom of [31, 32, 40]) {
+        const index = new Supercluster({maxZoom}).load([point(10, 50, 'a'), point(10, 50, 'b')]);
+        const clusterId = index.getClusters([-180, -90, 180, 90], 0)
+            .find(f => f.properties.cluster).properties.cluster_id;
+
+        assert.deepEqual(index.getLeaves(clusterId).map(f => f.properties.name).sort(), ['a', 'b']);
+        assert.deepEqual(index.getChildren(clusterId).map(f => f.properties.name).sort(), ['a', 'b']);
+        assert.equal(index.getClusterExpansionZoom(clusterId), maxZoom + 1);
+    }
+});
+
 test('aggregates cluster properties with reduce', () => {
     const index = new Supercluster({
         map: props => ({sum: props.scalerank}),
