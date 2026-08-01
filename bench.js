@@ -50,6 +50,7 @@ const baseline = snap();
 const prof = new v8.GCProfiler();
 prof.start();
 const idx = new Supercluster(OPTS).load(points);
+// eslint-disable-next-line no-useless-assignment
 points = null;
 const stats = prof.stop().statistics;
 const ext = process.memoryUsage().external;
