@@ -78,10 +78,11 @@ export default class Supercluster {
                 i++;
                 continue;
             }
+            const cs = g.coordinates;
             const multi = g.type === 'MultiPoint';
 
-            for (let c = 0, n = multi ? g.coordinates.length : 1; c < n; c++, i++) {
-                const [lng, lat] = multi ? g.coordinates[c] : g.coordinates;
+            for (let c = 0, n = multi ? cs.length : 1; c < n; c++, i++) {
+                const [lng, lat] = multi ? cs[c] : cs;
                 const px = lngX(lng);
                 const py = latY(lat);
                 coords[2 * i] = px;
