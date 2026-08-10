@@ -35,9 +35,11 @@ const OFFSET_PROP = 6;
 
 export default class Supercluster {
     constructor(options) {
-        this.options = Object.assign(Object.create(defaultOptions), options);
-        this.trees = new Array(this.options.maxZoom + 1);
-        this.stride = this.options.reduce ? 7 : 6;
+        const opts = this.options = Object.assign(Object.create(defaultOptions), options);
+        opts.maxZoom = Math.min(opts.maxZoom, 30);
+        opts.minZoom = Math.min(opts.minZoom, opts.maxZoom);
+        this.trees = new Array(opts.maxZoom + 1);
+        this.stride = opts.reduce ? 7 : 6;
         this.clusterProps = [];
     }
 
