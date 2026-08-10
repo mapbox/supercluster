@@ -199,6 +199,29 @@ test('preserves single-point tile coords at GL JS params (extent 8192, z18)', ()
     assert.ok(checked > 50, `expected to check >50 points, got ${checked}`);
 });
 
+test('expands MultiPoint features into individual points', () => {
+    const index = new Supercluster().load([{
+        type: 'Feature',
+        id: 'mp',
+        properties: {a: 1},
+        geometry: {type: 'MultiPoint', coordinates: [[0, 0], [0.001, 0.001], [50, 50]]}
+    }, {
+        type: 'Feature',
+        properties: {b: 2},
+        geometry: {type: 'Point', coordinates: [0, 0]}
+    }]);
+
+    const clusters = index.getClusters([-180, -85, 180, 85], 5);
+    assert.equal(clusters.length, 2);
+    assert.equal(clusters[0].properties.point_count, 3);
+    assert.deepEqual(clusters[1].geometry.coordinates, [49.999999999999986, 50]);
+    assert.deepEqual(clusters[1].properties, {a: 1});
+    assert.equal(clusters[1].id, 'mp');
+
+    const leaves = index.getLeaves(clusters[0].properties.cluster_id);
+    assert.deepEqual(leaves.map(l => l.properties), [{a: 1}, {b: 2}, {a: 1}]);
+});
+
 test('does not throw on zero items', () => {
     assert.doesNotThrow(() => {
         const index = new Supercluster().load([]);

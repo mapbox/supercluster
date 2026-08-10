@@ -37,7 +37,7 @@ Or use it with an ordinary script tag in the browser:
 
 #### `load(points)`
 
-Loads an array of [GeoJSON Feature](https://tools.ietf.org/html/rfc7946#section-3.2) objects. Each feature's `geometry` must be a [GeoJSON Point](https://tools.ietf.org/html/rfc7946#section-3.1.2). Once loaded, index is immutable.
+Loads an array of [GeoJSON Feature](https://tools.ietf.org/html/rfc7946#section-3.2) objects. Each feature's `geometry` must be a [GeoJSON Point](https://tools.ietf.org/html/rfc7946#section-3.1.2) or [MultiPoint](https://tools.ietf.org/html/rfc7946#section-3.1.3) — a MultiPoint is clustered as an individual point per coordinate, each inheriting the feature's `properties` and `id`. Once loaded, index is immutable.
 
 #### `getClusters(bbox, zoom)`
 
