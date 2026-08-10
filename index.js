@@ -52,40 +52,54 @@ export default class Supercluster {
         const timerId = `z${notProcessed}: ${points.length} points`;
         if (log) console.time(timerId);
 
-        this.numPoints = points.length;
         const stride = this.stride;
 
+        // MultiPoint features expand into one internal point per coordinate, so count first
+        let numPoints = points.length;
+        for (const p of points) {
+            const g = p.geometry;
+            if (g && g.type === 'MultiPoint') numPoints += g.coordinates.length - 1;
+        }
+        this.numPoints = numPoints;
+
         // retain only per-point fields used by output paths; drop the GeoJSON wrappers
-        const props = this.props = new Array(points.length);
+        const props = this.props = new Array(numPoints);
         // original Float64 mercator coords for drift-free single-point output
-        const coords = this.coords = new Float64Array(points.length * 2);
+        const coords = this.coords = new Float64Array(numPoints * 2);
         let ids = null;
 
         // generate a cluster object for each point and index input points into a KD-tree
-        const data = new Int32Array(points.length * stride);
+        const data = new Int32Array(numPoints * stride);
         let w = 0;
-        for (let i = 0; i < points.length; i++) {
-            const p = points[i];
-            if (!p.geometry) continue;
-
-            const [lng, lat] = p.geometry.coordinates;
-            const px = lngX(lng);
-            const py = latY(lat);
-            coords[2 * i] = px;
-            coords[2 * i + 1] = py;
-            // store internal point/cluster data in flat typed arrays for performance
-            data[w] = encode(px);
-            data[w + 1] = encode(py);
-            data[w + OFFSET_ZOOM] = notProcessed;
-            data[w + OFFSET_ID] = i;
-            data[w + OFFSET_PARENT] = -1;
-            data[w + OFFSET_NUM] = 1;
-            props[i] = p.properties;
-            if (p.id !== undefined) {
-                if (!ids) ids = new Array(points.length);
-                ids[i] = p.id;
+        let i = 0; // index of the individual point (multiple per MultiPoint feature)
+        for (const p of points) {
+            const g = p.geometry;
+            if (!g) { // keep the slot so point indices stay aligned with input features
+                i++;
+                continue;
             }
-            w += stride;
+            const multi = g.type === 'MultiPoint';
+
+            for (let c = 0, n = multi ? g.coordinates.length : 1; c < n; c++, i++) {
+                const [lng, lat] = multi ? g.coordinates[c] : g.coordinates;
+                const px = lngX(lng);
+                const py = latY(lat);
+                coords[2 * i] = px;
+                coords[2 * i + 1] = py;
+                // store internal point/cluster data in flat typed arrays for performance
+                data[w] = encode(px);
+                data[w + 1] = encode(py);
+                data[w + OFFSET_ZOOM] = notProcessed;
+                data[w + OFFSET_ID] = i;
+                data[w + OFFSET_PARENT] = -1;
+                data[w + OFFSET_NUM] = 1;
+                props[i] = p.properties;
+                if (p.id !== undefined) {
+                    if (!ids) ids = new Array(numPoints);
+                    ids[i] = p.id;
+                }
+                w += stride;
+            }
         }
         this.ids = ids;
         let prev = w === data.length ? data : data.subarray(0, w);
