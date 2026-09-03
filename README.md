@@ -103,10 +103,12 @@ The `map`/`reduce` options must satisfy these conditions to work correctly:
 
 ## TypeScript
 
-Install `@types/supercluster` for the TypeScript type definitions:
+Type declarations ship with the library; remove `@types/supercluster` if you have it. The types those
+declarations exposed as namespace members are now named exports:
 
-```
-npm install @types/supercluster --save-dev 
+```ts
+import Supercluster from 'supercluster';
+import type {Options, PointFeature, ClusterFeature, Tile, RawTile} from 'supercluster';
 ```
 
 ## Developing Supercluster

@@ -36,12 +36,12 @@
   "author": "Vladimir Agafonkin",
   "license": "ISC",
   "dependencies": {
+    "@types/geojson": "^7946.0.16",
     "kdbush": "^4.1.0"
   },
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^16.0.3",
     "@rollup/plugin-terser": "^1.0.0",
-    "@types/geojson": "^7946.0.16",
     "eslint": "^10.8.0",
     "eslint-config-mourner": "^5.0.1",
     "mkdirp": "^3.0.1",
