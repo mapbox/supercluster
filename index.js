@@ -203,6 +203,16 @@ export default class Supercluster {
     }
 
     getTile(z, x, y) {
+        return this._getTile(z, x, y, false);
+    }
+
+    // Same tiles as getTile, but with each feature's coords inline (`type: 4`, `x`/`y`) instead of
+    // wrapped in a nested `geometry` array — the shape geojson-vt's getTileRaw produces.
+    getTileRaw(z, x, y) {
+        return this._getTile(z, x, y, true);
+    }
+
+    _getTile(z, x, y, raw) {
         const tree = this.trees[this._limitZoom(z)];
         const z2 = Math.pow(2, z);
         const {extent, radius} = this.options;
@@ -214,17 +224,17 @@ export default class Supercluster {
 
         this._addTileFeatures(
             tree.range(encode((x - p) / z2), top, encode((x + 1 + p) / z2), bottom),
-            tree.data, x, y, z2, tile);
+            tree.data, x, y, z2, tile, raw);
 
         if (x === 0) {
             this._addTileFeatures(
                 tree.range(encode(1 - p / z2), top, encode(1), bottom),
-                tree.data, z2, y, z2, tile);
+                tree.data, z2, y, z2, tile, raw);
         }
         if (x === z2 - 1) {
             this._addTileFeatures(
                 tree.range(encode(0), top, encode(p / z2), bottom),
-                tree.data, -1, y, z2, tile);
+                tree.data, -1, y, z2, tile, raw);
         }
 
         return tile.features.length ? tile : null;
@@ -278,7 +288,7 @@ export default class Supercluster {
         return tree;
     }
 
-    _addTileFeatures(ids, data, x, y, z2, tile) {
+    _addTileFeatures(ids, data, x, y, z2, tile, raw) {
         for (const i of ids) {
             const k = i * this.stride;
             const isCluster = data[k + OFFSET_NUM] > 1;
@@ -295,14 +305,9 @@ export default class Supercluster {
                 py = this.coords[2 * origIndex + 1];
             }
 
-            const f = {
-                type: 1,
-                geometry: [[
-                    Math.round(this.options.extent * (px * z2 - x)),
-                    Math.round(this.options.extent * (py * z2 - y))
-                ]],
-                tags
-            };
+            const tx = Math.round(this.options.extent * (px * z2 - x));
+            const ty = Math.round(this.options.extent * (py * z2 - y));
+            const f = raw ? {type: 4, x: tx, y: ty, tags} : {type: 1, geometry: [[tx, ty]], tags};
 
             // assign id: cluster id, generated point id, or original input id
             const origIndex = data[k + OFFSET_ID];

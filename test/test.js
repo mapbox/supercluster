@@ -171,6 +171,31 @@ test('makes sure unclustered point coords are not rounded', () => {
     ]);
 
     assert.deepEqual(index.getTile(20, 1028744, 656754).features[0].geometry[0], [421, 281]);
+
+    const raw = index.getTileRaw(20, 1028744, 656754).features[0];
+    assert.equal(raw.type, 4);
+    assert.equal(raw.x, 421);
+    assert.equal(raw.y, 281);
+});
+
+test('getTileRaw agrees with getTile feature for feature', () => {
+    const index = new Supercluster().load(places.features);
+
+    for (const [z, x, y] of [[0, 0, 0], [1, 0, 0], [2, 3, 1], [5, 0, 12], [5, 31, 12]]) {
+        const tile = index.getTile(z, x, y);
+        const rawTile = index.getTileRaw(z, x, y);
+        assert.equal(tile === null, rawTile === null, `nullability differs at ${z}/${x}/${y}`);
+        if (!tile) continue;
+
+        assert.equal(rawTile.features.length, tile.features.length);
+        for (let i = 0; i < tile.features.length; i++) {
+            const f = tile.features[i], raw = rawTile.features[i];
+            assert.equal(raw.type, 4);
+            assert.deepEqual([raw.x, raw.y], f.geometry[0]);
+            assert.deepEqual(raw.tags, f.tags);
+            assert.equal(raw.id, f.id);
+        }
+    }
 });
 
 test('preserves single-point tile coords at GL JS params (extent 8192, z18)', () => {

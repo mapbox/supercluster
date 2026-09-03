@@ -45,7 +45,13 @@ For the given `bbox` array (`[westLng, southLat, eastLng, northLat]`) and intege
 
 #### `getTile(z, x, y)`
 
-For a given zoom and x/y coordinates, returns a [geojson-vt](https://github.com/mapbox/geojson-vt)-compatible JSON tile object with cluster/point features.
+For a given zoom and x/y coordinates, returns a [geojson-vt](https://github.com/mapbox/geojson-vt)-compatible JSON tile object with cluster/point features, or `null` where there's no data.
+
+#### `getTileRaw(z, x, y)`
+
+The same tile, but with each feature flat &mdash; `{type: 4, x, y, tags}`, coords inline instead of
+wrapped in a nested `geometry` array. Every clustered feature is a single point, so this is exactly
+geojson-vt's `getTileRaw` shape narrowed to its lone-point (`type: 4`) variant.
 
 #### `getChildren(clusterId)`
 
