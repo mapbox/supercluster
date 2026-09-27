@@ -159,7 +159,13 @@ export default class Supercluster {
         }
 
         const tree = this.trees[this._limitZoom(zoom)];
-        const ids = tree.range(encode(lngX(minLng)), encode(latY(maxLat)), encode(lngX(maxLng)), encode(latY(minLat)));
+        // Stored coords are Int32 truncations of encode(). Truncate the query the same way
+        // so a point that lies on the bbox edge is not pushed just outside.
+        const ids = tree.range(
+            Math.trunc(encode(lngX(minLng))),
+            Math.trunc(encode(latY(maxLat))),
+            Math.trunc(encode(lngX(maxLng))),
+            Math.trunc(encode(latY(minLat))));
         const data = tree.data;
         const clusters = [];
         for (const id of ids) clusters.push(this._featureJSON(data, this.stride * id));
