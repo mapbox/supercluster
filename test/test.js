@@ -253,3 +253,17 @@ test('does not throw on zero items', () => {
         assert.deepEqual(index.getClusters([-180, -85, 180, 85], 0), []);
     });
 });
+
+test('includes a point that lies on the bbox edge', () => {
+    const sw = [-123.245515, 43.9150233333333];
+    const ne = [-123.192528333333, 44.0307166666667];
+    const features = [
+        {type: 'Feature', properties: {id: 'sw'}, geometry: {type: 'Point', coordinates: sw}},
+        {type: 'Feature', properties: {id: 'ne'}, geometry: {type: 'Point', coordinates: ne}},
+        {type: 'Feature', properties: {id: 'in'}, geometry: {type: 'Point', coordinates: [-123.211605, 43.972615]}},
+        {type: 'Feature', properties: {id: 'out'}, geometry: {type: 'Point', coordinates: [-124, 43]}}
+    ];
+    const index = new Supercluster({radius: 0}).load(features);
+    const ids = index.getClusters([sw[0], sw[1], ne[0], ne[1]], 16).map(f => f.properties.id).sort();
+    assert.deepEqual(ids, ['in', 'ne', 'sw']);
+});
